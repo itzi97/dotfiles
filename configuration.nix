@@ -20,11 +20,12 @@
       # (the devices list is not used by the EFI grub install,
       # but must be set to some value in order to pass an assert in grub.nix)
       devices = [ "nodev" ];
-      efiSupport = true;
+      #efiSupport = true;
       enable = true;
       # Use OSProber
       useOSProber = true;
       version = 2;
+      # set $FS_UUID to the UUID of the EFI partition
     };
   };
   
@@ -73,6 +74,7 @@
     vivaldi
 
     # Chatting
+    #betterdiscordctl
     discord
     discord-rpc
 
@@ -86,11 +88,20 @@
     zsh
 
     # Gnome
+    chrome-gnome-shell
     gnome3.evolution
     gnome3.gnome-boxes
     gnome3.gnome-tweaks
     gnome3.gnome-shell-extensions
     gnome3.gnome-software
+    gnomeExtensions.appindicator
+    gnomeExtensions.arc-menu
+    gnomeExtensions.caffeine
+    gnomeExtensions.dash-to-dock
+    gnomeExtensions.dash-to-panel
+    gnomeExtensions.sound-output-device-chooser
+    gnomeExtensions.topicons-plus
+    gnomeExtensions.system-monitor
 
     # Languages
 
@@ -121,6 +132,10 @@
     # Ruby
     ruby
 
+    # Python
+    pythonFull
+    python27Full
+
     # Formatters
     astyle
 
@@ -129,6 +144,7 @@
     feh
     lxappearance
     nitrogen
+    rofi
     picom
     polybar
 
@@ -142,10 +158,14 @@
     papirus-icon-theme
 
     # Utilities
+    cmake
+    ctags
     curl
     git 
+    gnumake
     grsync
     htop
+    lsd
     neofetch
     nerdfonts
     wget
@@ -190,15 +210,14 @@
   hardware.pulseaudio.enable = true;
 
   # Enable the X11 windowing 
-  services.xserver.enable = true; 
-  services.xserver.layout = "es"; 
-  services.xserver.xkbOptions = "eurosign:e";
-
-  # Enable touchpad support. 
-  services.xserver.libinput.enable = true;
-
-  # Enable the KDE Desktop Environment. 
   services.xserver = {
+    enable = true; 
+    layout = "es"; 
+    xkbOptions = "eurosign:e";
+    # Enable touchpad support. 
+    libinput.enable = true;
+
+    # Enable the KDE Desktop Environment. 
     displayManager.lightdm.enable = true; 
     desktopManager.gnome3.enable = true;
     windowManager.i3 = {
@@ -211,6 +230,7 @@
         i3blocks #if you are planning on using i3blocks over i3status
      ];
     };
+
     windowManager.xmonad = {
       enable = true;
       enableContribAndExtras = true;
