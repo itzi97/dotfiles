@@ -1,0 +1,31 @@
+Loaded package environment from /home/itziar/.ghc/x86_64-linux-8.4.4/environments/default
+
+xmonad.hs:249:15: warning: [-Wdeprecations]
+    In the use of ‘spacing’ (imported from XMonad.Layout.Spacing):
+    Deprecated: "Use spacingRaw instead."
+    |
+249 |     tiled   = spacing 20 $ Tall nmaster delta ratio
+    |               ^^^^^^^
+
+xmonad.hs:366:39: warning: [-Wdeprecations]
+    In the use of ‘defaultPP’ (imported from XMonad.Hooks.DynamicLog):
+    Deprecated: "Use def (from Data.Default, and re-exported by XMonad.Hooks.DynamicLog) instead."
+    |
+366 |         { logHook = myLogHookWithPP $ defaultPP
+    |                                       ^^^^^^^^^
+
+xmonad.hs:378:12: warning: [-Wdeprecations]
+    In the use of ‘defaultConfig’
+    (imported from XMonad, but defined in XMonad.Config):
+    Deprecated: "Use def (from Data.Default, and re-exported by XMonad and XMonad.Config) instead."
+    |
+378 | defaults = defaultConfig {
+    |            ^^^^^^^^^^^^^
+
+xmonad.hs:397:45: warning: [-Wdeprecations]
+    In the use of ‘defaultConfig’
+    (imported from XMonad, but defined in XMonad.Config):
+    Deprecated: "Use def (from Data.Default, and re-exported by XMonad and XMonad.Config) instead."
+    |
+397 |                              <+> manageHook defaultConfig,
+    |                                             ^^^^^^^^^^^^^
