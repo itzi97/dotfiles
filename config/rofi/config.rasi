@@ -1,0 +1,5 @@
+configuration {
+        font: "VictorMono Nerd Font 10";
+        dpi: 192;
+}
+@import "/usr/share/rofi/themes/fancy.rasi"
