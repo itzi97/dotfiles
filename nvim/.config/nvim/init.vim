@@ -21,8 +21,6 @@
 
 " Before loading plugins
 "let g:ale_disable_lsp = 0
-" You should not turn this setting on if you wish to use ALE as a completion
-" source for other completion plugins, like Deoplete.
 let g:ale_completion_enabled = 0
 let g:polyglot_disabled = ['pandoc', 'markdown', 'tex']
 
@@ -31,7 +29,6 @@ call plug#begin(stdpath('data').'/plugged')
 " {{{ Fixing, Linting & Completion
 Plug 'dense-analysis/ale'
 Plug 'tpope/vim-surround'
-Plug 'ludovicchabant/vim-gutentags'
 
 " Lsp
 Plug 'neovim/nvim-lsp'
@@ -90,7 +87,8 @@ Plug 'jackguo380/vim-lsp-cxx-highlight'
 Plug 'neovimhaskell/haskell-vim' " Haskell support should ship with vim
 " Go
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
-Plug 'stamblerre/gocode', { 'rtp': 'nvim', 'do': '~/.config/nvim/plugged/gocode/nvim/symlink.sh' }
+Plug 'stamblerre/gocode', {
+  \ 'rtp': 'nvim', 'do': '~/.config/nvim/plugged/gocode/nvim/symlink.sh' }
 "Plug 'deoplete-plugins/deoplete-go', { 'do': 'make'}
 " JavaScript
 Plug 'pangloss/vim-javascript'
@@ -137,9 +135,6 @@ Plug 'kyazdani42/nvim-web-devicons' " for file icons
 Plug 'kyazdani42/nvim-tree.lua'
 " Menu
 Plug 'mhinz/vim-startify'
-" NERDtree
-"Plug 'preservim/nerdtree'
-"Plug 'Xuyuanp/nerdtree-git-plugin'
 " Airline
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
@@ -271,6 +266,8 @@ let g:indentLine_char = '¦'
 let g:indentLine_first_char = '¦'
 let g:indentLine_showFirstIndentLevel = 1
 let g:indentLine_setColors = 1
+let g:indentLine_fileTypeExclude = [ 'LuaTree', 'startify', 'tex' ]
+let g:indentLine_bufTypeExclude = ['help', 'terminal']
 
 
 " Replace tabs
@@ -281,9 +278,6 @@ set list listchars=tab:»\ ,trail:·,eol:↵,nbsp:⍽
 set background=dark
 colorscheme molokai
 let g:airline_theme = 'molokai'
-
-" Attaches to every FileType mode
-lua require'colorizer'.setup()
 
 "  }}} ------------------------------------------------------------------------
 "  {{{ AIRLINE ----------------------------------------------------------------
@@ -373,37 +367,16 @@ let g:R_pdfviewer = 'evince'
 "  {{{ LUA TREE
 "  ----------------------------------------------------------------------------
 let g:lua_tree_width = 30 " 30 by default
+let g:lua_tree_width = 30
 let g:lua_tree_auto_close = 1 " Closes the tree when it's the last window
 let g:lua_tree_follow = 1 " Cursor updated when following a buffer.
 let g:lua_tree_indent_markers = 1
+let g:lua_tree_git_hl = 1
 let g:lua_tree_root_folder_modifier = ':~'
 let g:lua_tree_show_icons = {
   \ 'git': 1,
   \ 'folders': 1,
   \ 'files': 1,
-  \}
-
-" You can edit keybindings be defining this variable
-" You don't have to define all keys.
-" NOTE: the 'edit' key will wrap/unwrap a folder and open a file
-let g:lua_tree_bindings = {
-  \ 'edit':            ['<CR>', 'o'],
-  \ 'edit_vsplit':     '<C-v>',
-  \ 'edit_split':      '<C-x>',
-  \ 'edit_tab':        '<C-t>',
-  \ 'toggle_ignored':  'I',
-  \ 'toggle_dotfiles': 'H',
-  \ 'refresh':         'R',
-  \ 'preview':         '<Tab>',
-  \ 'cd':              '<C-]>',
-  \ 'create':          'a',
-  \ 'remove':          'd',
-  \ 'rename':          'r',
-  \ 'cut':             'x',
-  \ 'copy':            'c',
-  \ 'paste':           'p',
-  \ 'prev_git_item':   '[c',
-  \ 'next_git_item':   ']c',
   \}
 
 let g:lua_tree_icons = {
@@ -417,14 +390,19 @@ let g:lua_tree_icons = {
   \   'untracked': '★'
   \   },
   \ 'folder': {
-  \   'default': '',
-  \   'open': ''
+  \   'default': '',
+  \   'open': ''
   \   }
   \ }
 
 nnoremap <C-n> :LuaTreeToggle<CR>
 nnoremap <leader>r :LuaTreeRefresh<CR>
 nnoremap <leader>n :LuaTreeFindFile<CR>
+
+augroup LuaTreeOverrides
+  autocmd!
+  autocmd FileType LuaTree setlocal nowrap
+augroup end
 
 "  }}} ------------------------------------------------------------------------
 "  {{{ ALE, NVIM-LSP

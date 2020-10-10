@@ -26,128 +26,146 @@
 let g:ale_completion_enabled = 0
 let g:polyglot_disabled = ['pandoc', 'markdown', 'tex']
 
-call plug#begin(stdpath('data').'/plugged')
+function! PackagerInit() abort
+  packadd vim-packager
+  call packager#init()
+  call packager#add('kristijanhusak/vim-packager', { 'type': 'opt' })
 
-" {{{ Fixing, Linting & Completion
-Plug 'dense-analysis/ale'
-Plug 'tpope/vim-surround'
-Plug 'ludovicchabant/vim-gutentags'
+  " {{{ Fixing, Linting & Completion
+  call packager#add('dense-analysis/ale')
+  call packager#add('tpope/vim-surround')
+  call packager#add('ludovicchabant/vim-gutentags')
 
-" Lsp
-Plug 'neovim/nvim-lsp'
-Plug 'neovim/nvim-lspconfig'
-Plug 'nvim-lua/lsp_extensions.nvim'
-Plug 'nvim-lua/diagnostic-nvim'
+  " Lsp
+  call packager#add('neovim/nvim-lsp')
+  call packager#add('neovim/nvim-lspconfig')
+  call packager#add('nvim-lua/lsp_extensions.nvim')
+  call packager#add('nvim-lua/diagnostic-nvim')
 
-" Lsp completion TODO not working :( with vimtex
-"Plug 'nvim-lua/completion-nvim'
-"Plug 'steelsojka/completion-buffers'
-"Plug 'aca/completion-tabnine', { 'do': './install.sh' }
-"Plug 'kristijanhusak/completion-tags'
+  " Lsp completion TODO not working :( with vimtex
+  "call packager#add('nvim-lua/completion-nvim'
+  "call packager#add('steelsojka/completion-buffers'
+  "call packager#add('aca/completion-tabnine', { 'do': './install.sh' }
+  "call packager#add('kristijanhusak/completion-tags'
 
-" Deoplete
-Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-Plug 'Shougo/deoplete-lsp'
-Plug 'Shougo/neco-syntax'
-let g:deoplete#enable_at_startup = 1
+  " Deoplete
+  call packager#add('Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' })
+  call packager#add('Shougo/deoplete-lsp')
+  call packager#add('Shougo/neco-syntax')
+  let g:deoplete#enable_at_startup = 1
 
-" Snippets
-"Plug 'Shougo/neosnippet.vim'
-"Plug 'Shougo/neosnippet-snippets'
-"Plug 'honza/vim-snippets'
+  " Snippets
+  "call packager#add('Shougo/neosnippet.vim'
+  "call packager#add('Shougo/neosnippet-snippets'
+  "call packager#add('honza/vim-snippets'
 
-" Fixing
-Plug 'sbdchd/neoformat'
-" }}}
+  " Fixing
+  call packager#add('sbdchd/neoformat')
+  " }}}
 
-" {{{ Misc
-" Discord Support
-Plug 'aurieh/discord.nvim', { 'do': ':UpdateRemotePlugins'}
-" Git Git Git!
-Plug 'tpope/vim-fugitive'
-Plug 'airblade/vim-gitgutter'
-" Quotes, delimiters, etc.
-Plug 'tpope/vim-surround'
-" Comments
-Plug 'preservim/nerdcommenter'
-" Wiki
-"Plug 'vimwiki/vimwiki'
-" Open file in last place it was edited
-Plug 'farmergreg/vim-lastplace'
-" Colorizer
-Plug 'norcalli/nvim-colorizer.lua'
-" Treesitter
-Plug 'nvim-treesitter/nvim-treesitter'
-Plug 'nvim-treesitter/completion-treesitter'
-" }}}
+  " {{{ Misc
+  " Discord Support
+  call packager#add('aurieh/discord.nvim', { 'do': ':UpdateRemotePlugins'})
+  " Git Git Git!
+  call packager#add('tpope/vim-fugitive')
+  call packager#add('airblade/vim-gitgutter')
+  " Quotes, delimiters, etc.
+  call packager#add('tpope/vim-surround')
+  " Comments
+  call packager#add('preservim/nerdcommenter')
+  " Wiki
+  "call packager#add('vimwiki/vimwiki'
+  " Open file in last place it was edited
+  call packager#add('farmergreg/vim-lastplace')
+  " Colorizer
+  call packager#add('norcalli/nvim-colorizer.lua')
+  " Treesitter
+  call packager#add('nvim-treesitter/nvim-treesitter')
+  call packager#add('nvim-treesitter/completion-treesitter')
+  " }}}
 
-" {{{ Language Support
-Plug 'sheerun/vim-polyglot'
-" C/C++
-"Plug 'Shougo/deoplete-clangx'
-Plug 'jackguo380/vim-lsp-cxx-highlight'
-" Haskell
-Plug 'neovimhaskell/haskell-vim' " Haskell support should ship with vim
-" Go
-Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
-Plug 'stamblerre/gocode', { 'rtp': 'nvim', 'do': '~/.config/nvim/plugged/gocode/nvim/symlink.sh' }
-"Plug 'deoplete-plugins/deoplete-go', { 'do': 'make'}
-" JavaScript
-Plug 'pangloss/vim-javascript'
-Plug 'maxmellon/vim-jsx-pretty'
-"Plug 'carlitux/deoplete-ternjs'
-Plug 'neovim/node-host', { 'do': 'npm install' }
-Plug 'billyvg/tigris.nvim', { 'do': './install.sh' }
-" LaTeX
-Plug 'lervag/vimtex'
-" JSON
-Plug 'elzr/vim-json'
-" Julia
-Plug 'JuliaEditorSupport/julia-vim'
-" Markdown
-Plug 'vim-pandoc/vim-pandoc'
-Plug 'vim-pandoc/vim-pandoc-syntax'
-Plug 'vim-pandoc/vim-rmarkdown'
-" Nix
-Plug 'LnL7/vim-nix'
-" R
-Plug 'jalvesaq/Nvim-R', {'branch': 'stable'}
-" Rust
-Plug 'rust-lang/rust.vim'
-"Plug 'sebastianmarkow/deoplete-rust'
-" Python
-"Plug 'deoplete-plugins/deoplete-jedi'
-Plug 'numirias/semshi', {'do': ':UpdateRemotePlugins'}
-" }}}
+  " {{{ Language Support
+  call packager#add('sheerun/vim-polyglot')
+  " C/C++
+  "call packager#add('Shougo/deoplete-clangx'
+  call packager#add('jackguo380/vim-lsp-cxx-highlight', { 'type': 'opt'} )
+  " Haskell
+  call packager#add('neovimhaskell/haskell-vim', { 'type': 'opt'}) " Haskell support should ship with vim
+  " Go
+  call packager#add('fatih/vim-go', { 'do': ':GoInstallBinaries','type': 'opt'})
+  call packager#add('stamblerre/gocode', { 'rtp': 'nvim', 'type': 'opt'})
+  "call packager#add('deoplete-plugins/deoplete-go', { 'do': 'make'}
+  " JavaScript
+  call packager#add('pangloss/vim-javascript', { 'type': 'opt' })
+  call packager#add('maxmellon/vim-jsx-pretty', { 'type': 'opt' })
+  "call packager#add('carlitux/deoplete-ternjs'
+  call packager#add('neovim/node-host', { 'do': 'npm install', 'type': 'opt'})
+  call packager#add('billyvg/tigris.nvim', { 'do': './install.sh', 'type': 'opt'})
+  " LaTeX
+  call packager#add('lervag/vimtex', {'type': 'opt'})
+  " JSON
+  call packager#add('elzr/vim-json')
+  " Julia
+  call packager#add('JuliaEditorSupport/julia-vim')
+  " Markdown
+  call packager#add('vim-pandoc/vim-pandoc')
+  call packager#add('vim-pandoc/vim-pandoc-syntax')
+  call packager#add('vim-pandoc/vim-rmarkdown')
+  " Nix
+  call packager#add('LnL7/vim-nix')
+  " R
+  call packager#add('jalvesaq/Nvim-R', {'branch': 'stable'})
+  " Rust
+  call packager#add('rust-lang/rust.vim')
+  "call packager#add('sebastianmarkow/deoplete-rust'
+  " Python
+  "call packager#add('deoplete-plugins/deoplete-jedi'
+  call packager#add('numirias/semshi', {'do': ':UpdateRemotePlugins'})
+  " }}}
 
-" {{{ Styling
-" Color Themes
-Plug 'ayu-theme/ayu-vim'
-Plug 'morhetz/gruvbox'
-Plug 'rakr/vim-one'
-Plug 'NLKNguyen/papercolor-theme'
-Plug 'tomasr/molokai'
-" Indent Line
-Plug 'Yggdroot/indentLine'
-" }}}
+  " {{{ Styling
+  " Color Themes
+  call packager#add('ayu-theme/ayu-vim')
+  call packager#add('morhetz/gruvbox')
+  call packager#add('rakr/vim-one')
+  call packager#add('NLKNguyen/papercolor-theme')
+  call packager#add('tomasr/molokai')
+  " Indent Line
+  call packager#add('Yggdroot/indentLine')
+  " }}}
 
-" {{{ Visuals and Menus
-" Tree
-Plug 'kyazdani42/nvim-web-devicons' " for file icons
-Plug 'kyazdani42/nvim-tree.lua'
-" Menu
-Plug 'mhinz/vim-startify'
-" NERDtree
-"Plug 'preservim/nerdtree'
-"Plug 'Xuyuanp/nerdtree-git-plugin'
-" Airline
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-Plug 'edkolev/tmuxline.vim'
-Plug 'ryanoasis/vim-devicons'
-" }}}
+  " {{{ Visuals and Menus
+  " Tree
+  call packager#add('kyazdani42/nvim-web-devicons') " for file icons
+  call packager#add('kyazdani42/nvim-tree.lua')
+  " Menu
+  call packager#add('mhinz/vim-startify')
+  " NERDtree
+  "call packager#add('preservim/nerdtree'
+  "call packager#add('Xuyuanp/nerdtree-git-plugin'
+  " Airline
+  call packager#add('vim-airline/vim-airline')
+  call packager#add('vim-airline/vim-airline-themes')
+  call packager#add('edkolev/tmuxline.vim')
+  call packager#add('ryanoasis/vim-devicons')
+  " }}}
 
-call plug#end()
+endfunction
+
+command! PackagerInstall call PackagerInit() | call packager#install()
+command! -bang PackagerUpdate call PackagerInit() |
+  \ call packager#update({ 'force_hooks': '<bang>' })
+command! PackagerClean call PackagerInit() | call packager#clean()
+command! PackagerStatus call PackagerInit() | call packager#status()
+
+" Load plugins only for specific filetype
+" Note that this should not be done for plugins that handle their loading using
+" ftplugin file.
+" More info in :help pack-add
+augroup packager_filetype
+  autocmd!
+  autocmd FileType tex packadd vimtex
+augroup end
 
 syntax on
 filetype plugin indent on
@@ -281,9 +299,6 @@ set list listchars=tab:»\ ,trail:·,eol:↵,nbsp:⍽
 set background=dark
 colorscheme molokai
 let g:airline_theme = 'molokai'
-
-" Attaches to every FileType mode
-lua require'colorizer'.setup()
 
 "  }}} ------------------------------------------------------------------------
 "  {{{ AIRLINE ----------------------------------------------------------------
@@ -506,11 +521,11 @@ let g:ale_linters = {
 inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
-" Set completeopt to have a better completion experience
-set completeopt=menuone,noinsert,noselect
-
 " Include lua/init.lua (includes lsp configurationns).
 lua require'init'
+
+" Set completeopt to have a better completion experience
+set completeopt=menuone,noinsert,noselect
 
 " Trigger characters.
 augroup CompletionTriggerCharacter

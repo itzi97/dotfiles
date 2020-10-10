@@ -1,3 +1,7 @@
+-- Load Lua plugins.
+-- vim.cmd("packadd nvim-lsp")
+-- vim.cmd("packadd nvim-lspconfig")
+-- vim.cmd("packadd diagnostic-nvim")
 -- Configure language servers in Lua.
 local nvim_lsp = require("nvim_lsp")
 local on_attach_vim = function(client)
@@ -87,7 +91,13 @@ nvim_lsp.sqlls.setup {on_attach = on_attach_vim}
 nvim_lsp.vimls.setup {on_attach = on_attach_vim}
 
 -- Treesitter
+-- vim.cmd("packadd nvim-treesitter")
+-- vim.cmd("packadd completion-treesitter")
 require("nvim-treesitter.configs").setup {
   ensure_installed = "all",
   highlight = {enable = true}
 }
+
+-- Attaches to every FileType mode
+-- vim.cmd("packadd nvim-colorizer.lua")
+require("colorizer").setup()
