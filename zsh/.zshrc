@@ -122,5 +122,13 @@ alias btop=bpytop
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+HOSTNAME=$(hostname)
+
+if [[ "${HOSTNAME}" = "itzi-yoga-ubuntu" ]]; then
+  source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+  source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+elif [[ "${HOSTNAME}" = "itzi-home-manjaro" ]]; then
+  if [[ -e /usr/share/zsh/manjaro-zsh-config ]]; then
+    source /usr/share/zsh/manjaro-zsh-prompt
+  fi
+fi

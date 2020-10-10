@@ -1,16 +1,21 @@
-# Unlock gnome-keyring if not a desktop environment
-if [[ "${DESKTOP_SESSION}" != "gnome" &&
-      "${DESKTOP_SESSION}" != "cinnamon" ]];then
-    eval $(gnome-keyring-daemon --start)
-    export SSH_AUTH_SOCK
+# Check for hostname to apply hidpi settings
+if [[ "$(hostname)" = "itzi-yoga-ubuntu" ||
+      "$(hostname)" = "itzi-yoga-nixos" ]]; then
 
-    # Set gnome as desktop environment
-    export DE="gnome"
+    # Unlock gnome-keyring if not a desktop environment
+    if [[ "${DESKTOP_SESSION}" != "gnome" &&
+          "${DESKTOP_SESSION}" != "cinnamon" ]];then
+        eval $(gnome-keyring-daemon --start)
+        export SSH_AUTH_SOCK
 
-    # HighDPI Settings
-    export QT_AUTO_SCREEN_SCALE_FACTOR=1
-    export GDK_SCALE=2
-    export GDK_DPI_SCALE=0.5
+        # Set gnome as desktop environment
+        export DE="gnome"
+
+        # HighDPI Settings
+        export QT_AUTO_SCREEN_SCALE_FACTOR=1
+        export GDK_SCALE=2
+        export GDK_DPI_SCALE=0.5
+    fi
 fi
 
 
@@ -39,10 +44,8 @@ export PATH="${PATH}:${GOPATH}/bin"
 export JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
 
 # R
-export R_ENVIRON_USER="${HOME}/.config/r/.Renviron"
+export R_ENVIRON_USER="${HOME}/.config/R/.Renviron"
 
-#export PATH="${HOME}/.anaconda3/bin:${PATH}"
-#
 # Flatpak
 export PATH="/var/lib/flatpak/exports/bin:${PATH}"
 
