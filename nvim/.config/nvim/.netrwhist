@@ -1,0 +1,5 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =3
+let g:netrw_dirhist_3='/home/itziar/Documents/Matemáticas/Cálculo/01-Conjuntos-Numéricos/assets/tex'
+let g:netrw_dirhist_2='/home/itziar/.scripts/polybar'
+let g:netrw_dirhist_1='/home/itziar/.scripts/Dunst'
