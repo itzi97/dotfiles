@@ -1,0 +1,4 @@
+# vim: set syntax=sh:
+R_HOME_USER = "${HOME}/.local/share/R/"
+R_PROFILE_USER = "${HOME}/.config/R/.Rprofile"
+R_LIBS_USER = "${HOME}/.local/share/R/library/"
