@@ -129,6 +129,6 @@ if [[ "${HOSTNAME}" = "itzi-yoga-ubuntu" ]]; then
   source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 elif [[ "${HOSTNAME}" = "itzi-home-manjaro" ]]; then
   if [[ -e /usr/share/zsh/manjaro-zsh-config ]]; then
-    source /usr/share/zsh/manjaro-zsh-prompt
+    source /usr/share/zsh/manjaro-zsh-config
   fi
 fi
