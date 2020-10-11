@@ -132,3 +132,4 @@ elif [[ "${HOSTNAME}" = "itzi-home-manjaro" ]]; then
     source /usr/share/zsh/manjaro-zsh-config
   fi
 fi
+

@@ -36,7 +36,6 @@ let g:PaperColor_Theme_Options = {
 " Molokai
 let g:rehash256 = 1
 
-
 " Set color schemes
 set background=dark
 colorscheme gruvbox

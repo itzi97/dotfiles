@@ -1,5 +1,4 @@
 local packer = nil
-
 local function init()
   if packer == nil then
     packer = require("packer")
@@ -14,21 +13,38 @@ local function init()
 
   -- {{{ Fixing, Linting & Completion
   use {"dense-analysis/ale"}
-  use {"tpope/vim-surround"}
 
   -- Completion and linting
   use {
     "neovim/nvim-lsp",
     "neovim/nvim-lspconfig",
     {
-      {"nvim-lua/completion-nvim", require = {"hrsh7th/vim-vsnip", "hrsh7th/vim-vsnip-integ"}},
+      {
+        "nvim-lua/completion-nvim",
+        config = function()
+          local completion = require("completion")
+          completion.addCompletionSource("vimtex", require("vimtex").complete_item)
+
+          vim.cmd [[ augroup lsp_aucmds ]]
+          vim.cmd [[ autocmd BufEnter * lua require('completion').on_attach() ]]
+          vim.cmd [[ augroup END ]]
+
+          completion.on_attach()
+          vim.cmd [[ doautoall FileType ]]
+        end,
+        require = {"hrsh7th/vim-vsnip", "hrsh7th/vim-vsnip-integ"}
+      },
       "nvim-lua/lsp_extensions.nvim",
-      "nvim-lua/diagnostic-nvim"
+      "nvim-lua/diagnostic-nvim",
+      {"nvim-treesitter/completion-treesitter", opt = true},
+      {
+        "nvim-treesitter/nvim-treesitter",
+        config = function()
+          require("treesitter")
+        end
+      }
     }
   }
-
-  -- Treesitter
-  use {"nvim-treesitter/nvim-treesitter", {"nvim-treesitter/completion-treesitter"}}
 
   -- TODO: Only use this when lsp doesn't offer formatting.
   use "sbdchd/neoformat"
@@ -55,6 +71,7 @@ local function init()
 
   -- Colorizer
   use {"norcalli/nvim-colorizer.lua", as = "nvim-colorizer"}
+  -- use {"rrethy/vim-hexokinase", run = "make hexokinase"}
 
   -- Rainbow Brackets
   use "luochen1990/rainbow"

@@ -1,16 +1,48 @@
+let g:completion_confirm_key = ''
+let g:completion_max_items = 30
+let g:completion_trigger_on_delete = 1
+let g:completion_enable_snippet = 'vim-vsnip'
+imap <expr> <Tab> pumvisible() ? "\<c-n>" : (vsnip#available(1) ? '<Plug>(vsnip-expand)' : "\<Tab>")
+imap <expr> <C-j> vsnip#available(1) ? '<Plug>(vsnip-jump-next)' : "\<C-j>"
+smap <expr> <C-j> vsnip#available(1) ? '<Plug>(vsnip-jump-next)' : "\<C-j>"
+imap <expr> <C-k> vsnip#available(-1) ? '<Plug>(vsnip-jump-prev)' : "\<C-k>"
+smap <expr> <C-k> vsnip#available(-1) ? '<Plug>(vsnip-jump-prev)' : "\<C-k>"
+
+set completeopt=menuone,noinsert,noselect
+set shortmess+=c
+
 " Source the lua part
 execute 'luafile' . stdpath('config') . '/lua/lsp.lua'
 
-" Define keymaps
-nnoremap <silent> <c-]> <cmd>lua vim.lsp.buf.definition()<CR>
-nnoremap <silent> K     <cmd>lua vim.lsp.buf.hover()<CR>
-nnoremap <silent> gD    <cmd>lua vim.lsp.buf.implementation()<CR>
-nnoremap <silent> <c-k> <cmd>lua vim.lsp.buf.signature_help()<CR>
-nnoremap <silent> 1gD   <cmd>lua vim.lsp.buf.type_definition()<CR>
-nnoremap <silent> gr    <cmd>lua vim.lsp.buf.references()<CR>
-nnoremap <silent> g0    <cmd>lua vim.lsp.buf.document_symbol()<CR>
-nnoremap <silent> gW    <cmd>lua vim.lsp.buf.workspace_symbol()<CR>
-nnoremap <silent> gd    <cmd>lua vim.lsp.buf.declaration()<CR>
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+inoremap <silent> <Plug>(ComplCREnd) <cr>
+imap <silent><expr> <Plug>ComplCR pumvisible() ? complete_info()['selected'] != -1 ? "\<Plug>(completion_confirm_completion)"  : "\<c-e>\<CR>" :  "\<Plug>(ComplCREnd)"
+imap <silent><cr> <Plug>ComplCR<Plug>CloserClose<Plug>DiscretionaryEnd
+
+
+let g:completion_auto_change_source = 1
+
+let g:completion_chain_complete_list = {
+  \ 'default' : {
+  \   'default': [
+  \       {'complete_items': ['lsp']},
+  \       {'mode': '<c-p>'},
+  \       {'mode': '<c-n>'},
+  \],
+  \   'comment': [],
+  \   'string' : [
+  \       {'complete_items': ['path'], 'triggered_only': ['/']}]
+  \},
+  \ 'tex': {
+  \     'default': [
+  \     { 'complete_items': ['lsp'] },
+  \     { 'complete_items': ['vimtex'] },
+  \     { 'mode': '<c-p>' },
+  \     { 'mode': '<c-n>' },
+  \],
+  \     'comment': [],
+  \     'string' : [ {'complete_items': ['path']} ]
+  \}}
 
 " Airline integration
 let g:airline#extensions#nvimlsp#enabled = 1
@@ -24,12 +56,6 @@ autocmd InsertLeave,BufEnter,BufWinEnter,TabEnter,BufWritePost *
 " Use <Tab> and <S-Tab> to navigate through popup menu
 inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-
-" Set completeopt to have a better completion experience
-set completeopt=menuone,noinsert,noselect
-
-" Avoid showing message extra message when using completion
-set shortmess+=c
 
 " Trigger characters.
 "augroup CompletionTriggerCharacter

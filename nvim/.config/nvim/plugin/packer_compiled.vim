@@ -8,6 +8,12 @@ local plugins = {
     only_setup = false,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/BetterLua.vim"
   },
+  ["completion-treesitter"] = {
+    loaded = false,
+    only_sequence = false,
+    only_setup = false,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/completion-treesitter"
+  },
   ["haskell-vim"] = {
     loaded = false,
     only_sequence = false,
@@ -26,12 +32,6 @@ local plugins = {
     only_setup = false,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/nlua.nvim"
   },
-  ["nvim-luapad"] = {
-    loaded = false,
-    only_sequence = false,
-    only_setup = false,
-    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/nvim-luapad"
-  },
   ["packer.nvim"] = {
     loaded = false,
     only_sequence = false,
@@ -43,6 +43,13 @@ local plugins = {
     only_sequence = false,
     only_setup = false,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/rust.vim"
+  },
+  ["vim-go"] = {
+    config = { "\27LJ\2\0024\0\0\2\0\3\0\0056\0\0\0009\0\1\0'\1\2\0B\0\2\1K\0\1\0\21GoUpdateBinaries\bcmd\bvim\0" },
+    loaded = false,
+    only_sequence = false,
+    only_setup = false,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/vim-go"
   },
   ["vim-lsp-cxx-highlight"] = {
     loaded = false,
@@ -192,6 +199,10 @@ end
 
 -- Pre-load configuration
 -- Post-load configuration
+-- Config for: completion-nvim
+loadstring("\27LJ\2\2¼\2\0\0\5\0\f\0\0296\0\0\0'\1\1\0B\0\2\0029\1\2\0'\2\3\0006\3\0\0'\4\3\0B\3\2\0029\3\4\3B\1\3\0016\1\5\0009\1\6\1'\2\a\0B\1\2\0016\1\5\0009\1\6\1'\2\b\0B\1\2\0016\1\5\0009\1\6\1'\2\t\0B\1\2\0019\1\n\0B\1\1\0016\1\5\0009\1\6\1'\2\v\0B\1\2\1K\0\1\0\25 doautoall FileType \14on_attach\18 augroup END ? autocmd BufEnter * lua require('completion').on_attach() \25 augroup lsp_aucmds \bcmd\bvim\18complete_item\vvimtex\24addCompletionSource\15completion\frequire\0")()
+-- Config for: nvim-treesitter
+loadstring("\27LJ\2\2*\0\0\2\0\2\0\0046\0\0\0'\1\1\0B\0\2\1K\0\1\0\15treesitter\frequire\0")()
 -- Conditional loads
 -- Load plugins in order defined by `after`
 vim._update_package_paths()
@@ -209,15 +220,16 @@ endfunction
 augroup packer_load_aucmds
   au!
   " Filetype lazy-loads
-  au FileType lua ++once call s:load(['BetterLua.vim', 'nlua.nvim', 'nvim-luapad'], { "ft": "lua" })
-  au FileType pandoc ++once call s:load(['vim-pandoc'], { "ft": "pandoc" })
-  au FileType haskell ++once call s:load(['haskell-vim'], { "ft": "haskell" })
-  au FileType c ++once call s:load(['vim-lsp-cxx-highlight'], { "ft": "c" })
-  au FileType rmarkdown ++once call s:load(['vim-pandoc'], { "ft": "rmarkdown" })
-  au FileType markdown ++once call s:load(['vim-pandoc'], { "ft": "markdown" })
-  au FileType julia ++once call s:load(['julia-vim'], { "ft": "julia" })
+  au FileType lua ++once call s:load(['BetterLua.vim', 'nlua.nvim'], { "ft": "lua" })
+  au FileType pandoc ++once call s:load(['vimtex', 'vim-pandoc'], { "ft": "pandoc" })
+  au FileType go ++once call s:load(['vim-go'], { "ft": "go" })
   au FileType nix ++once call s:load(['vim-nix'], { "ft": "nix" })
   au FileType rust ++once call s:load(['rust.vim'], { "ft": "rust" })
+  au FileType rmarkdown ++once call s:load(['vim-pandoc'], { "ft": "rmarkdown" })
+  au FileType markdown ++once call s:load(['vimtex', 'vim-pandoc'], { "ft": "markdown" })
+  au FileType julia ++once call s:load(['julia-vim'], { "ft": "julia" })
+  au FileType haskell ++once call s:load(['haskell-vim'], { "ft": "haskell" })
+  au FileType c ++once call s:load(['vim-lsp-cxx-highlight'], { "ft": "c" })
   au FileType cpp ++once call s:load(['vim-lsp-cxx-highlight'], { "ft": "cpp" })
   au FileType tex ++once call s:load(['vimtex'], { "ft": "tex" })
   " Event lazy-loads

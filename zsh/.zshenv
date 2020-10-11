@@ -51,4 +51,15 @@ export PATH="/var/lib/flatpak/exports/bin:${PATH}"
 
 # Formatter paths
 export UNCRUSTIFY_CONFIG="${HOME}/.config/uncrustify/uncrustify.cfg"
-if [ -e /home/itziar/.nix-profile/etc/profile.d/nix.sh ]; then . /home/itziar/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
+
+# Nix
+if [ -e /home/itziar/.nix-profile/etc/profile.d/nix.sh ];
+    then . /home/itziar/.nix-profile/etc/profile.d/nix.sh;
+fi
+
+# Perl
+export PATH="${HOME}/.local/share/perl5/bin${PATH:+:${PATH}}";
+export PERL5LIB="${HOME}/.local/share/perl5/lib/perl5";
+export PERL_LOCAL_LIB_ROOT="${HOME}/.local/share/perl5";
+export PERL_MB_OPT="--install_base \"${HOME}/.local/share/perl5\"";
+export PERL_MM_OPT="INSTALL_BASE=${HOME}/.local/share/perl5";

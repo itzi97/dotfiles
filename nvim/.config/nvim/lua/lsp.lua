@@ -1,128 +1,225 @@
 -- Load Lua plugins.
 vim.cmd [[packadd nvim-lsp]]
-vim.cmd [[packadd nvim-lspconfig]]
 vim.cmd [[packadd diagnostic-nvim]]
-vim.cmd [[packadd completion-nvim]]
-
-local completion = require("completion")
+local nvim_lsp = require("nvim_lsp")
 local diagnostic = require("diagnostic")
 
-completion.addCompletionSource("vimtex", require("vimtex").complete_item)
-
-local chain_complete_list = {
-  default = {
-    {complete_items = {"lsp", "ts", "snippet"}},
-    {complete_items = {"path"}, triggered_only = {"/"}},
-    {complete_items = {"buffers"}},
-    {mode = "<c-p>"},
-    {mode = "<c-n>"}
-  },
-  string = {{complete_items = {"path"}, triggered_only = {"/"}}},
-  comment = {},
-  tex = {{complete_items = {"vimtex", "lsp"}, triggered_only = {"\\"}}}
+local texlab_search_status = vim.tbl_add_reverse_lookup {
+  Success = 0,
+  Error = 1,
+  Failure = 2,
+  Unconfigured = 3
 }
 
--- Configure completion for all buffers (even if they don't have lsp)
-vim.cmd [[ augroup LspCompletion ]]
-vim.cmd [[ au BufEnter * lua require('completion').on_attach() ]]
-vim.cmd [[ augroup END ]]
-completion.on_attach({
-  sorting = "alphabet",
-  matching_strategy_list = {"exact", "fuzzy"},
-  -- enable_auto_signature = 1,
-  auto_change_source = 1,
-  chain_complete_list = chain_complete_list
-})
-vim.cmd [[ doautoall FileType ]]
+local function make_on_attach(config)
+  return function(client)
+    if config.before then
+      config.before(client)
+    end
 
--- Attatch diagnostics to every language server
-local on_attach_fun = function()
-  diagnostic.on_attach()
+    diagnostic.on_attach()
+    local opts = {noremap = true, silent = true}
+    vim.api.nvim_buf_set_keymap(0, "n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", opts)
+    vim.api.nvim_buf_set_keymap(0, "n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
+    vim.api.nvim_buf_set_keymap(0, "n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
+    vim.api.nvim_buf_set_keymap(0, "n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
+    vim.api.nvim_buf_set_keymap(0, "n", "<c-s>", "<cmd>lua vim.lsp.buf.signature_help()<CR>", opts)
+    vim.api.nvim_buf_set_keymap(0, "n", "gTD", "<cmd>lua vim.lsp.buf.type_definition()<CR>", opts)
+    vim.api.nvim_buf_set_keymap(0, "n", "<leader>rn", "<cmd>lua vim.lsp.buf.rename()<CR>", opts)
+    vim.api.nvim_buf_set_keymap(0, "n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", opts)
+    vim.api.nvim_buf_set_keymap(0, "n", "gA", "<cmd>lua vim.lsp.buf.code_action()<CR>", opts)
+    vim.api.nvim_buf_set_keymap(0, "n", "<leader>e",
+                                "<cmd>lua vim.lsp.util.show_line_diagnostics()<CR>", opts)
+    vim.api.nvim_buf_set_keymap(0, "n", "]e", "<cmd>NextDiagnosticCycle<cr>", opts)
+    vim.api.nvim_buf_set_keymap(0, "n", "[e", "<cmd>PrevDiagnosticCycle<cr>", opts)
+
+    if client.resolved_capabilities.document_formatting then
+      vim.api.nvim_buf_set_keymap(0, "n", "<leader>lf", "<cmd>lua vim.lsp.buf.formatting()<cr>",
+                                  opts)
+    end
+
+    if client.resolved_capabilities.document_highlight then
+      vim.api.nvim_command("augroup lsp_aucmds")
+      vim.api.nvim_command("au CursorHold <buffer> lua vim.lsp.buf.document_highlight()")
+      vim.api.nvim_command("au CursorMoved <buffer> lua vim.lsp.buf.clear_references()")
+      vim.api.nvim_command("augroup END")
+    end
+
+    if config.after then
+      config.after(client)
+    end
+  end
 end
 
--- Configure language servers in Lua.
-local nvim_lsp = require("nvim_lsp")
+local servers = {
 
--- Bash
-nvim_lsp.bashls.setup {filetypes = {"sh", "zsh", "bash"}, on_attach = on_attach_fun}
+  -- Bash
+  bashls = {filetypes = {"sh", "zsh", "bash"}},
 
--- C/C++
-nvim_lsp.ccls.setup {on_attach = on_attach_fun}
-nvim_lsp.clangd.setup {on_attach = on_attach_fun}
+  -- C/C++
+  ccls = {},
+  clangd = {
+    cmd = {
+      "clangd",
+      "--clang-tidy",
+      "--completion-style=bundled",
+      "--header-insertion=iwyu",
+      "--suggest-missing-includes",
+      "--cross-file-rename"
+    },
+    init_options = {
+      clangdFileStatus = true,
+      usePlaceholders = true,
+      completeUnimported = true,
+      semanticHighlighting = true
+    }
+  },
 
--- CMake
-nvim_lsp.cmake.setup {on_attach = on_attach_fun}
+  -- CMake
+  cmake = {},
 
--- Diagnostics
-nvim_lsp.diagnosticls.setup {filetypes = {"sh", "zsh", "md", "plain"}, on_attach = on_attach_fun}
+  -- Diagnostics
+  diagnosticls = {filetypes = {"sh", "zsh", "md", "plain"}},
 
--- CSS
-nvim_lsp.cssls.setup {on_attach = on_attach_fun}
+  -- CSS
+  cssls = {},
 
--- Go
-nvim_lsp.gopls.setup {on_attach = on_attach_fun}
+  -- Go
+  gopls = {},
 
--- Haskell
-nvim_lsp.hls.setup {on_attach = on_attach_fun}
+  -- Haskell
+  ghcide = {},
+  hls = {},
 
--- Html
-nvim_lsp.html.setup {on_attach = on_attach_fun}
+  -- Html
+  html = {},
 
--- Java
-nvim_lsp.jdtls.setup {on_attach = on_attach_fun}
+  -- Java
+  jdtls = {},
 
--- JavaScript
-nvim_lsp.flow.setup {on_attach = on_attach_fun}
-nvim_lsp.tsserver.setup {on_attach = on_attach_fun}
+  -- JavaScript
+  flow = {},
+  tsserver = {},
 
--- Julia
-nvim_lsp.julials.setup {on_attach = on_attach_fun}
+  -- Julia
+  julials = {},
 
--- TODO LaTeX
-nvim_lsp.texlab.setup {
-  settings = {
-    latex = {
-      build = {
-        args = {
-          "-pdf",
-          "lualatex",
-          "-interaction=nonstopmode",
-          "-synctex=1",
-          "-pdflualatex='lualatex --shell-escape --output-format=pdf'"
+  -- TODO LaTeX
+  texlab = {
+    settings = {
+      latex = {
+        build = {
+          args = {
+            "-pdf",
+            "lualatex",
+            "-interaction=nonstopmode",
+            "-synctex=1",
+            "-pdflualatex='lualatex --shell-escape --output-format=pdf'"
+          },
+          executable = "latexmk",
+          onSave = true
         },
-        executable = "latexmk",
-        onSave = true
+        forwardSearch = {executable = "evince", args = ""}
+      }
+    },
+    commands = {
+      TexlabForwardSearch = {
+        function()
+          local pos = vim.api.nvim_win_get_cursor(0)
+          local params = {
+            textDocument = {uri = vim.uri_from_bufnr(0)},
+            position = {line = pos[1] - 1, character = pos[2]}
+          }
+
+          vim.lsp.buf_request(0, "textDocument/forwardSearch", params, function(err, _, result, _)
+            if err then
+              error(tostring(err))
+            end
+            print("Forward search " .. vim.inspect(pos) .. " " .. texlab_search_status[result])
+          end)
+        end,
+        description = "Run synctex forward search"
       }
     }
   },
-  on_attach = on_attach_fun
+
+  -- Lua
+  sumneko_lua = {
+    cmd = {"lua-language-server"},
+    settings = {
+      Lua = {
+        diagnostics = {globals = {"vim"}},
+        completion = {keywordSnippet = "Disable"},
+        runtime = {version = "LuaJIT", path = vim.split(package.path, ";")},
+        workspace = {
+          library = {
+            [vim.fn.expand("$VIMRUNTIME/lua")] = true,
+            [vim.fn.expand("$VIMRUNTIME/lua/vim/lsp")] = true
+          }
+        }
+      }
+    }
+  },
+
+  -- Nix
+  rnix = {},
+
+  -- PHP
+  intelephense = {},
+
+  -- Python
+  pyls = {},
+
+  -- R
+  r_language_server = {},
+
+  -- Rust
+  rls = {},
+  rust_analyzer = {},
+
+  -- SQL
+  sqlls = {},
+
+  -- Vim
+  vimls = {}
 }
 
--- Lua
-nvim_lsp.sumneko_lua.setup {on_attach = on_attach_fun}
+local snippet_capabilities = {
+  textDocument = {completion = {completionItem = {snippetSupport = true}}}
+}
 
--- Nix
-nvim_lsp.rnix.setup {on_attach = on_attach_fun}
+local function deep_extend(policy, ...)
+  local result = {}
+  local function helper(policy, k, v1, v2)
+    if type(v1) ~= "table" or type(v2) ~= "table" then
+      if policy == "error" then
+        error("Key " .. vim.inspect(k) .. " is already present with value " .. vim.inspect(v1))
+      elseif policy == "force" then
+        return v2
+      else
+        return v1
+      end
+    else
+      return deep_extend(policy, v1, v2)
+    end
+  end
 
--- PHP
-nvim_lsp.intelephense.setup {on_attach = on_attach_fun}
+  for _, t in ipairs({...}) do
+    for k, v in pairs(t) do
+      if result[k] ~= nil then
+        result[k] = helper(policy, k, result[k], v)
+      else
+        result[k] = v
+      end
+    end
+  end
 
--- Python
-nvim_lsp.pyls.setup {on_attach = on_attach_fun}
+  return result
+end
 
--- R
-nvim_lsp.r_language_server.setup {on_attach = on_attach_fun}
+for server, config in pairs(servers) do
+  config.on_attach = make_on_attach(config)
+  config.capabilities = deep_extend("keep", config.capabilities or {}, snippet_capabilities)
 
--- Rust
-nvim_lsp.rls.setup {on_attach = on_attach_fun}
-nvim_lsp.rust_analyzer.setup {on_attach = on_attach_fun}
-
--- SQL
-nvim_lsp.sqlls.setup {on_attach = on_attach_fun}
-
--- Vim
-nvim_lsp.vimls.setup {on_attach = on_attach_fun}
-
--- Attatch functions for autocomplete and formatting.
-vim.cmd [[autocmd Filetype * setlocal omnifunc=v:lua.vim.lsp.omnifunc]]
-vim.cmd [[autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync()]]
+  nvim_lsp[server].setup(config)
+end
