@@ -51,3 +51,4 @@ export PATH="/var/lib/flatpak/exports/bin:${PATH}"
 
 # Formatter paths
 export UNCRUSTIFY_CONFIG="${HOME}/.config/uncrustify/uncrustify.cfg"
+if [ -e /home/itziar/.nix-profile/etc/profile.d/nix.sh ]; then . /home/itziar/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer

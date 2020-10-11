@@ -44,6 +44,7 @@ Plug 'nvim-lua/diagnostic-nvim'
 
 " Deoplete
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+
 Plug 'Shougo/deoplete-lsp'
 Plug 'Shougo/neco-syntax'
 let g:deoplete#enable_at_startup = 1
@@ -115,7 +116,7 @@ Plug 'rust-lang/rust.vim'
 "Plug 'sebastianmarkow/deoplete-rust'
 " Python
 "Plug 'deoplete-plugins/deoplete-jedi'
-Plug 'numirias/semshi', {'do': ':UpdateRemotePlugins'}
+"Plug 'numirias/semshi', {'do': ':UpdateRemotePlugins'}
 " }}}
 
 " {{{ Styling
@@ -492,9 +493,9 @@ lua require'init'
 
 " Trigger characters.
 augroup CompletionTriggerCharacter
-    autocmd!
-    autocmd BufEnter * let g:completion_trigger_character = ['.']
-    autocmd BufEnter *.c,*.cpp let g:completion_trigger_character = ['.', '::']
+  autocmd!
+  autocmd BufEnter * let g:completion_trigger_character = ['.']
+  autocmd BufEnter *.c,*.cpp let g:completion_trigger_character = ['.', '::']
 augroup end
 
 nnoremap <silent> <c-]> <cmd>lua vim.lsp.buf.definition()<CR>
