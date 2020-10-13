@@ -9,6 +9,19 @@ let g:neoformat_lua_luaformatter = {
   \ }
 let g:neoformat_enabled_lua = ['luaformatter']
 
+" TODO: Find out how to preserve yaml header using pandoc.
+"let g:neoformat_pandoc_pandoc = {
+"  \ 'exe': 'pandoc',
+"  \ 'args': [
+"  \   '--tab-stop=2',
+"  \   '--columns=100',
+"  \   '--to=markdown'
+"  \   ],
+"  \ 'stdin': 1,
+"  \ 'valid_exit_codes': [0],
+"  \}
+let g:neoformat_enabled_pandoc = [ ]
+
 " Enable alignment globally
 let g:neoformat_basic_format_align = 0
 

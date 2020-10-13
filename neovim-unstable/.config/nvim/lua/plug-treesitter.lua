@@ -1,9 +1,9 @@
 vim.cmd [[ packadd nvim-treesitter ]]
-local ts_configs = require("nvim-treesitter.configs")
 
-ts_configs.setup {
+require("nvim-treesitter")
+require("nvim-treesitter.configs").setup {
   ensure_installed = "all",
-  highlight = {enable = true},
+  -- highlight = {enable = true}, -- TODO: Make work
   incremental_selection = {
     enable = true,
     keymaps = {
@@ -12,9 +12,5 @@ ts_configs.setup {
       scope_incremental = "grc",
       node_decremental = "grm"
     }
-  },
-  refactor = {
-    smart_rename = {enable = true, keymaps = {smart_rename = "grr"}},
-    highlight_definitions = {enable = true}
   }
 }

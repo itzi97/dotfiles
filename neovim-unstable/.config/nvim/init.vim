@@ -36,5 +36,6 @@ source $HOME/.config/nvim/modules/neoformat.vim
 source $HOME/.config/nvim/modules/ale.vim
 source $HOME/.config/nvim/modules/lsp.vim
 
-" Source Lua plugins
+" Source pure Lua plugins
+execute 'luafile' . stdpath('config') . '/lua/plug-treesitter.lua'
 execute 'luafile' . stdpath('config') . '/lua/plug-colorizer.lua'
