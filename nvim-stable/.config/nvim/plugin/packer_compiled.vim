@@ -39,7 +39,7 @@ local plugins = {
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/rust.vim"
   },
   ["vim-go"] = {
-    config = { "\27LJ\1\0024\0\0\2\0\3\0\0054\0\0\0007\0\1\0%\1\2\0>\0\2\1G\0\1\0\21GoUpdateBinaries\bcmd\bvim\0" },
+    config = { "\27LJ\2\0024\0\0\2\0\3\0\0056\0\0\0009\0\1\0'\1\2\0B\0\2\1K\0\1\0\21GoUpdateBinaries\bcmd\bvim\0" },
     loaded = false,
     only_sequence = false,
     only_setup = false,
@@ -62,12 +62,6 @@ local plugins = {
     only_sequence = false,
     only_setup = false,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/vim-pandoc"
-  },
-  ["vim-vsnip-integ"] = {
-    loaded = false,
-    only_sequence = false,
-    only_setup = false,
-    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/vim-vsnip-integ"
   },
   vimtex = {
     loaded = false,
@@ -200,7 +194,7 @@ end
 -- Pre-load configuration
 -- Post-load configuration
 -- Config for: nvim-treesitter
-loadstring("\27LJ\1\2*\0\0\2\0\2\0\0044\0\0\0%\1\1\0>\0\2\1G\0\1\0\15treesitter\frequire\0")()
+loadstring("\27LJ\2\2*\0\0\2\0\2\0\0046\0\0\0'\1\1\0B\0\2\1K\0\1\0\15treesitter\frequire\0")()
 -- Conditional loads
 -- Load plugins in order defined by `after`
 vim._update_package_paths()
@@ -222,12 +216,12 @@ augroup packer_load_aucmds
   au FileType pandoc ++once call s:load(['vimtex', 'vim-pandoc'], { "ft": "pandoc" })
   au FileType go ++once call s:load(['vim-go'], { "ft": "go" })
   au FileType nix ++once call s:load(['vim-nix'], { "ft": "nix" })
-  au FileType rust ++once call s:load(['rust.vim'], { "ft": "rust" })
+  au FileType c ++once call s:load(['vim-lsp-cxx-highlight'], { "ft": "c" })
   au FileType rmarkdown ++once call s:load(['vim-pandoc'], { "ft": "rmarkdown" })
   au FileType markdown ++once call s:load(['vimtex', 'vim-pandoc'], { "ft": "markdown" })
   au FileType julia ++once call s:load(['julia-vim'], { "ft": "julia" })
+  au FileType rust ++once call s:load(['rust.vim'], { "ft": "rust" })
   au FileType haskell ++once call s:load(['haskell-vim'], { "ft": "haskell" })
-  au FileType c ++once call s:load(['vim-lsp-cxx-highlight'], { "ft": "c" })
   au FileType cpp ++once call s:load(['vim-lsp-cxx-highlight'], { "ft": "cpp" })
   au FileType tex ++once call s:load(['vimtex'], { "ft": "tex" })
   " Event lazy-loads

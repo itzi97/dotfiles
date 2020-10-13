@@ -12,7 +12,7 @@ local function init()
   use {"wbthomason/packer.nvim", opt = true}
 
   -- {{{ Fixing, Linting & Completion
-  use {"dense-analysis/ale"}
+  use "dense-analysis/ale"
 
   -- Completion and linting
   use {
@@ -21,18 +21,12 @@ local function init()
     {
       {
         "Shougo/deoplete.nvim",
-        {
-          as = "deoplete",
-          run = ":UpdateRemotePlugins",
-          config = function()
-            vim.cmd [[ let g:deoplete#enable_at_startup = 1 ]]
-          end
-        },
+        run = ":UpdateRemotePlugins",
         {
           -- Integration with lsp
           "Shougo/deoplete-lsp",
           -- Snippets
-          {"hrsh7th/vim-vsnip", {"hrsh7th/vim-vsnip-integ", opt = true}}
+          {"SirVer/UltiSnips", requires = "honza/vim-snippets"}
         }
       },
       "nvim-lua/lsp_extensions.nvim",
@@ -71,7 +65,6 @@ local function init()
 
   -- Colorizer
   use {"norcalli/nvim-colorizer.lua", as = "nvim-colorizer"}
-  -- use {"rrethy/vim-hexokinase", run = "make hexokinase"}
 
   -- Rainbow Brackets
   use "luochen1990/rainbow"
