@@ -30,15 +30,12 @@ local function init()
         }
       },
       "nvim-lua/lsp_extensions.nvim",
-      "nvim-lua/diagnostic-nvim",
-      {
-        "nvim-treesitter/nvim-treesitter",
-        config = function()
-          require("treesitter")
-        end
-      }
+      "nvim-lua/diagnostic-nvim"
     }
   }
+
+  -- Tree sitter
+  use {"nvim-treesitter/nvim-treesitter", commit = "0645284"}
 
   -- TODO: Only use this when lsp doesn't offer formatting.
   use "sbdchd/neoformat"

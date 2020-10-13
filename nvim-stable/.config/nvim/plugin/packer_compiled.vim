@@ -39,7 +39,7 @@ local plugins = {
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/rust.vim"
   },
   ["vim-go"] = {
-    config = { "\27LJ\2\0024\0\0\2\0\3\0\0056\0\0\0009\0\1\0'\1\2\0B\0\2\1K\0\1\0\21GoUpdateBinaries\bcmd\bvim\0" },
+    config = { "\27LJ\1\0024\0\0\2\0\3\0\0054\0\0\0007\0\1\0%\1\2\0>\0\2\1G\0\1\0\21GoUpdateBinaries\bcmd\bvim\0" },
     loaded = false,
     only_sequence = false,
     only_setup = false,
@@ -193,8 +193,6 @@ end
 
 -- Pre-load configuration
 -- Post-load configuration
--- Config for: nvim-treesitter
-loadstring("\27LJ\2\2*\0\0\2\0\2\0\0046\0\0\0'\1\1\0B\0\2\1K\0\1\0\15treesitter\frequire\0")()
 -- Conditional loads
 -- Load plugins in order defined by `after`
 vim._update_package_paths()
