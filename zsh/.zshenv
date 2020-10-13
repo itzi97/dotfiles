@@ -1,5 +1,5 @@
 # Check for hostname to apply hidpi settings
-if [[ "$(hostname)" = "itzi-yoga-ubuntu" ||
+if [[ "$(hostname)" = "itzi-yoga-manjaro" ||
       "$(hostname)" = "itzi-yoga-nixos" ]]; then
 
     # Unlock gnome-keyring if not a desktop environment

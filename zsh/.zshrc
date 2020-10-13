@@ -127,9 +127,8 @@ HOSTNAME=$(hostname)
 if [[ "${HOSTNAME}" = "itzi-yoga-ubuntu" ]]; then
   source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
   source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-elif [[ "${HOSTNAME}" = "itzi-home-manjaro" ]]; then
+elif [[ "${HOSTNAME}" = "itzi-home-manjaro" || "${HOSTNAME}" = "itzi-yoga-manjaro" ]]; then
   if [[ -e /usr/share/zsh/manjaro-zsh-config ]]; then
     source /usr/share/zsh/manjaro-zsh-config
   fi
 fi
-

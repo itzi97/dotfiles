@@ -1,6 +1,5 @@
 " Enable ALE fixing.
 let g:ale_fixers = {
-  \ '*': ['remove_trailing_lines', 'trim_whitespace'],
   \ 'c': ['clang-format'],
   \ 'cpp': ['clang-format'],
   \ 'css': ['prettier'],
@@ -33,7 +32,7 @@ let g:ale_linters = {
       \ }
 
 " Set this variable to 1 to fix files when you save them.
-let g:ale_fix_on_save = 1
+let g:ale_fix_on_save = 0
 
 " Airline with ale
 let g:airline#extensions#ale#enabled = 1
