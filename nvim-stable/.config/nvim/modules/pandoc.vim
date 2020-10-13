@@ -8,8 +8,8 @@ let g:pandoc#syntax#conceal#blacklist = [
   \ 'superscript'
   \]
 
-let g:pandoc#command#autoexec_on_writes = 1
-let g:pandoc#command#autoexec_command = "Pandoc! pdf"
+"let g:pandoc#command#autoexec_on_writes = 1
+"let g:pandoc#command#autoexec_command = "Pandoc! pdf"
 
 let g:pandoc#biblio#sources = 'bclgy'
 let g:pandoc#biblio#bibs = [
