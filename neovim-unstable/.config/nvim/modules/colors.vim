@@ -39,8 +39,8 @@ let g:material_theme_style = 'lighter'
 
 " Set color schemes
 set background=dark
-colorscheme material
-let g:airline_theme = 'material'
+colorscheme gruvbox
+let g:airline_theme = 'gruvbox'
 
 " Color brackets
 let g:rainbow_active = 1
