@@ -26,3 +26,6 @@ let g:neoformat_lua_luaformatter = {
       \ 'no_append': 1,
       \ }
 let g:neoformat_enabled_lua = ['luaformatter']
+
+" Disable formatters for pandoc (due to bug with backslash)
+let g:neoformat_enabled_pandoc = []

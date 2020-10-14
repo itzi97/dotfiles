@@ -1,8 +1,5 @@
 set termguicolors
 
-" Ayu
-let ayucolor='dark'
-
 " One
 let g:one_allow_italics = 1
 
@@ -36,10 +33,14 @@ let g:PaperColor_Theme_Options = {
 " Molokai
 let g:rehash256 = 1
 
+" Material
+let g:material_terminal_italics = 1
+let g:material_theme_style = 'lighter'
+
 " Set color schemes
 set background=dark
-colorscheme gruvbox
-let g:airline_theme = 'gruvbox'
+colorscheme material
+let g:airline_theme = 'material'
 
 " Color brackets
 let g:rainbow_active = 1
