@@ -21,12 +21,16 @@ local function init()
     {
       {
         "Shougo/deoplete.nvim",
+        as = "deoplete",
         run = ":UpdateRemotePlugins",
         {
           -- Integration with lsp
           "Shougo/deoplete-lsp",
-          -- Snippets
-          {"SirVer/UltiSnips", requires = "honza/vim-snippets"}
+          {
+            -- Snippets
+            "SirVer/UltiSnips",
+            requires = "honza/vim-snippets"
+          }
         }
       },
       "nvim-lua/lsp_extensions.nvim",
@@ -35,7 +39,12 @@ local function init()
   }
 
   -- Tree sitter
-  use {"nvim-treesitter/nvim-treesitter", commit = "0645284"}
+  use {
+    "nvim-treesitter/nvim-treesitter",
+    -- Use this commit to not break functionality with Neovim 0.5.0v
+    commit = "0645284",
+    {"nvim-treesitter/completion-treesitter", opt = true}
+  }
 
   -- TODO: Only use this when lsp doesn't offer formatting.
   use "sbdchd/neoformat"
@@ -48,8 +57,7 @@ local function init()
   use {"aurieh/discord.nvim", run = "UpdateRemotePlugins"}
 
   -- Git Git Git!
-  -- use {"airblade/vim-gitgutter"}
-  use {"mhinz/vim-signify", {"tpope/vim-fugitive"}}
+  use {"mhinz/vim-signify", requires = {"tpope/vim-fugitive"}}
 
   -- Quotes, delimiters, etc.
   use "tpope/vim-surround"
@@ -132,7 +140,7 @@ local function init()
   -- {{{ Visuals and Menus
 
   -- Tree
-  use {"kyazdani42/nvim-web-devicons", "kyazdani42/nvim-tree.lua"}
+  use {"kyazdani42/nvim-tree.lua", requires = {"kyazdani42/nvim-web-devicons"}}
 
   -- Startify
   use "mhinz/vim-startify"
