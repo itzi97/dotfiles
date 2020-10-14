@@ -51,10 +51,10 @@ let g:completion_enable_snippet = 'vim-vsnip'
 
 " Use vimtex alongside texlab
 let g:completion_chain_complete_list = {
-            \ 'tex' : [
-            \     {'complete_items': ['vimtex', 'lsp', 'ts']},
-            \   ],
-            \ }
+  \ 'tex' : [
+  \     {'complete_items': ['vimtex', 'lsp', 'ts']},
+  \   ],
+  \ }
 
 " Use completion-nvim in every buffer
 autocmd BufEnter * lua require'completion'.on_attach()

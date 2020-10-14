@@ -77,7 +77,7 @@ local function init()
   use {"neovimhaskell/haskell-vim", ft = "haskell"}
 
   -- LaTeX
-  use {"lervag/vimtex", ft = {"tex", "markdown", "pandoc"}}
+  use {"lervag/vimtex", ft = {"latex", "tex", "markdown", "pandoc"}}
 
   -- Lua
   use {"euclidianAce/BetterLua.vim", ft = "lua"}
