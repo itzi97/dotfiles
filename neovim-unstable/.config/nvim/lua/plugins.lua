@@ -20,17 +20,12 @@ local function init()
     "neovim/nvim-lspconfig",
     {
       {
-        "Shougo/deoplete.nvim",
-        as = "deoplete",
-        run = ":UpdateRemotePlugins",
+        -- Completion
+        "nvim-lua/completion-nvim",
         {
-          -- Integration with lsp
-          "Shougo/deoplete-lsp",
-          {
-            -- Snippets
-            "SirVer/UltiSnips",
-            requires = "honza/vim-snippets"
-          }
+          -- Snippets
+          "hrsh7th/vim-vsnip",
+          requires = "hrsh7th/vim-vsnip-integ"
         }
       },
       "nvim-lua/lsp_extensions.nvim",

@@ -1,10 +1,5 @@
-set completeopt=menuone,noinsert,noselect
-set shortmess+=c
-
 " Source the lua part
 execute 'luafile' . stdpath('config') . '/lua/lsp.lua'
-
-inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
 " Airline integration
 let g:airline#extensions#nvimlsp#enabled = 1
@@ -19,14 +14,6 @@ autocmd InsertLeave,BufEnter,BufWinEnter,TabEnter,BufWritePost *
 inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
-" Trigger characters.
-"augroup CompletionTriggerCharacter
-"  autocmd!
-"  autocmd BufEnter * let g:completion_trigger_character = ['.']
-"  autocmd BufEnter *.c,*.cpp let g:completion_trigger_character = ['.', '::']
-"  autocmd BufEnter *.tex let g:completion_trigger_character = ['\\', '{']
-"augroup end
-
 let g:diagnostic_enable_virtual_text = 1
 let g:diagnostic_virtual_text_prefix = ' '
 call sign_define('LspDiagnosticsErrorSign', {'text' : ' ', 'texthl' : 'LspDiagnosticsError'})
@@ -34,11 +21,40 @@ call sign_define('LspDiagnosticsWarningSign', {'text' : ' ', 'texthl' : 'LspD
 call sign_define('LspDiagnosticsInformationSign', {'text' : ' ', 'texthl' : 'LspDiagnosticsInformation'})
 call sign_define('LspDiagnosticsHintSign', {'text' : '﨣', 'texthl' : 'LspDiagnosticsHint'})
 
-" Deoplete as completion
-let g:deoplete#enable_at_startup = 1
+" Source configuration for completion-nvim
+execute 'luafile' . stdpath('config') . '/lua/plug-completion.lua'
 
-packadd vimtex
-packadd deoplete.nvim
-call deoplete#custom#var('omni', 'input_patterns', {
-  \ 'tex': g:vimtex#re#deoplete
-  \})
+" Use completion-nvim for completion
+" Trigger characters.
+augroup CompletionTriggerCharacter
+  autocmd!
+  autocmd BufEnter * let g:completion_trigger_character = ['.']
+  autocmd BufEnter *.c,*.cpp let g:completion_trigger_character = ['.', '::']
+  autocmd BufEnter *.tex let g:completion_trigger_character = ['\\', '{']
+augroup end
+
+" Use <Tab> and <S-Tab> to navigate through popup menu
+inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+
+" Map <c-p> to manually trigger completion
+"imap <silent> <c-p> <Plug>(completion_trigger)
+
+" Set completeopt to have a better completion experience
+set completeopt=menuone,noinsert,noselect
+
+" Avoid showing message extra message when using completion
+set shortmess+=c
+
+" Enable snippet support
+let g:completion_enable_snippet = 'vim-vsnip'
+
+" Use vimtex alongside texlab
+let g:completion_chain_complete_list = {
+            \ 'tex' : [
+            \     {'complete_items': ['vimtex', 'lsp']},
+            \   ],
+            \ }
+
+" Use completion-nvim in every buffer
+autocmd BufEnter * lua require'completion'.on_attach()

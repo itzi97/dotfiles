@@ -1,5 +1,9 @@
 " Automatically generated packer.nvim plugin loader code
 
+if !has('nvim')
+  finish
+endif
+
 lua << END
 local plugins = {
   ["BetterLua.vim"] = {
@@ -216,7 +220,7 @@ endfunction
 augroup packer_load_aucmds
   au!
   " Filetype lazy-loads
-  au FileType lua ++once call s:load(['nlua.nvim', 'BetterLua.vim'], { "ft": "lua" })
+  au FileType lua ++once call s:load(['BetterLua.vim', 'nlua.nvim'], { "ft": "lua" })
   au FileType pandoc ++once call s:load(['vimtex', 'vim-pandoc'], { "ft": "pandoc" })
   au FileType go ++once call s:load(['vim-go'], { "ft": "go" })
   au FileType nix ++once call s:load(['vim-nix'], { "ft": "nix" })
