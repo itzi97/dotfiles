@@ -13,7 +13,7 @@ let g:gruvbox_contrast_light = 'hard'
 
 " Material
 let g:material_terminal_italics = 1
-let g:material_theme_style = 'lighter'
+let g:material_theme_style = 'darker'
 
 " Configure airline theme
 colorscheme material

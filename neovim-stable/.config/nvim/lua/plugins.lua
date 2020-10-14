@@ -26,7 +26,16 @@ local function init()
           -- Integration with lsp
           "Shougo/deoplete-lsp",
           -- Snippets
-          {"SirVer/UltiSnips", requires = "honza/vim-snippets"}
+          {
+            "hrsh7th/vim-vsnip",
+            requires = {
+              -- Integration for deoplete
+              "hrsh7th/vim-vsnip-integ",
+              -- Add sources
+              "microsoft/vscode-cpptools",
+              "microsoft/vscode-python"
+            }
+          }
         }
       },
       "nvim-lua/lsp_extensions.nvim",
