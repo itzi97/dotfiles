@@ -12,7 +12,7 @@ local function init()
   use {"wbthomason/packer.nvim", opt = true}
 
   -- {{{ Fixing, Linting & Completion
-  use "dense-analysis/ale"
+  -- use "dense-analysis/ale"
 
   -- Completion and linting
   use {
@@ -27,13 +27,10 @@ local function init()
           "Shougo/deoplete-lsp",
           -- Snippets
           {
-            "hrsh7th/vim-vsnip",
+            "SirVer/ultisnips",
             requires = {
-              -- Integration for deoplete
-              "hrsh7th/vim-vsnip-integ",
-              -- Add sources
-              "microsoft/vscode-cpptools",
-              "microsoft/vscode-python"
+              -- Snippet sources
+              "honza/vim-snippets"
             }
           }
         }
@@ -44,7 +41,7 @@ local function init()
   }
 
   -- Tree sitter
-  use {"nvim-treesitter/nvim-treesitter"}
+  use "nvim-treesitter/nvim-treesitter"
 
   -- TODO: Only use this when lsp doesn't offer formatting.
   use "sbdchd/neoformat"

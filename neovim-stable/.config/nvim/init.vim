@@ -34,7 +34,7 @@ source $HOME/.config/nvim/modules/pandoc.vim
 source $HOME/.config/nvim/modules/nvimR.vim
 source $HOME/.config/nvim/modules/luaTree.vim
 source $HOME/.config/nvim/modules/neoformat.vim
-source $HOME/.config/nvim/modules/ale.vim
+"source $HOME/.config/nvim/modules/ale.vim
 source $HOME/.config/nvim/modules/lsp.vim
 
 " Source pure Lua plugins

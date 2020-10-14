@@ -1,9 +1,8 @@
 vim.cmd [[ packadd nvim-treesitter ]]
 
-require("nvim-treesitter")
 require("nvim-treesitter.configs").setup {
   ensure_installed = "all",
-  -- highlight = {enable = true}, -- TODO: Make work
+  highlight = {enable = true},
   incremental_selection = {
     enable = true,
     keymaps = {
