@@ -1,7 +1,7 @@
 function! PackagerInit() abort
   packadd vim-packager
   call packager#init()
-  call packager#add('kristijanhusak/vim-packager', { 'type': 'opt' }) 
+  call packager#add('kristijanhusak/vim-packager', { 'type': 'opt' })
 
   " LSP + Deoplete
   call packager#add('prabirshrestha/vim-lsp')
@@ -36,6 +36,9 @@ function! PackagerInit() abort
 
   " Colorscheme + eyecandy
   call packager#add('morhetz/gruvbox')
+  call packager#add('kaicataldo/material.vim', { 'branch': 'main' })
+
+  " Eyecandy
   call packager#add('Yggdroot/indentLine')
   call packager#add('rrethy/vim-hexokinase', { 'do': 'make hexokinase' })
   call packager#add('luochen1990/rainbow')
@@ -63,15 +66,15 @@ endfunction
 let g:deoplete#enable_at_startup = 1
 let g:rainbow_active = 1
 let g:rainbow_conf = {
-  \ 'separately': {
-  \   'nerdtree': 0,
-  \}}
+      \ 'separately': {
+      \   'nerdtree': 0,
+      \}}
 
 syntax on
 filetype plugin indent on
 
 command! PackagerInstall call PackagerInit()      | call packager#install()
-command! -bang PackagerUpdate call PackagerInit() | 
+command! -bang PackagerUpdate call PackagerInit() |
       \ call packager#update({ 'force_hooks': '<bang>' })
 command! PackagerClean call PackagerInit()        | call packager#clean()
 command! PackagerStatus call PackagerInit()       | call packager#status()

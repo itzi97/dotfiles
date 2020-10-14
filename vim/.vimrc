@@ -2,7 +2,7 @@ if &compatible
   set nocompatible
 endif
 
-let g:polyglot_disabled = ['vim', 'tex']
+let g:polyglot_disabled = ['vim', 'tex', 'markdown', 'pandoc']
 
 " Source plugins
 source $HOME/.vim/modules/packager.vim
