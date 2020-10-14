@@ -96,18 +96,20 @@ local function init()
   use {"JuliaEditorSupport/julia-vim", ft = "julia"}
 
   -- Markdown
-  -- use {
-  --  "vim-pandoc/vim-pandoc",
-  --  requires = {"vim-pandoc/vim-pandoc-syntax", "vim-pandoc/vim-rmarkdown"},
-  --  ft = {"pandoc", "markdown", "rmarkdown"}
-  -- }
   use {
-    "plasticboy/vim-markdown",
-    requires = {
-      "godlygeek/tabular",
-      {"iamcco/markdown-preview.nvim", run = "cd app && yarn install"}
-    }
+    "vim-pandoc/vim-pandoc",
+    requires = {"vim-pandoc/vim-pandoc-syntax", "vim-pandoc/vim-rmarkdown"},
+    ft = {"pandoc", "markdown", "rmarkdown"}
   }
+
+  -- use {
+  --  "plasticboy/vim-markdown",
+  --  requires = {
+  --    "godlygeek/tabular",
+  --  }
+  -- }
+
+  use {"iamcco/markdown-preview.nvim", run = "cd app && yarn install"}
 
   -- Nix
   use {"LnL7/vim-nix", ft = "nix"}
