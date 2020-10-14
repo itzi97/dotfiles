@@ -1,23 +1,3 @@
-" Enable ALE fixing.
-let g:ale_fixers = {
-  \ 'c': ['clang-format'],
-  \ 'cpp': ['clang-format'],
-  \ 'css': ['prettier'],
-  \ 'javascript': ['prettier'],
-  \ 'json': ['prettier'],
-  \ 'java': ['uncrustify'],
-  \ 'haskell': ['stylish-haskell'],
-  \ 'html': ['prettier'],
-  \ 'go': ['gofmt'],
-  \ 'nix': ['nixfmt'],
-  \ 'pandoc': ['pandoc'],
-  \ 'python': ['yapf'],
-  \ 'tex': ['latexindent'],
-  \ 'sh': ['shfmt'],
-  \ 'xml': ['prettier'],
-  \ 'yaml': ['prettier']
-  \ }
-
 " Enable linting
 let g:ale_linters = {
       \ 'javascript': ['eslint'],

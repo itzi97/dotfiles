@@ -23,6 +23,17 @@ let g:neoformat_enabled_lua = ['luaformatter']
 let g:neoformat_enabled_pandoc = [ ]
 let g:neoformat_enabled_markdown = [ ]
 
+"let g:neoformat_cpp_astyle = {
+"  \ 'args': [
+"  \   '--indent-spaces=2',
+"  \   '--style=mozilla'
+"  \   ],
+"  \ 'stdin': 1,
+"  \ 'valid_exit_codes': [0],
+"  \}
+let g:neoformat_enabled_c   = [ 'astyle' ]
+let g:neoformat_enabled_cpp = [ 'astyle' ]
+
 " Enable alignment globally
 let g:neoformat_basic_format_align = 0
 

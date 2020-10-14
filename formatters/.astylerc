@@ -1,0 +1,17 @@
+# Mozilla styled braces
+--style=mozilla
+
+# Use spaces as tabs, size 2
+--indent=spaces=2
+
+--align-pointer=type
+
+--add-braces
+
+--max-code-length=80
+
+--pad-first-paren-out
+
+--break-blocks=all
+
+--pad-comma
