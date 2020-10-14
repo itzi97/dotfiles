@@ -22,7 +22,7 @@ local function init()
       {
         "Shougo/deoplete.nvim",
         run = ":UpdateRemotePlugins",
-        {
+        requires = {
           -- Integration with lsp
           "Shougo/deoplete-lsp",
           -- Snippets
@@ -35,7 +35,7 @@ local function init()
   }
 
   -- Tree sitter
-  use {"nvim-treesitter/nvim-treesitter", commit = "0645284"}
+  use {"nvim-treesitter/nvim-treesitter"}
 
   -- TODO: Only use this when lsp doesn't offer formatting.
   use "sbdchd/neoformat"

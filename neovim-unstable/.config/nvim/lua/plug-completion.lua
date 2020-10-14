@@ -1,4 +1,4 @@
 vim.cmd [[packadd completion-nvim]]
-vim.cmd [[packadd vimtex]]
 
 require("completion").addCompletionSource("vimtex", require("vimtex").complete_item)
+require("completion").addCompletionSource("pandoc", require("pandoc").complete_item)

@@ -47,12 +47,20 @@ set completeopt=menuone,noinsert,noselect
 set shortmess+=c
 
 " Enable snippet support
-let g:completion_enable_snippet = 'vim-vsnip'
+"let g:completion_enable_snippet = 'vim-vsnip'
 
 " Use vimtex alongside texlab
 let g:completion_chain_complete_list = {
+  \ 'default' : [
+  \     {'complete_items': ['lsp', 'vim-vsnip', 'ts']},
+  \     {'mode': '<c-p>'},
+  \     {'mode': '<c-n>'}
+  \ ],
+  \ 'pandoc' : [
+  \     {'complete_items': ['pandoc', 'vim-vsnip']},
+  \   ],
   \ 'tex' : [
-  \     {'complete_items': ['vimtex', 'lsp', 'ts']},
+  \     {'complete_items': ['vimtex', 'vim-vsnip']},
   \   ],
   \ }
 
