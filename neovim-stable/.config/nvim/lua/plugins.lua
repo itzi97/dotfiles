@@ -104,6 +104,8 @@ local function init()
     ft = {"pandoc", "markdown", "rmarkdown"}
   }
 
+  use {"iamcco/markdown-preview.nvim", run = "cd app && yarn install"}
+
   -- Nix
   use {"LnL7/vim-nix", ft = "nix"}
 
