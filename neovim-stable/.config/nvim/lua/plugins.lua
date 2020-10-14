@@ -12,8 +12,6 @@ local function init()
   use {"wbthomason/packer.nvim", opt = true}
 
   -- {{{ Fixing, Linting & Completion
-  -- use "dense-analysis/ale"
-
   -- Completion and linting
   use {
     "neovim/nvim-lsp",
