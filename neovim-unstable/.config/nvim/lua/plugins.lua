@@ -34,12 +34,7 @@ local function init()
   }
 
   -- Tree sitter
-  use {
-    "nvim-treesitter/nvim-treesitter",
-    -- Use this commit to not break functionality with Neovim 0.5.0v
-    commit = "0645284",
-    {"nvim-treesitter/completion-treesitter", opt = true}
-  }
+  use {"nvim-treesitter/nvim-treesitter", {"nvim-treesitter/completion-treesitter", opt = true}}
 
   -- TODO: Only use this when lsp doesn't offer formatting.
   use "sbdchd/neoformat"
