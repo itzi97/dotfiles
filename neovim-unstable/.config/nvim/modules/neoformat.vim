@@ -21,6 +21,7 @@ let g:neoformat_enabled_lua = ['luaformatter']
 "  \ 'valid_exit_codes': [0],
 "  \}
 let g:neoformat_enabled_pandoc = [ ]
+let g:neoformat_enabled_markdown = [ ]
 
 " Enable alignment globally
 let g:neoformat_basic_format_align = 0

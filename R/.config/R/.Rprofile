@@ -1,3 +1,9 @@
+# Load default repo
+local({r <- getOption("repos")
+       r["CRAN"] <- "http://cran.r-project.org" 
+       options(repos=r)
+})
+
 # Set options for Rscript -e calls
 if (requireNamespace("rprofile", quietly = TRUE)) {
   # Call here if needed
