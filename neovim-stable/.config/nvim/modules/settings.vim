@@ -15,10 +15,12 @@ set foldmethod=marker         " Enable folding by markers
 set conceallevel=2            " Prettify code
 
 " Tabs, spaces and company
-set softtabstop=8             " Number of spaces per tab
+set tabstop=8                 " Tab size
+set softtabstop=2             " Number of spaces per tab
 set expandtab                 " Use spaces instead of tabsshiftwidth=2 smarttab
 set shiftwidth=2              " Number of auto-indent spaces
 set smartindent
+set smarttab
 set autoindent                " Auto indent new lines
 set list
 
@@ -33,7 +35,7 @@ set formatoptions+=n          " Respect list indents
 set formatoptions+=j          " Remote comment leader when joining lines
 
 " Spelling
-set spell                     " Disable by default
+set nospell                   " Disable by default
 set spelllang=en_us,es        " English + Spanish
 
 " Text edit might fail if hidden is not set
