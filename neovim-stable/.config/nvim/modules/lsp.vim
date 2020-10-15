@@ -24,7 +24,7 @@ call sign_define('LspDiagnosticsWarningSign', {'text' : ' ', 'texthl' : 'LspD
 call sign_define('LspDiagnosticsInformationSign', {'text' : ' ', 'texthl' : 'LspDiagnosticsInformation'})
 call sign_define('LspDiagnosticsHintSign', {'text' : '﨣', 'texthl' : 'LspDiagnosticsHint'})
 
-" VSNIP snippets
+" Ultisnip Snippets
 let g:UltiSnipsExpandTrigger="<c-p>"
 let g:UltiSnipsJumpForwardTrigger="<c-k>"
 let g:UltiSnipsJumpBackwardTrigger="<c-j>"
@@ -33,17 +33,18 @@ let g:UltiSnipsJumpBackwardTrigger="<c-j>"
 packadd deoplete.nvim
 let g:deoplete#enable_at_startup = 1
 
-" Add vimtex as completion source
+" Add vimtex and pandoc as completion sources
 packadd vimtex
 call deoplete#custom#var('omni', 'input_patterns', {
-  \ 'tex': g:vimtex#re#deoplete
-  \})
-
-" Add pandoc as completion source
-packadd vim-pandoc
-call deoplete#custom#var('omni', 'input_patterns', {
+  \ 'tex': g:vimtex#re#deoplete,
   \ 'pandoc': '@'
   \})
+
+" Tabnine limit to 5
+call deoplete#custom#var('tabnine', {
+\ 'line_limit': 500,
+\ 'max_num_results': 5,
+\ })
 
 " Completion
 " Use <Tab> and <S-Tab> to navigate through popup menu

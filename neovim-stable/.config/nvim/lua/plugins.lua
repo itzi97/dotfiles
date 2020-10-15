@@ -23,6 +23,8 @@ local function init()
         requires = {
           -- Integration with lsp
           "Shougo/deoplete-lsp",
+          -- More sources
+          {"tbodt/deoplete-tabnine", run = "./install.sh"},
           -- Snippets
           {
             "SirVer/ultisnips",
@@ -90,13 +92,7 @@ local function init()
   use {"tjdevries/nlua.nvim", ft = "lua"}
 
   -- Go
-  use {
-    "fatih/vim-go",
-    config = function()
-      vim.cmd [[GoUpdateBinaries]]
-    end,
-    ft = "go"
-  }
+  use {"fatih/vim-go", run = "GoUpdateBinaries", ft = "go"}
 
   -- Julia
   use {"JuliaEditorSupport/julia-vim", ft = "julia"}
@@ -108,13 +104,13 @@ local function init()
     ft = {"pandoc", "markdown", "rmarkdown"}
   }
 
-  use {"iamcco/markdown-preview.nvim", run = "cd app && yarn install"}
+  use {"iamcco/markdown-preview.nvim", run = "cd app && yarn install", ft = {"markdown", "pandoc"}}
 
   -- Nix
   use {"LnL7/vim-nix", ft = "nix"}
 
   -- R
-  use {"jalvesaq/Nvim-R", branch = "stable"}
+  use {"jalvesaq/Nvim-R", branch = "stable", ft = {"r", "rmarkdown"}}
 
   -- Rust
   use {"rust-lang/rust.vim", ft = "rust"}
