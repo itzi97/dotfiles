@@ -72,6 +72,9 @@ local function init()
   -- Rainbow Brackets
   use "luochen1990/rainbow"
 
+  -- Vim Wiki
+  use "vimwiki/vimwiki"
+
   -- }}}
 
   -- {{{ Language Support
