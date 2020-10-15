@@ -27,14 +27,14 @@ set listchars=tab:»\ ,trail:·,eol:↵,nbsp:⍽
 set fillchars=eob:·
 
 " Set formatting options
-set formatoptions+=t          " Respect textwidth
-set formatoptions+=c          " Comments respect textwidth
+set formatoptions+=t          " Respect text width
+set formatoptions+=c          " Comments respect text width
 set formatoptions+=n          " Respect list indents
 set formatoptions+=j          " Remote comment leader when joining lines
 
 " Spelling
-set nospell                   " Disable by default
-"set spelllang=en_US,es_ES     " English + spanish
+set spell                     " Disable by default
+set spelllang=en_us,es        " English + Spanish
 
 " Text edit might fail if hidden is not set
 set hidden
@@ -60,17 +60,3 @@ set wildignore=*.o,*~,*.pyc
 
 "Always show current position
 set ruler
-
-" Turn backup off, since most stuff is in SVN, git etc. anyway...
-"set nobackup set nowritebackup set noswapfile
-
-" Automatically show long lines on entering file.
-"augroup ShowLongLinesAuto autocmd BufEnter * call ShowLongLines() augroup end
-"
-"function ShowLongLines()
-"  if &textwidth > 0
-"    let w:long_line_match = matchadd('ErrorMsg', '\%>'.&textwidth.'v.\+', -1)
-"  else
-"    let w:long_line_match = matchadd('ErrorMsg', '\%>80v.\+', -1)
-"  endif
-"endfunction
