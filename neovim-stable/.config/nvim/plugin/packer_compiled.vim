@@ -6,12 +6,6 @@ endif
 
 lua << END
 local plugins = {
-  ["BetterLua.vim"] = {
-    loaded = false,
-    only_sequence = false,
-    only_setup = false,
-    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/BetterLua.vim"
-  },
   ["Nvim-R"] = {
     loaded = false,
     only_sequence = false,
@@ -35,12 +29,6 @@ local plugins = {
     only_sequence = false,
     only_setup = false,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/markdown-preview.nvim"
-  },
-  ["nlua.nvim"] = {
-    loaded = false,
-    only_sequence = false,
-    only_setup = false,
-    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/nlua.nvim"
   },
   ["packer.nvim"] = {
     loaded = false,
@@ -234,7 +222,6 @@ command! -nargs=* -range -bang -complete=file VimwikiIndex call s:load(['vimwiki
 augroup packer_load_aucmds
   au!
   " Filetype lazy-loads
-  au FileType lua ++once call s:load(['nlua.nvim', 'BetterLua.vim'], { "ft": "lua" })
   au FileType pandoc ++once call s:load(['vimtex', 'markdown-preview.nvim', 'vim-pandoc'], { "ft": "pandoc" })
   au FileType go ++once call s:load(['vim-go'], { "ft": "go" })
   au FileType nix ++once call s:load(['vim-nix'], { "ft": "nix" })

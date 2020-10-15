@@ -20,18 +20,18 @@
 #  URL: https://github.com/hastinbe/i3-kb-brightness
 
 get_brightness() {
-	local value=$(light -G)
+	local value=$(xbacklight -get)
 	echo "${value%.*}"
 }
 
 increase_brightness() {
 	local step="$1"
-	light -A "${step%.*}"
+	xbacklight -inc "${step%.*}"
 }
 
 decrease_brightness() {
 	local step="$1"
-	light -U "${step%.*}"
+	xbacklight -dec "${step%.*}"
 }
 
 get_brightness_icon() {

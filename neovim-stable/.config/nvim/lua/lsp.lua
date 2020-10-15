@@ -1,5 +1,5 @@
 -- Load Lua plugins.
-vim.cmd [[packadd nvim-lsp]]
+vim.cmd [[packadd nvim-lspconfig]]
 vim.cmd [[packadd diagnostic-nvim]]
 local nvim_lsp = require("nvim_lsp")
 local diagnostic = require("diagnostic")

@@ -438,6 +438,7 @@ myStartupHook = do
     spawnOnce "piactl connect"
     spawnOnce "megasync"
     spawnOnce "flameshot"
+    spawnOnce "mntray"
 
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.

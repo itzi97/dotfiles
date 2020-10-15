@@ -12,13 +12,14 @@ local function init()
   use {"wbthomason/packer.nvim", opt = true}
 
   -- {{{ Fixing, Linting & Completion
+
   -- Completion and linting
   use {
-    "neovim/nvim-lsp",
     "neovim/nvim-lspconfig",
     {
       {
         "Shougo/deoplete.nvim",
+        event = "InsertEnter *",
         run = ":UpdateRemotePlugins",
         requires = {
           -- Integration with lsp
@@ -28,10 +29,8 @@ local function init()
           -- Snippets
           {
             "SirVer/ultisnips",
-            requires = {
-              -- Snippet sources
-              "honza/vim-snippets"
-            }
+            run = "InsertEnter *",
+            requires = {"honza/vim-snippets", run = "InsertEnter *"}
           }
         }
       },
@@ -94,8 +93,7 @@ local function init()
   use {"lervag/vimtex", ft = {"tex", "markdown", "pandoc"}}
 
   -- Lua
-  use {"euclidianAce/BetterLua.vim", ft = "lua"}
-  use {"tjdevries/nlua.nvim", ft = "lua"}
+  use {"euclidianAce/BetterLua.vim", "tjdevries/nlua.nvim", "rafcamlet/nvim-luapad", ft = "lua"}
 
   -- Go
   use {"fatih/vim-go", run = "GoUpdateBinaries", ft = "go"}
@@ -140,13 +138,13 @@ local function init()
   -- {{{ Visuals and Menus
 
   -- Tree
-  use {"kyazdani42/nvim-web-devicons", "kyazdani42/nvim-tree.lua"}
+  use {"kyazdani42/nvim-tree.lua", requires = "kyazdani42/nvim-web-devicons"}
 
   -- Startify
   use "mhinz/vim-startify"
 
   -- Airline
-  use {"vim-airline/vim-airline", "vim-airline/vim-airline-themes"}
+  use {"vim-airline/vim-airline", requires = "vim-airline/vim-airline-themes"}
   use "edkolev/tmuxline.vim"
 
   -- Icons in Airline and Startify
