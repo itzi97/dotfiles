@@ -83,6 +83,13 @@ local plugins = {
     only_sequence = false,
     only_setup = false,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/vimtex"
+  },
+  vimwiki = {
+    commands = { "VimwikiIndex", "VimwikiDiaryIndex" },
+    loaded = false,
+    only_sequence = false,
+    only_setup = false,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/vimwiki"
   }
 }
 
@@ -219,6 +226,8 @@ endfunction
 
 
 " Command lazy-loads
+command! -nargs=* -range -bang -complete=file VimwikiDiaryIndex call s:load(['vimwiki'], { "cmd": "VimwikiDiaryIndex", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
+command! -nargs=* -range -bang -complete=file VimwikiIndex call s:load(['vimwiki'], { "cmd": "VimwikiIndex", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
 
 " Keymap lazy-loads
 
@@ -239,4 +248,6 @@ augroup packer_load_aucmds
   au FileType cpp ++once call s:load(['vim-lsp-cxx-highlight'], { "ft": "cpp" })
   au FileType tex ++once call s:load(['vimtex'], { "ft": "tex" })
   " Event lazy-loads
+  au BufNewFile ~/Documents/vimwiki/*.wiki ++once call s:load(['vimwiki'], { "event": "BufNewFile ~/Documents/vimwiki/*.wiki" })
+  au BufRead ~/Documents/vimwiki/*.wiki ++once call s:load(['vimwiki'], { "event": "BufRead ~/Documents/vimwiki/*.wiki" })
 augroup END

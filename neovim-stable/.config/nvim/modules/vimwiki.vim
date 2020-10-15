@@ -10,3 +10,5 @@ let g:vimwiki_list = [{
   \}]
 
 let g:vimwiki_dir_link = 'index'
+
+nnoremap <leader>ww :VimwikiIndex <cr>

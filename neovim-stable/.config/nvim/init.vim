@@ -29,6 +29,7 @@ source $HOME/.config/nvim/modules/statusLine.vim
 source $HOME/.config/nvim/modules/startify.vim
 source $HOME/.config/nvim/modules/signify.vim
 source $HOME/.config/nvim/modules/vimtex.vim
+source $HOME/.config/nvim/modules/vimwiki.vim
 source $HOME/.config/nvim/modules/markdown.vim
 source $HOME/.config/nvim/modules/pandoc.vim
 source $HOME/.config/nvim/modules/nvimR.vim

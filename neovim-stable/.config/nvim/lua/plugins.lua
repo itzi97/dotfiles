@@ -54,8 +54,7 @@ local function init()
   use {"aurieh/discord.nvim", run = "UpdateRemotePlugins"}
 
   -- Git Git Git!
-  -- use {"airblade/vim-gitgutter"}
-  use {"mhinz/vim-signify", {"tpope/vim-fugitive"}}
+  use {"mhinz/vim-signify", requires = "tpope/vim-fugitive"}
 
   -- Quotes, delimiters, etc.
   use "tpope/vim-surround"
@@ -73,7 +72,11 @@ local function init()
   use "luochen1990/rainbow"
 
   -- Vim Wiki
-  use "vimwiki/vimwiki"
+  use {
+    "vimwiki/vimwiki",
+    event = {"BufNewFile ~/Documents/vimwiki/*.wiki", "BufRead ~/Documents/vimwiki/*.wiki"},
+    cmd = {"VimwikiIndex", "VimwikiDiaryIndex"}
+  }
 
   -- }}}
 
