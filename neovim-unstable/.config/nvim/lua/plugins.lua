@@ -12,29 +12,24 @@ local function init()
   use {"wbthomason/packer.nvim", opt = true}
 
   -- {{{ Fixing, Linting & Completion
-  use "dense-analysis/ale"
 
   -- Completion and linting
   use {
-    "neovim/nvim-lsp",
     "neovim/nvim-lspconfig",
     {
       {
-        -- Completion
         "nvim-lua/completion-nvim",
-        {
-          -- Snippets
-          "hrsh7th/vim-vsnip",
-          requires = "hrsh7th/vim-vsnip-integ"
+        event = "InsertEnter *",
+        requires = {
+          {"hrsh7th/vim-vsnip", event = "InsertEnter *"},
+          {"hrsh7th/vim-vsnip-integ", event = "InsertEnter *"}
         }
       },
       "nvim-lua/lsp_extensions.nvim",
-      "nvim-lua/diagnostic-nvim"
+      "nvim-lua/diagnostic-nvim",
+      {"nvim-treesitter/nvim-treesitter", requires = "nvim-treesitter/completion-treesitter"}
     }
   }
-
-  -- Tree sitter
-  use {"nvim-treesitter/nvim-treesitter", {"nvim-treesitter/completion-treesitter", opt = true}}
 
   -- TODO: Only use this when lsp doesn't offer formatting.
   use "sbdchd/neoformat"
@@ -47,7 +42,7 @@ local function init()
   use {"aurieh/discord.nvim", run = "UpdateRemotePlugins"}
 
   -- Git Git Git!
-  use {"mhinz/vim-signify", requires = {"tpope/vim-fugitive"}}
+  use {"mhinz/vim-signify", requires = "tpope/vim-fugitive"}
 
   -- Quotes, delimiters, etc.
   use "tpope/vim-surround"
@@ -64,6 +59,13 @@ local function init()
   -- Rainbow Brackets
   use "luochen1990/rainbow"
 
+  -- Vim Wiki
+  use {
+    "vimwiki/vimwiki",
+    event = {"BufNewFile ~/Documents/vimwiki/*.wiki", "BufRead ~/Documents/vimwiki/*.wiki"},
+    cmd = {"VimwikiIndex", "VimwikiDiaryIndex"}
+  }
+
   -- }}}
 
   -- {{{ Language Support
@@ -77,20 +79,13 @@ local function init()
   use {"neovimhaskell/haskell-vim", ft = "haskell"}
 
   -- LaTeX
-  use {"lervag/vimtex", ft = {"latex", "tex", "markdown", "pandoc"}}
+  use {"lervag/vimtex", ft = {"tex", "markdown", "pandoc"}}
 
   -- Lua
-  use {"euclidianAce/BetterLua.vim", ft = "lua"}
-  use {"tjdevries/nlua.nvim", ft = "lua"}
+  use {"euclidianAce/BetterLua.vim", "tjdevries/nlua.nvim", "rafcamlet/nvim-luapad", ft = "lua"}
 
   -- Go
-  use {
-    "fatih/vim-go",
-    config = function()
-      vim.cmd [[GoUpdateBinaries]]
-    end,
-    ft = "go"
-  }
+  use {"fatih/vim-go", run = "GoUpdateBinaries", ft = "go"}
 
   -- Julia
   use {"JuliaEditorSupport/julia-vim", ft = "julia"}
@@ -102,20 +97,13 @@ local function init()
     ft = {"pandoc", "markdown", "rmarkdown"}
   }
 
-  -- use {
-  --  "plasticboy/vim-markdown",
-  --  requires = {
-  --    "godlygeek/tabular",
-  --  }
-  -- }
-
-  use {"iamcco/markdown-preview.nvim", run = "cd app && yarn install"}
+  use {"iamcco/markdown-preview.nvim", run = "cd app && yarn install", ft = {"markdown", "pandoc"}}
 
   -- Nix
   use {"LnL7/vim-nix", ft = "nix"}
 
   -- R
-  use {"jalvesaq/Nvim-R", branch = "stable"}
+  use {"jalvesaq/Nvim-R", branch = "stable", ft = {"r", "rmarkdown"}}
 
   -- Rust
   use {"rust-lang/rust.vim", ft = "rust"}
@@ -125,8 +113,8 @@ local function init()
   -- {{{ Styling
 
   -- Color Themes
-  use "morhetz/gruvbox"
   use {"kaicataldo/material.vim", branch = "main"}
+  use "morhetz/gruvbox"
   use "rakr/vim-one"
   use "NLKNguyen/papercolor-theme"
   use "tomasr/molokai"
@@ -139,13 +127,13 @@ local function init()
   -- {{{ Visuals and Menus
 
   -- Tree
-  use {"kyazdani42/nvim-tree.lua", requires = {"kyazdani42/nvim-web-devicons"}}
+  use {"kyazdani42/nvim-tree.lua", requires = "kyazdani42/nvim-web-devicons"}
 
   -- Startify
   use "mhinz/vim-startify"
 
   -- Airline
-  use {"vim-airline/vim-airline", "vim-airline/vim-airline-themes"}
+  use {"vim-airline/vim-airline", requires = "vim-airline/vim-airline-themes"}
   use "edkolev/tmuxline.vim"
 
   -- Icons in Airline and Startify

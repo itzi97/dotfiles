@@ -35,7 +35,7 @@ let g:rehash256 = 1
 
 " Material
 let g:material_terminal_italics = 1
-let g:material_theme_style = 'lighter'
+let g:material_theme_style = 'darker'
 
 " Set color schemes
 set background=dark

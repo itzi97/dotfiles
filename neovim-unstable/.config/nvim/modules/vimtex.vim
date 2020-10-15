@@ -13,27 +13,27 @@ let g:vimtex_view_forward_search_on_start = 1
 
 " Use lualatex by default
 let g:vimtex_compiler_latexmk_engines = {
-      \ '_'                : '-lualatex',
-      \ 'pdflatex'         : '-pdf',
-      \ 'dvipdfex'         : '-pdfdvi',
-      \ 'lualatex'         : '-lualatex',
-      \ 'xelatex'          : '-xelatex',
-      \ 'context (pdftex)' : '-pdf -pdflatex=texexec',
-      \ 'context (luatex)' : '-pdf -pdflatex=context',
-      \ 'context (xetex)'  : '-pdf -pdflatex=''texexec --xtx''',
-      \}
+  \ '_'                : '-lualatex',
+  \ 'pdflatex'         : '-pdf',
+  \ 'dvipdfex'         : '-pdfdvi',
+  \ 'lualatex'         : '-lualatex',
+  \ 'xelatex'          : '-xelatex',
+  \ 'context (pdftex)' : '-pdf -pdflatex=texexec',
+  \ 'context (luatex)' : '-pdf -pdflatex=context',
+  \ 'context (xetex)'  : '-pdf -pdflatex=''texexec --xtx''',
+  \}
 
 let g:vimtex_compiler_latexmk = {
-      \ 'build_dir' : '',
-      \ 'callback' : 1,
-      \ 'continuous' : 1,
-      \ 'executable' : 'latexmk',
-      \ 'hooks' : [],
-      \ 'options' : [
-      \   '-verbose',
-      \   '-file-line-error',
-      \   '-interaction=nonstopmode',
-      \   '--shell-escape',
-      \   '-synctex=1'
-      \ ],
-      \}
+  \ 'build_dir'  : '',
+  \ 'callback'   : 1,
+  \ 'continuous' : 1,
+  \ 'executable' : 'latexmk',
+  \ 'hooks'      : [],
+  \ 'options'    : [
+  \   '-verbose',
+  \   '-file-line-error',
+  \   '-interaction=nonstopmode',
+  \   '--shell-escape',
+  \   '-synctex=1'
+  \ ],
+  \}

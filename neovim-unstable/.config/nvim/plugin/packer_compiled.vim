@@ -6,11 +6,17 @@ endif
 
 lua << END
 local plugins = {
-  ["BetterLua.vim"] = {
+  ["Nvim-R"] = {
     loaded = false,
     only_sequence = false,
     only_setup = false,
-    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/BetterLua.vim"
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/Nvim-R"
+  },
+  ["completion-nvim"] = {
+    loaded = false,
+    only_sequence = false,
+    only_setup = false,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/completion-nvim"
   },
   ["completion-treesitter"] = {
     loaded = false,
@@ -30,11 +36,11 @@ local plugins = {
     only_setup = false,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/julia-vim"
   },
-  ["nlua.nvim"] = {
+  ["markdown-preview.nvim"] = {
     loaded = false,
     only_sequence = false,
     only_setup = false,
-    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/nlua.nvim"
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/markdown-preview.nvim"
   },
   ["packer.nvim"] = {
     loaded = false,
@@ -49,7 +55,6 @@ local plugins = {
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/rust.vim"
   },
   ["vim-go"] = {
-    config = { "\27LJ\1\0024\0\0\2\0\3\0\0054\0\0\0007\0\1\0%\1\2\0>\0\2\1G\0\1\0\21GoUpdateBinaries\bcmd\bvim\0" },
     loaded = false,
     only_sequence = false,
     only_setup = false,
@@ -73,11 +78,30 @@ local plugins = {
     only_setup = false,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/vim-pandoc"
   },
+  ["vim-vsnip"] = {
+    loaded = false,
+    only_sequence = false,
+    only_setup = false,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/vim-vsnip"
+  },
+  ["vim-vsnip-integ"] = {
+    loaded = false,
+    only_sequence = false,
+    only_setup = false,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/vim-vsnip-integ"
+  },
   vimtex = {
     loaded = false,
     only_sequence = false,
     only_setup = false,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/vimtex"
+  },
+  vimwiki = {
+    commands = { "VimwikiIndex", "VimwikiDiaryIndex" },
+    loaded = false,
+    only_sequence = false,
+    only_setup = false,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/vimwiki"
   }
 }
 
@@ -214,24 +238,28 @@ endfunction
 
 
 " Command lazy-loads
+command! -nargs=* -range -bang -complete=file VimwikiDiaryIndex call s:load(['vimwiki'], { "cmd": "VimwikiDiaryIndex", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
+command! -nargs=* -range -bang -complete=file VimwikiIndex call s:load(['vimwiki'], { "cmd": "VimwikiIndex", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
 
 " Keymap lazy-loads
 
 augroup packer_load_aucmds
   au!
   " Filetype lazy-loads
-  au FileType lua ++once call s:load(['BetterLua.vim', 'nlua.nvim'], { "ft": "lua" })
-  au FileType pandoc ++once call s:load(['vimtex', 'vim-pandoc'], { "ft": "pandoc" })
+  au FileType pandoc ++once call s:load(['vimtex', 'markdown-preview.nvim', 'vim-pandoc'], { "ft": "pandoc" })
   au FileType go ++once call s:load(['vim-go'], { "ft": "go" })
   au FileType nix ++once call s:load(['vim-nix'], { "ft": "nix" })
-  au FileType latex ++once call s:load(['vimtex'], { "ft": "latex" })
-  au FileType rmarkdown ++once call s:load(['vim-pandoc'], { "ft": "rmarkdown" })
-  au FileType haskell ++once call s:load(['haskell-vim'], { "ft": "haskell" })
-  au FileType markdown ++once call s:load(['vimtex', 'vim-pandoc'], { "ft": "markdown" })
-  au FileType julia ++once call s:load(['julia-vim'], { "ft": "julia" })
   au FileType rust ++once call s:load(['rust.vim'], { "ft": "rust" })
+  au FileType rmarkdown ++once call s:load(['Nvim-R', 'vim-pandoc'], { "ft": "rmarkdown" })
+  au FileType haskell ++once call s:load(['haskell-vim'], { "ft": "haskell" })
+  au FileType markdown ++once call s:load(['vimtex', 'markdown-preview.nvim', 'vim-pandoc'], { "ft": "markdown" })
+  au FileType julia ++once call s:load(['julia-vim'], { "ft": "julia" })
+  au FileType r ++once call s:load(['Nvim-R'], { "ft": "r" })
   au FileType c ++once call s:load(['vim-lsp-cxx-highlight'], { "ft": "c" })
   au FileType cpp ++once call s:load(['vim-lsp-cxx-highlight'], { "ft": "cpp" })
   au FileType tex ++once call s:load(['vimtex'], { "ft": "tex" })
   " Event lazy-loads
+  au BufRead ~/Documents/vimwiki/*.wiki ++once call s:load(['vimwiki'], { "event": "BufRead ~/Documents/vimwiki/*.wiki" })
+  au InsertEnter * ++once call s:load(['completion-nvim', 'vim-vsnip', 'vim-vsnip-integ'], { "event": "InsertEnter *" })
+  au BufNewFile ~/Documents/vimwiki/*.wiki ++once call s:load(['vimwiki'], { "event": "BufNewFile ~/Documents/vimwiki/*.wiki" })
 augroup END
