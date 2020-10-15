@@ -124,7 +124,7 @@ local function init()
   -- {{{ Styling
 
   -- Color Themes
-  use "ayu-theme/ayu-vim"
+  use {"kaicataldo/material.vim", branch = "main"}
   use "morhetz/gruvbox"
   use "rakr/vim-one"
   use "NLKNguyen/papercolor-theme"

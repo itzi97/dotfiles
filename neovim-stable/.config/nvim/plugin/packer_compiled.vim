@@ -43,7 +43,7 @@ local plugins = {
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/rust.vim"
   },
   ["vim-go"] = {
-    config = { "\27LJ\1\0024\0\0\2\0\3\0\0054\0\0\0007\0\1\0%\1\2\0>\0\2\1G\0\1\0\21GoUpdateBinaries\bcmd\bvim\0" },
+    config = { "\27LJ\2\0024\0\0\2\0\3\0\0056\0\0\0009\0\1\0'\1\2\0B\0\2\1K\0\1\0\21GoUpdateBinaries\bcmd\bvim\0" },
     loaded = false,
     only_sequence = false,
     only_setup = false,
