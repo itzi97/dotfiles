@@ -15,17 +15,7 @@ Contains my dotfiles for:
 Download and type:
 
 ```sh
-stow neovim-stable
+stow neovim
 ```
 
 For example, if you want to use the stable neovim configuration.
-
-## Neovim
-
-There are 2 versions of neovim configurations:
-
-- `nvim-stable`
-- `neovim-unstable`
-
-This is due to `neovim-unstable` being used as a playground to test new configurations, whilst
-`neovim-stable` being configurations that I'm more familiar with and have worked for me in the past.
