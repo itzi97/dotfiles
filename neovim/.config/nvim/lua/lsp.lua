@@ -11,24 +11,26 @@ local function make_on_attach(config)
     end
 
     diagnostic.on_attach()
-    local opts = {noremap = true, silent = true}
-    vim.api.nvim_buf_set_keymap(0, "n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", opts)
-    vim.api.nvim_buf_set_keymap(0, "n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
-    vim.api.nvim_buf_set_keymap(0, "n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
-    vim.api.nvim_buf_set_keymap(0, "n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
-    vim.api.nvim_buf_set_keymap(0, "n", "<c-s>", "<cmd>lua vim.lsp.buf.signature_help()<CR>", opts)
-    vim.api.nvim_buf_set_keymap(0, "n", "gTD", "<cmd>lua vim.lsp.buf.type_definition()<CR>", opts)
-    vim.api.nvim_buf_set_keymap(0, "n", "<leader>rn", "<cmd>lua vim.lsp.buf.rename()<CR>", opts)
-    vim.api.nvim_buf_set_keymap(0, "n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", opts)
-    vim.api.nvim_buf_set_keymap(0, "n", "gA", "<cmd>lua vim.lsp.buf.code_action()<CR>", opts)
-    vim.api.nvim_buf_set_keymap(0, "n", "<leader>e",
-                                "<cmd>lua vim.lsp.util.show_line_diagnostics()<CR>", opts)
-    vim.api.nvim_buf_set_keymap(0, "n", "]e", "<cmd>NextDiagnosticCycle<cr>", opts)
-    vim.api.nvim_buf_set_keymap(0, "n", "[e", "<cmd>PrevDiagnosticCycle<cr>", opts)
+
+    local mapper = function(mode, key, result)
+      vim.api.nvim_buf_set_keymap(0, mode, key, result, {noremap = true, silent = true})
+    end
+
+    mapper("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>")
+    mapper("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>")
+    mapper("n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>")
+    mapper("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>")
+    mapper("n", "<c-s>", "<cmd>lua vim.lsp.buf.signature_help()<CR>")
+    mapper("n", "gTD", "<cmd>lua vim.lsp.buf.type_definition()<CR>")
+    mapper("n", "<leader>rn", "<cmd>lua vim.lsp.buf.rename()<CR>")
+    mapper("n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>")
+    mapper("n", "gA", "<cmd>lua vim.lsp.buf.code_action()<CR>")
+    mapper("n", "<leader>e", "<cmd>lua vim.lsp.util.show_line_diagnostics()<CR>")
+    mapper("n", "]e", "<cmd>NextDiagnosticCycle<cr>")
+    mapper("n", "[e", "<cmd>PrevDiagnosticCycle<cr>")
 
     if client.resolved_capabilities.document_formatting then
-      vim.api.nvim_buf_set_keymap(0, "n", "<leader>lf", "<cmd>lua vim.lsp.buf.formatting()<cr>",
-                                  opts)
+      mapper("n", "<leader>lf", "<cmd>lua vim.lsp.buf.formatting()<cr>")
     end
 
     if client.resolved_capabilities.document_highlight then
