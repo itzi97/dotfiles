@@ -29,7 +29,11 @@ local function init()
       },
       "nvim-lua/lsp_extensions.nvim",
       "nvim-lua/diagnostic-nvim",
-      {"nvim-treesitter/nvim-treesitter", requires = "nvim-treesitter/completion-treesitter"}
+      {
+        "nvim-treesitter/nvim-treesitter",
+        run = ":TSUpdate",
+        requires = "nvim-treesitter/completion-treesitter"
+      }
     }
   }
 
@@ -85,7 +89,7 @@ local function init()
   use {"neovimhaskell/haskell-vim", ft = "haskell"}
 
   -- LaTeX
-  use {"lervag/vimtex", ft = {"tex", "markdown", "pandoc"}}
+  use {"lervag/vimtex", ft = "tex"}
 
   -- Lua
   use {"euclidianAce/BetterLua.vim", "tjdevries/nlua.nvim", "rafcamlet/nvim-luapad", ft = "lua"}
@@ -103,11 +107,7 @@ local function init()
       requires = {"vim-pandoc/vim-pandoc-syntax", "vim-pandoc/vim-rmarkdown"},
       ft = {"pandoc", "markdown", "rmarkdown"}
     },
-    {
-      "iamcco/markdown-preview.nvim",
-      run = "cd app && yarn install",
-      ft = {"pandoc", "markdown", "rmarkdown"}
-    }
+    {"iamcco/markdown-preview.nvim", run = "cd app && yarn install", ft = {"pandoc", "markdown"}}
   }
 
   -- Nix

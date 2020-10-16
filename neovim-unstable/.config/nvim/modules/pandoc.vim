@@ -1,4 +1,4 @@
-let g:pandoc#filetypes#handled = ['pandoc', 'rst', 'rmarkdown', 'textile']
+let g:pandoc#filetypes#handled = ['pandoc', 'rst', 'textile']
 let g:pandoc#filetypes#pandoc_markdown = 1
 
 " Formatting
