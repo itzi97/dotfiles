@@ -33,3 +33,8 @@ let g:startify_bookmarks = [
   \ { 'x': '~/.xmonad/xmonad.hs'},
   \ { 'w': '~/Documents/vimwiki/index.wiki'},
   \]
+
+" Add icons
+function! StartifyEntryFormat()
+  return 'WebDevIconsGetFileTypeSymbol(absolute_path) ." ". entry_path'
+endfunction
