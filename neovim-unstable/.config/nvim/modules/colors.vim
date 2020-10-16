@@ -44,3 +44,11 @@ let g:airline_theme = 'gruvbox'
 
 " Color brackets
 let g:rainbow_active = 1
+
+" Disable for Pandoc and VimWiki
+let g:rainbow_conf = {
+  \ 'separately': {
+  \   'pandoc': 0,
+  \   'vimwiki': 0
+  \ }
+  \}
