@@ -1,2 +1,8 @@
 let g:ale_completion_enabled = 0
-let g:polyglot_disabled = ['pandoc', 'markdown', 'tex', 'latex']
+let g:polyglot_disabled = [
+      \ 'autoindent',
+      \ 'pandoc',
+      \ 'markdown',
+      \ 'tex',
+      \ 'latex',
+      \ ]
