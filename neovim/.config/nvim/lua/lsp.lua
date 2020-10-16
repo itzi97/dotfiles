@@ -4,6 +4,24 @@ vim.cmd [[packadd diagnostic-nvim]]
 local nvim_lsp = require("nvim_lsp")
 local diagnostic = require("diagnostic")
 
+local texlab_build_status = vim.tbl_add_reverse_lookup {
+  Success = 0,
+  Error = 1,
+  Failure = 2,
+  Cancelled = 3
+}
+
+local function buf_build(bufnr)
+  bufnr = require("nvim_lsp/util").validate_bufnr(bufnr)
+  local params = {textDocument = {uri = vim.uri_from_bufnr(bufnr)}}
+  vim.lsp.buf_request(bufnr, "textDocument/build", params, function(err, _, result, _)
+    if err then
+      error(tostring(err))
+    end
+    print("Build " .. texlab_build_status[result.status])
+  end)
+end
+
 local function make_on_attach(config)
   return function(client)
     if config.before then
@@ -100,7 +118,41 @@ local servers = {
   julials = {},
 
   -- TODO LaTeX
-  texlab = {},
+  texlab = {
+    default_config = {
+      cmd = {"texlab"},
+      filetypes = {"tex", "bib"},
+      root_dir = vim.loop.os_homedir,
+      settings = {
+        latex = {
+          build = {
+            args = {"-pdf", "-interaction=nonstopmode", "-synctex=1"},
+            executable = "latexmk",
+            onSave = false
+          },
+          forwardSearch = {args = {}, executable = nil, onSave = false},
+          lint = {onChange = true}
+        },
+        bibtex = {formatting = {lineLength = 120}}
+      }
+    },
+    commands = {
+      TexlabBuild = {
+        function()
+          buf_build(0)
+        end,
+        description = "Build the current buffer"
+      }
+    },
+    docs = {
+      description = [[
+        https://texlab.netlify.com/
+        A completion engine built from scratch for (La)TeX.
+        See https://texlab.netlify.com/docs/reference/configuration for configuration options.
+      ]],
+      default_config = {root_dir = "vim's starting directory"}
+    }
+  },
 
   -- Lua
   sumneko_lua = {

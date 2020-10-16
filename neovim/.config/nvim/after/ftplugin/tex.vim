@@ -5,8 +5,4 @@ set tabstop=2 softtabstop=0 noexpandtab shiftwidth=0 smarttab
 set textwidth=100 wrap
 
 " Indent lines
-"set list listchars=tab:▸\ ,eol:¬
 let b:indentLine_enabled = 0
-
-" Show everything
-set conceallevel=0

@@ -26,10 +26,6 @@ call sign_define('LspDiagnosticsHintSign', {'text' : '﨣', 'texthl' : 'LspDiagn
 
 " Completion
 
-" Use <Tab> and <S-Tab> to navigate through popup menu
-inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
-inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-
 " Set completeopt to have a better completion experience
 set completeopt=menuone,noinsert,noselect
 
@@ -40,33 +36,37 @@ set shortmess+=c
 let g:completion_enable_snippet = 'vim-vsnip'
 
 " Expand
-imap <expr> <C-i>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-i>'
-smap <expr> <C-i>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-i>'
+imap <expr> <C-i> vsnip#expandable()  ? '<Plug>(vsnip-expand)' : '<C-i>'
+smap <expr> <C-i> vsnip#expandable()  ? '<Plug>(vsnip-expand)' : '<C-i>'
 
 " Expand or jump
-imap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
-smap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
+imap <expr> <C-l> vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
+smap <expr> <C-l> vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
 
 " Jump forward or backward
-imap <expr> <C-k>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<C-k>'
-smap <expr> <C-k>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<C-k>'
-imap <expr> <C-j> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<C-j>'
-smap <expr> <C-j> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<C-j>'
+imap <expr> <C-k> vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)' : '<C-k>'
+smap <expr> <C-k> vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)' : '<C-k>'
+imap <expr> <C-j> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)' : '<C-j>'
+smap <expr> <C-j> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)' : '<C-j>'
 
 " Select or cut text to use as $TM_SELECTED_TEXT in the next snippet.
 " See https://github.com/hrsh7th/vim-vsnip/pull/50
-nmap        s   <Plug>(vsnip-select-text)
-xmap        s   <Plug>(vsnip-select-text)
-nmap        S   <Plug>(vsnip-cut-text)
-xmap        S   <Plug>(vsnip-cut-text)
+nmap s <Plug>(vsnip-select-text)
+xmap s <Plug>(vsnip-select-text)
+nmap S <Plug>(vsnip-cut-text)
+xmap S <Plug>(vsnip-cut-text)
 
 " If you want to use snippet for multiple filetypes, you can `g:vsip_filetypes` for it.
 let g:vsnip_filetypes = {}
 let g:vsnip_filetypes.javascriptreact = ['javascript']
 let g:vsnip_filetypes.typescriptreact = ['typescript']
 
+" Use <Tab> and <S-Tab> to navigate through popup menu
+inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+
 " Enable auto switching between completion sources
-let g:completion_auto_change_source = 1
+let g:completion_auto_change_source = 0
 
 " Load lua source
 execute 'luafile' . stdpath('config') . '/lua/plug-completion.lua'
@@ -83,12 +83,14 @@ let g:completion_chain_complete_list = {
   \ 'tex' : [
   \   {'complete_items': ['vimtex', 'lsp', 'snippet']},
   \   {'complete_items': ['path'], 'triggered_only': ['/']},
+  \   {'complete_items': ['buffer']},
   \   {'mode': '<c-p>'},
   \   {'mode': '<c-n>'}
   \ ],
   \ 'pandoc' : [
   \   {'complete_items': ['lsp', 'ts', 'snippet']},
   \   {'complete_items': ['path'], 'triggered_only': ['/']},
+  \   {'complete_items': ['buffer']},
   \   {'mode': '<c-p>'},
   \   {'mode': '<c-n>'}
   \ ],
@@ -97,5 +99,8 @@ let g:completion_chain_complete_list = {
 " Max tabnine completion
 let g:completion_tabnine_max_num_results=3
 
-" Use completion-nvim in every buffer
-autocmd BufEnter * lua require('completion').on_attach()
+" Matching strategies
+let g:completion_matching_strategy_list = ['exact', 'substring', 'fuzzy', 'all']
+
+" Trigger on delete
+let g:completion_trigger_on_delete = 1
