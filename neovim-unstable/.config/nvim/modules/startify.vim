@@ -15,14 +15,14 @@ function! s:gitUntracked()
 endfunction
 
 let g:startify_lists = [
-  \ { 'type': 'files',     'header': ['   MRU']            },
-  \ { 'type': 'dir',       'header': ['   MRU '. getcwd()] },
-  \ { 'type': 'sessions',  'header': ['   Sessions']       },
-  \ { 'type': 'bookmarks', 'header': ['   Bookmarks']      },
-  \ { 'type': function('s:gitModified'),  'header': ['   git modified']},
-  \ { 'type': function('s:gitUntracked'), 'header': ['   git untracked']},
-  \ { 'type': 'commands',  'header': ['   Commands']       },
-  \ ]
+  \ { 'type': 'files',     'header': ['MRU']            },
+  \ { 'type': 'dir',       'header': ['MRU '. getcwd()] },
+  \ { 'type': 'sessions',  'header': ['Sessions']       },
+  \ { 'type': 'bookmarks', 'header': ['Bookmarks']      },
+  \ { 'type': function('s:gitModified'),  'header': ['git modified']},
+  \ { 'type': function('s:gitUntracked'), 'header': ['git untracked']},
+  \ { 'type': 'commands',  'header': ['Commands']       },
+  \]
 
 let g:startify_session_dir = '~/.config/nvim/session'
 
@@ -31,9 +31,5 @@ let g:startify_bookmarks = [
   \ { 'p': '~/.config/nvim/lua/plugins.lua'},
   \ { 'k': '~/.config/kitty/kitty.conf'},
   \ { 'x': '~/.xmonad/xmonad.hs'},
-  \ '~/Documents/UTAD/Proyectos-2/1-Inteniería-Datos',
-  \ '~/Documents/UTAD/Proyectos-3',
-  \ '~/Documents/UTAD/Semestre-03/Álgebra-Lineal',
-  \ '~/Documents/UTAD/Semestre-03/Análisis-Matemático-I',
-  \ '~/Documents/UTAD/Semestre-03/Programación-Web-I-Cliente',
+  \ { 'w': '~/Documents/vimwiki/index.wiki'},
   \]
