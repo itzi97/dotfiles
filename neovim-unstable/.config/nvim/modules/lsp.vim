@@ -45,26 +45,29 @@ execute 'luafile' . stdpath('config') . '/lua/plug-completion.lua'
 " Set sources for tex documents
 let g:completion_chain_complete_list = {
   \ 'default' : [
-  \     {'complete_items': ['lsp', 'ts', 'snippet']},
+  \     {'complete_items': ['lsp', 'ts', 'snippet', 'tabnine']},
   \     {'complete_items': ['path'], 'triggered_only': ['/']},
   \     {'complete_items': ['buffers']},
   \     {'mode': '<c-p>'},
   \     {'mode': '<c-n>'}
   \   ],
   \ 'tex' : [
-  \     {'complete_items': ['vimtex', 'lsp', 'snippet']},
+  \     {'complete_items': ['vimtex', 'lsp', 'snippet', 'tabnine']},
   \     {'complete_items': ['path'], 'triggered_only': ['/']},
   \     {'mode': '<c-p>'},
   \     {'mode': '<c-n>'}
   \   ],
   \ 'pandoc' : [
-  \     {'complete_items': ['lsp', 'ts', 'snippet']},
+  \     {'complete_items': ['lsp', 'ts', 'snippet', 'tabnine']},
   \     {'complete_items': ['path'], 'triggered_only': ['/']},
   \     {'complete_items': ['pandoc'], 'triggered_only': ['@']},
   \     {'mode': '<c-p>'},
   \     {'mode': '<c-n>'}
   \   ],
   \ }
+
+" Max tabnine completion
+let g:completion_tabnine_max_num_results=3
 
 " Use completion-nvim in every buffer
 autocmd BufEnter * lua require('completion').on_attach()

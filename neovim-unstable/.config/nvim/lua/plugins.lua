@@ -21,6 +21,8 @@ local function init()
         "nvim-lua/completion-nvim",
         event = "InsertEnter *",
         requires = {
+          {"aca/completion-tabnine", run = "./install.sh", event = "InsertEnter *"},
+          {"steelsojka/completion-buffers", event = "InsertEnter *"},
           {"hrsh7th/vim-vsnip", event = "InsertEnter *"},
           {"hrsh7th/vim-vsnip-integ", event = "InsertEnter *"}
         }
@@ -66,10 +68,9 @@ local function init()
     cmd = {"VimwikiIndex", "VimwikiDiaryIndex"}
   }
 
-  -- Todoist
-  use {"romgrk/todoist.vim", run = ":TodoistInstall"}
-
-  use {"liuchengxu/vim-clap", run = ":Clap install-binary!"}
+  -- TODO: Todoist
+  -- use {"romgrk/todoist.vim", run = ":TodoistInstall"}
+  -- use {"liuchengxu/vim-clap", run = ":Clap install-binary!"}
 
   -- }}}
 

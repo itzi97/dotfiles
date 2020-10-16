@@ -12,11 +12,23 @@ local plugins = {
     only_setup = false,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/Nvim-R"
   },
+  ["completion-buffers"] = {
+    loaded = false,
+    only_sequence = false,
+    only_setup = false,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/completion-buffers"
+  },
   ["completion-nvim"] = {
     loaded = false,
     only_sequence = false,
     only_setup = false,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/completion-nvim"
+  },
+  ["completion-tabnine"] = {
+    loaded = false,
+    only_sequence = false,
+    only_setup = false,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/completion-tabnine"
   },
   ["haskell-vim"] = {
     loaded = false,
@@ -254,6 +266,6 @@ augroup packer_load_aucmds
   au FileType tex ++once call s:load(['vimtex'], { "ft": "tex" })
   " Event lazy-loads
   au BufRead ~/Documents/vimwiki/*.wiki ++once call s:load(['vimwiki'], { "event": "BufRead ~/Documents/vimwiki/*.wiki" })
-  au InsertEnter * ++once call s:load(['completion-nvim', 'vim-vsnip', 'vim-vsnip-integ'], { "event": "InsertEnter *" })
+  au InsertEnter * ++once call s:load(['completion-nvim', 'completion-tabnine', 'completion-buffers', 'vim-vsnip-integ', 'vim-vsnip'], { "event": "InsertEnter *" })
   au BufNewFile ~/Documents/vimwiki/*.wiki ++once call s:load(['vimwiki'], { "event": "BufNewFile ~/Documents/vimwiki/*.wiki" })
 augroup END
