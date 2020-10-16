@@ -12,23 +12,11 @@ local plugins = {
     only_setup = false,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/Nvim-R"
   },
-  ["completion-buffers"] = {
-    loaded = false,
-    only_sequence = false,
-    only_setup = false,
-    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/completion-buffers"
-  },
   ["completion-nvim"] = {
     loaded = false,
     only_sequence = false,
     only_setup = false,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/completion-nvim"
-  },
-  ["completion-tabnine"] = {
-    loaded = false,
-    only_sequence = false,
-    only_setup = false,
-    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/completion-tabnine"
   },
   ["haskell-vim"] = {
     loaded = false,
@@ -256,7 +244,7 @@ augroup packer_load_aucmds
   au FileType go ++once call s:load(['vim-go'], { "ft": "go" })
   au FileType nix ++once call s:load(['vim-nix'], { "ft": "nix" })
   au FileType rust ++once call s:load(['rust.vim'], { "ft": "rust" })
-  au FileType rmarkdown ++once call s:load(['Nvim-R', 'markdown-preview.nvim', 'vim-pandoc'], { "ft": "rmarkdown" })
+  au FileType rmarkdown ++once call s:load(['Nvim-R', 'vim-pandoc'], { "ft": "rmarkdown" })
   au FileType haskell ++once call s:load(['haskell-vim'], { "ft": "haskell" })
   au FileType markdown ++once call s:load(['markdown-preview.nvim', 'vim-pandoc'], { "ft": "markdown" })
   au FileType julia ++once call s:load(['julia-vim'], { "ft": "julia" })
@@ -266,6 +254,6 @@ augroup packer_load_aucmds
   au FileType tex ++once call s:load(['vimtex'], { "ft": "tex" })
   " Event lazy-loads
   au BufRead ~/Documents/vimwiki/*.wiki ++once call s:load(['vimwiki'], { "event": "BufRead ~/Documents/vimwiki/*.wiki" })
-  au InsertEnter * ++once call s:load(['completion-nvim', 'completion-tabnine', 'completion-buffers', 'vim-vsnip-integ', 'vim-vsnip'], { "event": "InsertEnter *" })
+  au InsertEnter * ++once call s:load(['completion-nvim', 'vim-vsnip', 'vim-vsnip-integ'], { "event": "InsertEnter *" })
   au BufNewFile ~/Documents/vimwiki/*.wiki ++once call s:load(['vimwiki'], { "event": "BufNewFile ~/Documents/vimwiki/*.wiki" })
 augroup END

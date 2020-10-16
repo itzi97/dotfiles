@@ -4,13 +4,6 @@ vim.cmd [[packadd diagnostic-nvim]]
 local nvim_lsp = require("nvim_lsp")
 local diagnostic = require("diagnostic")
 
-local texlab_search_status = vim.tbl_add_reverse_lookup {
-  Success = 0,
-  Error = 1,
-  Failure = 2,
-  Unconfigured = 3
-}
-
 local function make_on_attach(config)
   return function(client)
     if config.before then
@@ -105,44 +98,7 @@ local servers = {
   julials = {},
 
   -- TODO LaTeX
-  texlab = {
-    settings = {
-      latex = {
-        build = {
-          args = {
-            "-pdf",
-            "lualatex",
-            "-interaction=nonstopmode",
-            "-synctex=1",
-            "-pdflualatex='lualatex --shell-escape --output-format=pdf'"
-          },
-          executable = "latexmk",
-          onSave = true
-        },
-        forwardSearch = {executable = "evince", args = ""}
-      }
-    },
-    commands = {
-      TexlabForwardSearch = {
-        function()
-          local pos = vim.api.nvim_win_get_cursor(0)
-          local params = {
-            textDocument = {uri = vim.uri_from_bufnr(0)},
-            position = {line = pos[1] - 1, character = pos[2]}
-          }
-
-          vim.lsp.buf_request(0, "textDocument/forwardSearch", params, function(err, _, result, _)
-            if err then
-              error(tostring(err))
-            end
-            print("Forward search " .. vim.inspect(pos) .. " " .. texlab_search_status[result])
-          end)
-        end,
-        description = "Run synctex forward search"
-      }
-    }
-  },
-
+  texlab = {},
   -- Lua
   sumneko_lua = {
     cmd = {"lua-language-server"},
