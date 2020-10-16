@@ -23,8 +23,11 @@ local function init()
         requires = {
           {"aca/completion-tabnine", run = "./install.sh", event = "InsertEnter *"},
           {"steelsojka/completion-buffers", event = "InsertEnter *"},
-          {"hrsh7th/vim-vsnip", event = "InsertEnter *"},
-          {"hrsh7th/vim-vsnip-integ", event = "InsertEnter *"}
+          {
+            "SirVer/UltiSnips",
+            event = "InsertEnter *",
+            requires = {"honza/vim-snippets", event = "InsertEnter *"}
+          }
         }
       },
       "nvim-lua/lsp_extensions.nvim",
