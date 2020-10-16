@@ -72,7 +72,7 @@ local servers = {
   cmake = {},
 
   -- Diagnostics
-  diagnosticls = {filetypes = {"sh", "zsh", "md", "plain"}},
+  diagnosticls = {filetypes = {"sh", "zsh", "md", "plain", "latex"}},
 
   -- CSS
   cssls = {},
@@ -99,13 +99,14 @@ local servers = {
 
   -- TODO LaTeX
   texlab = {},
+
   -- Lua
   sumneko_lua = {
     cmd = {"lua-language-server"},
     settings = {
       Lua = {
         diagnostics = {globals = {"vim"}},
-        completion = {keywordSnippet = "Disable"},
+        completion = {keywordSnippet = "Enable"},
         runtime = {version = "LuaJIT", path = vim.split(package.path, ";")},
         workspace = {
           library = {

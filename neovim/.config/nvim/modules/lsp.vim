@@ -14,6 +14,9 @@ autocmd InsertLeave,BufEnter,BufWinEnter,TabEnter,BufWritePost *
   \   aligned   = true,
   \ }
 
+" Diagnostics
+autocmd CursorHold * lua vim.lsp.util.show_line_diagnostics()
+
 let g:diagnostic_enable_virtual_text = 1
 let g:diagnostic_virtual_text_prefix = ' '
 call sign_define('LspDiagnosticsErrorSign', {'text' : ' ', 'texthl' : 'LspDiagnosticsError'})
@@ -35,6 +38,32 @@ set shortmess+=c
 
 " Enable snippet usage
 let g:completion_enable_snippet = 'vim-vsnip'
+
+" Expand
+imap <expr> <C-i>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-i>'
+smap <expr> <C-i>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-i>'
+
+" Expand or jump
+imap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
+smap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
+
+" Jump forward or backward
+imap <expr> <C-k>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<C-k>'
+smap <expr> <C-k>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<C-k>'
+imap <expr> <C-j> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<C-j>'
+smap <expr> <C-j> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<C-j>'
+
+" Select or cut text to use as $TM_SELECTED_TEXT in the next snippet.
+" See https://github.com/hrsh7th/vim-vsnip/pull/50
+nmap        s   <Plug>(vsnip-select-text)
+xmap        s   <Plug>(vsnip-select-text)
+nmap        S   <Plug>(vsnip-cut-text)
+xmap        S   <Plug>(vsnip-cut-text)
+
+" If you want to use snippet for multiple filetypes, you can `g:vsip_filetypes` for it.
+let g:vsnip_filetypes = {}
+let g:vsnip_filetypes.javascriptreact = ['javascript']
+let g:vsnip_filetypes.typescriptreact = ['typescript']
 
 " Enable auto switching between completion sources
 let g:completion_auto_change_source = 1
