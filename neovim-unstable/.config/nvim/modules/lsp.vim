@@ -53,11 +53,13 @@ let g:completion_chain_complete_list = {
   \   ],
   \ 'tex' : [
   \     {'complete_items': ['vimtex', 'lsp', 'snippet']},
+  \     {'complete_items': ['path'], 'triggered_only': ['/']},
   \     {'mode': '<c-p>'},
   \     {'mode': '<c-n>'}
   \   ],
   \ 'pandoc' : [
   \     {'complete_items': ['lsp', 'ts', 'snippet']},
+  \     {'complete_items': ['path'], 'triggered_only': ['/']},
   \     {'complete_items': ['pandoc'], 'triggered_only': ['@']},
   \     {'mode': '<c-p>'},
   \     {'mode': '<c-n>'}

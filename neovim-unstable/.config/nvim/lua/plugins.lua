@@ -39,7 +39,7 @@ local function init()
   -- {{{ Misc
 
   -- Discord Support
-  use {"aurieh/discord.nvim", run = "UpdateRemotePlugins"}
+  use {"aurieh/discord.nvim", run = ":UpdateRemotePlugins"}
 
   -- Git Git Git!
   use {"mhinz/vim-signify", requires = "tpope/vim-fugitive"}
@@ -66,6 +66,11 @@ local function init()
     cmd = {"VimwikiIndex", "VimwikiDiaryIndex"}
   }
 
+  -- Todoist
+  use {"romgrk/todoist.vim", run = ":TodoistInstall"}
+
+  use {"liuchengxu/vim-clap", run = ":Clap install-binary!"}
+
   -- }}}
 
   -- {{{ Language Support
@@ -85,7 +90,7 @@ local function init()
   use {"euclidianAce/BetterLua.vim", "tjdevries/nlua.nvim", "rafcamlet/nvim-luapad", ft = "lua"}
 
   -- Go
-  use {"fatih/vim-go", run = "GoUpdateBinaries", ft = "go"}
+  use {"fatih/vim-go", run = ":GoUpdateBinaries", ft = "go"}
 
   -- Julia
   use {"JuliaEditorSupport/julia-vim", ft = "julia"}

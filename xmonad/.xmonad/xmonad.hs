@@ -149,7 +149,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm,               xK_p     ), spawn "~/.config/rofi/scripts/menu.sh")
 
     -- launch command runner
-    , ((modm,               xK_g     ), spawn "~/.config/rofi/scripts/run.sh")
+    , ((modm,               xK_r     ), spawn "~/.config/rofi/scripts/run.sh")
 
     -- launch 1password
     , ((modm .|. shiftMask, xK_p     ), spawn "rofi -modi 1pass:rofi-1pass -show 1pass -dpi 192")
@@ -215,8 +215,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_q     ), spawn "xmonad --recompile; xmonad --restart")
 
     -- Screenshot controls
-    , ((0, xK_Print), spawn "flameshot full -c -p ~/Pictures/Screenshots/")
-    , ((modm, xK_Print), spawn "flameshot gui -p ~/Pictures/Screenshots/")
+    , ((0, xK_Print),    spawn "flameshot full -c -p ~/Pictures/Screenshots/")
+    , ((modm, xK_Print), spawn "flameshot gui  -p    ~/Pictures/Screenshots/")
 
     -- Lock Screen
     , ((modm .|. shiftMask, xK_l     ), spawn "dm-tool lock")
@@ -241,7 +241,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
       -- Volume Notifications
     , ((0, xF86XK_AudioLowerVolume)   , spawn "~/.config/dunst/scripts/volume.sh -d 5 -pnyl")
-    , ((0, xF86XK_AudioMute)          , spawn "~/.config/dunst/scripts/volume.sh -nyml")
+    , ((0, xF86XK_AudioMute)          , spawn "~/.config/dunst/scripts/volume.sh      -nyml")
     , ((0, xF86XK_AudioRaiseVolume)   , spawn "~/.config/dunst/scripts/volume.sh -i 5 -pnyl")
     ]
     ++
@@ -255,15 +255,6 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [((m .|. modm, k), windows $ f i)
         | (i, k) <- zip (XMonad.workspaces conf) [xK_1 .. xK_9]
         , (f, m) <- [(W.greedyView, 0), (W.shift, shiftMask)]]
-    -- ++
-
-    -- NOTE: Only 1 Screen
-    -- mod-{w,e,r}, Switch to physical/Xinerama screens 1, 2, or 3
-    -- mod-shift-{w,e,r}, Move client to screen 1, 2, or 3
-    --
-    -- [((m .|. modm, key), screenWorkspace sc >>= flip whenJust (windows . f))
-    -- | (key, sc) <- zip [xK_w, xK_e, xK_r] [0..]
-    -- , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
 
 ------------------------------------------------------------------------
 -- Mouse bindings: default actions bound to mouse events
@@ -431,7 +422,7 @@ myStartupHook = do
     spawnOnce "gsettings set org.gnome.settings-daemon.plugins.xsettings overrides '[{'Gdk/WindowScalingFactor', <2>}]'"
     spawnOnce "gsettings set org.gnome.desktop.interface scaling-factor 2"
     spawnOnce "nitrogen --restore"
-    spawnOnce "compton -b --config ~/.config/picom.conf"
+    spawnOnce "picom -b --config ~/.config/picom/picom.conf"
     spawnOnce "dunst"
     spawn "~/.config/polybar/launch.sh"
     spawnOnce "redshift-gtk"
