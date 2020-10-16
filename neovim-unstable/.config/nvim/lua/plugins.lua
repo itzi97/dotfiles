@@ -92,12 +92,17 @@ local function init()
 
   -- Markdown
   use {
-    "vim-pandoc/vim-pandoc",
-    requires = {"vim-pandoc/vim-pandoc-syntax", "vim-pandoc/vim-rmarkdown"},
-    ft = {"pandoc", "markdown", "rmarkdown"}
+    {
+      "vim-pandoc/vim-pandoc",
+      requires = {"vim-pandoc/vim-pandoc-syntax", "vim-pandoc/vim-rmarkdown"},
+      ft = {"pandoc", "markdown", "rmarkdown"}
+    },
+    {
+      "iamcco/markdown-preview.nvim",
+      run = "cd app && yarn install",
+      ft = {"pandoc", "markdown", "rmarkdown"}
+    }
   }
-
-  use {"iamcco/markdown-preview.nvim", run = "cd app && yarn install", ft = {"markdown", "pandoc"}}
 
   -- Nix
   use {"LnL7/vim-nix", ft = "nix"}

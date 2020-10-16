@@ -1,20 +1,18 @@
-let g:pandoc#filetypes#handled = ['pandoc', 'markdown']
+let g:pandoc#filetypes#handled = ['pandoc', 'rst', 'rmarkdown', 'textile']
 let g:pandoc#filetypes#pandoc_markdown = 1
-let g:pandoc#formatting#mode = 'sA'
-let g:pandoc#formatting#textwidth = 99
 
-let g:pandoc#syntax#conceal#blacklist = [
-  \ 'subscript',
-  \ 'superscript'
-  \]
+" Formatting
+let g:pandoc#formatting#mode = 'hA'
+let g:pandoc#formatting#textwidth = 100
+let g:pandoc#formatting#smart_autoformat_on_cursormoved = 1
 
-"let g:pandoc#command#autoexec_on_writes = 1
-"let g:pandoc#command#autoexec_command = "Pandoc! pdf"
+" Folding
+let g:pandoc#folding#fold_yaml = 1
 
+" Spelling
+let g:pandoc#spell#enabled = 1
+let g:pandoc#spell#default_langs = ['en_us', 'es']
+
+" Biblio sources
 let g:pandoc#biblio#sources = 'bclgy'
-let g:pandoc#biblio#bibs = [
-  \ '/home/itziar/Documents/Notes/global.bib',
-  \ '/home/itziar/Documents/Notes/UTAD/S1/libros.bib',
-  \ '/home/itziar/Documents/Notes/UTAD/S2/libros.bib',
-  \ '/home/itziar/Documents/Notes/UTAD/S3/libros.bib'
-  \ ]
+let g:pandoc#biblio#bibs = [ '/home/itziar/Documents/Notes/global.bib' ]

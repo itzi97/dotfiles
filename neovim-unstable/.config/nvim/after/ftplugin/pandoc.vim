@@ -1,10 +1,8 @@
+" Tabsize to 2 (no spaces)
+set tabstop=2 softtabstop=2 shiftwidth=2 noexpandtab
 
+" Set listchars to only show trailing spaces
+set listchars=tab:\ \ ,trail:·
 
-" Tabsize to 2
-set softtabstop=2 shiftwidth=2
-
-" TODO: Set textwidth using pandoc
+" Set textwidth using pandoc
 set textwidth=100
-
-" TODO: Work on how to enable spelling in neovim
-set nospell

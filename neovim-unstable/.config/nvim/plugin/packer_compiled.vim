@@ -18,12 +18,6 @@ local plugins = {
     only_setup = false,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/completion-nvim"
   },
-  ["completion-treesitter"] = {
-    loaded = false,
-    only_sequence = false,
-    only_setup = false,
-    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/completion-treesitter"
-  },
   ["haskell-vim"] = {
     loaded = false,
     only_sequence = false,
@@ -250,7 +244,7 @@ augroup packer_load_aucmds
   au FileType go ++once call s:load(['vim-go'], { "ft": "go" })
   au FileType nix ++once call s:load(['vim-nix'], { "ft": "nix" })
   au FileType rust ++once call s:load(['rust.vim'], { "ft": "rust" })
-  au FileType rmarkdown ++once call s:load(['Nvim-R', 'vim-pandoc'], { "ft": "rmarkdown" })
+  au FileType rmarkdown ++once call s:load(['Nvim-R', 'markdown-preview.nvim', 'vim-pandoc'], { "ft": "rmarkdown" })
   au FileType haskell ++once call s:load(['haskell-vim'], { "ft": "haskell" })
   au FileType markdown ++once call s:load(['vimtex', 'markdown-preview.nvim', 'vim-pandoc'], { "ft": "markdown" })
   au FileType julia ++once call s:load(['julia-vim'], { "ft": "julia" })
