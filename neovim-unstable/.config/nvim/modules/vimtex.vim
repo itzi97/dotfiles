@@ -8,8 +8,8 @@ let g:vimtex_compiler_progname = 'nvr'
 let g:vimtex_complete_recursive_bib = 1
 let g:vimtex_complete_enabled = 1
 
-let g:vimtex_view_general_viewer = 'zathura'
-let g:vimtex_view_forward_search_on_start = 1
+let g:vimtex_view_general_viewer = 'evince'
+let g:vimtex_view_forward_search_on_start = 0
 
 " Use lualatex by default
 let g:vimtex_compiler_latexmk_engines = {
