@@ -75,10 +75,6 @@ local function init()
     cmd = {"VimwikiIndex", "VimwikiDiaryIndex"}
   }
 
-  -- TODO: Todoist
-  -- use {"romgrk/todoist.vim", run = ":TodoistInstall"}
-  -- use {"liuchengxu/vim-clap", run = ":Clap install-binary!"}
-
   -- }}}
 
   -- {{{ Language Support

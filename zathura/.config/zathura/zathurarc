@@ -1,22 +1,28 @@
 # Zathura configuration file
 # See man `man zathurarc'
 
+# Tells zathura whether to save document history at each page save or only when
+# closing a document.
+set continuous-hist-save "true"
+
+# Enable DBus service for SyncTeX forward synchronization.
+set dbus-service "true"
+
 # Open document in fit-width mode by default
-set adjust-open "fit-width"
+set adjust-open "width"
 
-# One page per row by default
-#set pages-per-row 1
+# Stop at page boundries
+set scroll-page-aware "true"
 
-#stop at page boundries
-#set scroll-page-aware "true"
+# Set window title
+set window-title-basename "true"
 
-#zoom settings
-#set zoom-min 10
+# Display statusbar
+set statusbar-basename "true"
+set statusbar-home-tilde "true"
 
 # Clipboard
 set selection-clipboard clipboard
-
-# Mappings
 
 # Zoom in zoom
 map <C-i> zoom in

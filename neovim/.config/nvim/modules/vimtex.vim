@@ -14,24 +14,14 @@ let g:vimtex_complete_enabled = 1
 let g:vimtex_view_method = 'zathura'
 let g:vimtex_view_forward_search_on_start = 0
 
-" Use lualatex by default
+" Use xelatex by default
 let g:vimtex_compiler_latexmk_engines = {
   \ '_'                : '-xelatex',
-  \ 'pdflatex'         : '-pdf',
-  \ 'dvipdfex'         : '-pdfdvi',
-  \ 'lualatex'         : '-lualatex',
   \ 'xelatex'          : '-xelatex',
-  \ 'context (pdftex)' : '-pdf -pdflatex=texexec',
-  \ 'context (luatex)' : '-pdf -pdflatex=context',
   \ 'context (xetex)'  : '-pdf -pdflatex=''texexec --xtx''',
   \}
 
 let g:vimtex_compiler_latexmk = {
-  \ 'build_dir'  : '',
-  \ 'callback'   : 1,
-  \ 'continuous' : 1,
-  \ 'executable' : 'latexmk',
-  \ 'hooks'      : [],
   \ 'options'    : [
   \   '-verbose',
   \   '-file-line-error',
