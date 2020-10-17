@@ -45,7 +45,7 @@ inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
 " Enable auto switching between completion sources
-let g:completion_auto_change_source = 0
+let g:completion_auto_change_source = 1
 
 " Load lua source
 execute 'luafile' . stdpath('config') . '/lua/plug-completion.lua'
@@ -53,7 +53,7 @@ execute 'luafile' . stdpath('config') . '/lua/plug-completion.lua'
 " Set sources for tex documents
 let g:completion_chain_complete_list = {
   \ 'default' : [
-  \   {'complete_items': ['lsp', 'ts', 'snippet', 'tabnine']},
+  \   {'complete_items': ['lsp', 'ale', 'ts', 'snippet', 'tabnine']},
   \   {'complete_items': ['path'], 'triggered_only': ['/']},
   \   {'complete_items': ['buffer']},
   \   {'mode': '<c-p>'},
@@ -66,7 +66,7 @@ let g:completion_chain_complete_list = {
   \   {'mode': '<c-n>'}
   \ ],
   \ 'pandoc' : [
-  \   {'complete_items': ['lsp', 'ts', 'snippet']},
+  \   {'complete_items': ['pandoc', 'lsp', 'ts', 'snippet']},
   \   {'complete_items': ['path'], 'triggered_only': ['/']},
   \   {'mode': '<c-p>'},
   \   {'mode': '<c-n>'}

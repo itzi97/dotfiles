@@ -13,7 +13,7 @@ local function init()
 
   -- {{{ Fixing, Linting & Completion
 
-  -- Completion and linting
+  -- LSP
   use {
     "neovim/nvim-lspconfig",
     {
@@ -39,6 +39,9 @@ local function init()
       }
     }
   }
+
+  -- ALE
+  use "dense-analysis/ale"
 
   -- TODO: Only use this when lsp doesn't offer formatting.
   use "sbdchd/neoformat"
