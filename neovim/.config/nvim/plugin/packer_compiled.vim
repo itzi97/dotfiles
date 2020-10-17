@@ -90,12 +90,6 @@ local plugins = {
     only_setup = false,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/vim-pandoc"
   },
-  ["vim-snippets"] = {
-    loaded = false,
-    only_sequence = false,
-    only_setup = false,
-    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/vim-snippets"
-  },
   vimtex = {
     loaded = false,
     only_sequence = false,
@@ -252,20 +246,20 @@ command! -nargs=* -range -bang -complete=file VimwikiIndex call s:load(['vimwiki
 augroup packer_load_aucmds
   au!
   " Filetype lazy-loads
-  au FileType pandoc ++once call s:load(['markdown-preview.nvim', 'vim-pandoc'], { "ft": "pandoc" })
+  au FileType pandoc ++once call s:load(['vim-pandoc', 'markdown-preview.nvim'], { "ft": "pandoc" })
   au FileType go ++once call s:load(['vim-go'], { "ft": "go" })
   au FileType nix ++once call s:load(['vim-nix'], { "ft": "nix" })
-  au FileType rust ++once call s:load(['rust.vim'], { "ft": "rust" })
+  au FileType c ++once call s:load(['vim-lsp-cxx-highlight'], { "ft": "c" })
   au FileType rmarkdown ++once call s:load(['Nvim-R', 'vim-pandoc'], { "ft": "rmarkdown" })
   au FileType haskell ++once call s:load(['haskell-vim'], { "ft": "haskell" })
-  au FileType markdown ++once call s:load(['markdown-preview.nvim', 'vim-pandoc'], { "ft": "markdown" })
+  au FileType markdown ++once call s:load(['vim-pandoc', 'markdown-preview.nvim'], { "ft": "markdown" })
   au FileType julia ++once call s:load(['julia-vim'], { "ft": "julia" })
   au FileType r ++once call s:load(['Nvim-R'], { "ft": "r" })
-  au FileType c ++once call s:load(['vim-lsp-cxx-highlight'], { "ft": "c" })
+  au FileType rust ++once call s:load(['rust.vim'], { "ft": "rust" })
   au FileType cpp ++once call s:load(['vim-lsp-cxx-highlight'], { "ft": "cpp" })
   au FileType tex ++once call s:load(['vimtex'], { "ft": "tex" })
   " Event lazy-loads
   au BufRead ~/Documents/vimwiki/*.wiki ++once call s:load(['vimwiki'], { "event": "BufRead ~/Documents/vimwiki/*.wiki" })
-  au InsertEnter * ++once call s:load(['completion-buffers', 'completion-nvim', 'completion-tabnine', 'UltiSnips', 'vim-snippets'], { "event": "InsertEnter *" })
+  au InsertEnter * ++once call s:load(['completion-buffers', 'completion-nvim', 'completion-tabnine', 'UltiSnips'], { "event": "InsertEnter *" })
   au BufNewFile ~/Documents/vimwiki/*.wiki ++once call s:load(['vimwiki'], { "event": "BufNewFile ~/Documents/vimwiki/*.wiki" })
 augroup END

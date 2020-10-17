@@ -16,3 +16,7 @@ let g:pandoc#spell#default_langs = ['en_us', 'es']
 " Biblio sources
 let g:pandoc#biblio#sources = 'bclgy'
 let g:pandoc#biblio#bibs = [ '/home/itziar/Documents/Notes/global.bib' ]
+
+augroup pandoc_markdown
+  autocmd BufEnter *.md set filetype=pandoc
+augroup END
