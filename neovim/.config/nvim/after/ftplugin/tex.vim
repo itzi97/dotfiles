@@ -6,3 +6,5 @@ set textwidth=100 wrap
 
 " Indent lines
 let b:indentLine_enabled = 0
+
+set conceallevel=1
