@@ -335,6 +335,7 @@ myManageHook = composeAll
     , className =? "Galculator"         --> doFloat
     , className =? "MEGAsync"           --> doFloat
     , className =? "Org.gnome.Nautilus" --> doFloat
+    , className =? "Toggl Desktop"      --> doFloat
     , resource  =? "desktop_window"     --> doIgnore
     , resource  =? "kdesktop"           --> doIgnore
 
