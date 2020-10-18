@@ -3,16 +3,17 @@ let g:ale_lint_on_text_change = 1
 
 let g:ale_linters = {
   \ 'pandoc': ['alex', 'languagetool', 'redpen'],
-  \ 'tex': ['lacheck', 'languagetool'],
+  \ 'tex': ['lacheck', 'redpen'],
+  \ 'vim': ['vint'],
   \ 'vue': ['eslint', 'vls'],
   \ 'zsh': ['shell']
   \}
 
-" ALE completion is not loaded but can be used for other plugins
-let g:ale_completion_autoimport = 1
-
 " Only run specified linters
 let g:ale_linters_explicit = 1
+
+" ALE completion is not loaded but can be used for other plugins
+let g:ale_completion_autoimport = 1
 
 " Disable fixing
 let g:ale_fix_on_save = 0

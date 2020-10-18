@@ -192,7 +192,10 @@ local servers = {
   sqlls = {},
 
   -- Vim
-  vimls = {}
+  vimls = {},
+
+  -- Vue
+  vuels = {}
 }
 
 local snippet_capabilities = {
