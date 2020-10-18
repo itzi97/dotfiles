@@ -3,8 +3,8 @@ execute 'luafile' . stdpath('config') . '/lua/lsp.lua'
 
 " Airline integration
 let g:airline#extensions#nvimlsp#enabled = 1
-let g:airline#extensions#nvimlsp#error_symbol = ' :'
-let g:airline#extensions#nvimlsp#warning_symbol = ' :'
+let g:airline#extensions#nvimlsp#error_symbol = ' '
+let g:airline#extensions#nvimlsp#warning_symbol = '𥉉'
 
 " Extensions
 autocmd InsertLeave,BufEnter,BufWinEnter,TabEnter,BufWritePost *
@@ -19,10 +19,10 @@ autocmd CursorHold * lua vim.lsp.util.show_line_diagnostics()
 
 let g:diagnostic_enable_virtual_text = 1
 let g:diagnostic_virtual_text_prefix = ' '
-call sign_define('LspDiagnosticsErrorSign', {'text' : ' ', 'texthl' : 'LspDiagnosticsError'})
-call sign_define('LspDiagnosticsWarningSign', {'text' : ' ', 'texthl' : 'LspDiagnosticsWarning'})
-call sign_define('LspDiagnosticsInformationSign', {'text' : ' ', 'texthl' : 'LspDiagnosticsInformation'})
-call sign_define('LspDiagnosticsHintSign', {'text' : '﨣', 'texthl' : 'LspDiagnosticsHint'})
+call sign_define('LspDiagnosticsErrorSign', {'text' : ' ', 'texthl' : 'LspDiagnosticsError'})
+call sign_define('LspDiagnosticsWarningSign', {'text' : '𥉉', 'texthl' : 'LspDiagnosticsWarning'})
+call sign_define('LspDiagnosticsInformationSign', {'text' : 'ﬤ ', 'texthl' : 'LspDiagnosticsInformation'})
+call sign_define('LspDiagnosticsHintSign', {'text' : 'ﱴ ', 'texthl' : 'LspDiagnosticsHint'})
 
 " Completion
 
