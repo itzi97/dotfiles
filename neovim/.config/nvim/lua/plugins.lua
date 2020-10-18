@@ -115,6 +115,13 @@ local function init()
   -- Nix
   use {"LnL7/vim-nix", ft = "nix"}
 
+  -- PlantUML
+  use {
+    "weirongxu/plantuml-previewer.vim",
+    as = "plantuml-previewer",
+    requires = {"aklt/plantuml-syntax", "tyru/open-browser.vim"}
+  }
+
   -- R
   use {"jalvesaq/Nvim-R", branch = "stable", ft = {"r", "rmarkdown"}}
 
