@@ -13,6 +13,8 @@ set showbreak=﬌               " Wrap-broken line prefix
 set showmatch                 " Highlight matching brace
 set foldmethod=marker         " Enable folding by markers
 set conceallevel=2            " Prettify code
+set scrolloff=7               " Show 7 lines above or below when scrolling
+set fileformat=unix
 
 " Tabs, spaces and company
 set tabstop=8                 " Tab size
@@ -22,9 +24,9 @@ set shiftwidth=2              " Number of auto-indent spaces
 set smartindent
 set smarttab
 set autoindent                " Auto indent new lines
-set list
 
 " Prettify
+set list
 set listchars=tab:»\ ,trail:·,eol:↵,nbsp:⍽
 set fillchars=eob:·
 

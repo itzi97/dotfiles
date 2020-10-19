@@ -144,6 +144,9 @@ local function init()
 
   -- {{{ Visuals and Menus
 
+  -- Float term
+  use "voldikss/vim-floaterm"
+
   -- Tree
   use {"kyazdani42/nvim-tree.lua", requires = "kyazdani42/nvim-web-devicons"}
 
