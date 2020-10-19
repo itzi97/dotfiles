@@ -25,5 +25,5 @@ set statusbar-home-tilde "true"
 set selection-clipboard clipboard
 
 # Zoom in zoom
-map <C-i> zoom in
-map <C-o> zoom out
+#map <C-i> zoom in
+#map <C-o> zoom out
