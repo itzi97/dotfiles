@@ -16,8 +16,15 @@ let g:UltiSnipsJumpBackwardTrigger='<C-b>'
 inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
-" Completion sources
+" Options
 packadd deoplete.nvim
+call deoplete#custom#option({
+  \ 'auto_complete_delay': 20,
+  \ 'auto_refresh_delay': 100,
+  \ 'smart_case': v:true,
+  \ })
+
+" Completion sources (uses Ale, LSP, UltiSnips too)
 packadd vimtex
 call deoplete#custom#var('omni', 'input_patterns', {
   \ 'tex': g:vimtex#re#deoplete,

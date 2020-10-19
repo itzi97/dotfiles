@@ -121,7 +121,7 @@ local function init()
   }
 
   -- R
-  use {"jalvesaq/Nvim-R", branch = "stable", event = "InsertEnter *", ft = {"r", "rmarkdown"}}
+  use {"jalvesaq/Nvim-R", branch = "stable"}
 
   -- Rust
   use {"rust-lang/rust.vim", ft = "rust"}
