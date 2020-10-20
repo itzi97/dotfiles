@@ -39,6 +39,9 @@ export PATH="${PATH}:${HOME}/.cargo/bin"
 export GOPATH="${HOME}/.go"
 export PATH="${PATH}:${GOPATH}/bin"
 
+# Jupyter path
+export JUPYTERLAB_DIR="${HOME}/.local/share/jupyter/lab"
+
 # R
 export R_ENVIRON_USER="${HOME}/.config/R/.Renviron"
 
