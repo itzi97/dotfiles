@@ -39,8 +39,8 @@ let g:material_theme_style = 'darker'
 
 " Set color schemes
 set background=dark
-colorscheme material
-let g:airline_theme = 'material'
+colorscheme gruvbox
+let g:airline_theme = 'gruvbox'
 
 " Color brackets
 let g:rainbow_active = 1
@@ -49,6 +49,7 @@ let g:rainbow_active = 1
 let g:rainbow_conf = {
   \ 'separately': {
   \   'pandoc': 0,
-  \   'vimwiki': 0
+  \   'vimwiki': 0,
+  \   'vue': 0
   \ }
   \}

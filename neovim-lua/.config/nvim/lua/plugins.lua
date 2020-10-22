@@ -146,7 +146,7 @@ local function init()
   use {"rust-lang/rust.vim", ft = "rust"}
 
   -- Vue
-  use {"posva/vim-vue", ft = "vue"}
+  -- use {"posva/vim-vue", ft = "vue"}
 
   -- }}}
 
