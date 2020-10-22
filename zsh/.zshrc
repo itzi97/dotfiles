@@ -7,6 +7,8 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 # }}}
 
+DISTRO_NAME=$(lsb_release -i | awk 'NF>1{print $NF}' -)
+
 # {{{ Plugins
 source ~/.zplug/init.zsh
 
@@ -16,18 +18,32 @@ zplug 'zplug/zplug', hook-build:'zplug --self-manage'
 # Change ZSH theme
 zplug "romkatv/powerlevel10k", as:theme, depth:1
 
+zplug "marzocchi/zsh-notify"
+
 # Oh-my-zsh
 zplug "plugins/command-not-found", from:oh-my-zsh
 zplug "plugins/colored-man-pages", from:oh-my-zsh
 zplug "plugins/colorize", from:oh-my-zsh
+
+# Distro specific
+
+# SSH
+zplug "hkupty/ssh-agent"
+
+# Completion sources
+zplug "zpm-zsh/ssh"
+zplug "spwhitt/nix-zsh-completions"
+zplug "sirhc/op.plugin.zsh"
+zplug "srijanshetty/zsh-pandoc-completion"
+zplug "srijanshetty/zsh-pip-completion"
 
 # Fish-like shell plugins
 zplug "changyuheng/zsh-interactive-cd"
 zplug "psprint/zsh-navigation-tools"
 zplug "zsh-users/zsh-completions"
 zplug "zsh-users/zsh-autosuggestions"
-zplug "zsh-users/zsh-history-substring-search"
 zplug "zsh-users/zsh-syntax-highlighting", defer:2
+zplug "zsh-users/zsh-history-substring-search", defer:2
 
 # Then, source plugins and add commands to $PATH
 zplug load
@@ -55,13 +71,21 @@ zstyle ':completion:*' accept-exact '*(N)'
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path ~/.zsh/cache
 
+# Set up notifications
+zstyle ':notify:*' error-title "Command failed (in #{time_elapsed} seconds)"
+zstyle ':notify:*' success-title "Command finished (in #{time_elapsed} seconds)"
+
+# History
 HISTFILE=~/.zhistory
 HISTSIZE=1000
 SAVEHIST=500
 # }}}
 
+# Load kitty after completion loads
 autoload -Uz compinit colors
 compinit -d
+kitty + complete setup zsh | source /dev/stdin
+
 colors
 
 
@@ -75,9 +99,6 @@ alias free='free -m'                  # Show sizes in MB
 alias ls="lsd"                        # Color ls
 alias btop="bpytop"                   # Pretty top
 alias top="htop"                      # Always use htop
-# }}}
-
-# {{{ Distro Specific
 # }}}
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
