@@ -21,7 +21,7 @@ fi
 # Default programs
 export EDITOR="nvim"
 if [ -n "$DISPLAY" ]; then
-    export BROWSER=firefox
+    export BROWSER=brave
 else
     export BROWSER=links
 fi
