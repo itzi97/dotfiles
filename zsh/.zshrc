@@ -101,10 +101,10 @@ alias top="htop"                      # Always use htop
 
 # Exa instead of ls
 alias ls="exa --icons"                # Use exa
-alias l="exa --long"                  # Display extended details
-alias lt="exa --long --tree --icons"  # Tree with extended details
-alias la="exa --long --all"           # Display extended details with all
-alias lat="exa --long --all"          # Tree with extended details with all
+alias l="exa --icons --long"          # Display extended details
+alias lt="exa --icons --long --tree"  # Tree with extended details
+alias la="exa --icons --long --all"   # Display extended details with all
+alias lat="exa --icons --long --all"  # Tree with extended details with all
 # }}}
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
