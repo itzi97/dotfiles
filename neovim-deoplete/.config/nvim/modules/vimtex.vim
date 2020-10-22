@@ -30,3 +30,11 @@ let g:vimtex_compiler_latexmk = {
   \   '-synctex=1',
   \ ],
   \}
+
+let g:vimtex_grammar_vlty = {'lt_command': 'languagetool'}
+
+" Show window after linting is finished
+augroup Vimtex
+  autocmd!
+  autocmd QuickFixCmdPost lmake lwindow
+augroup END
