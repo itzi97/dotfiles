@@ -205,7 +205,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Toggle the status bar gap
     -- Use this binding with avoidStruts from Hooks.ManageDocks.
     -- See also the statusBar function from Hooks.DynamicLog.
-    --
+    -- (Hide Polybar)
     , ((modm              , xK_b     ), sendMessage ToggleStruts)
 
     -- Quit xmonad
