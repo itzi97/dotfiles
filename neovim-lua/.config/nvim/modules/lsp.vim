@@ -33,12 +33,7 @@ set completeopt=menuone,noinsert,noselect
 set shortmess+=c
 
 " Enable snippet usage
-let g:completion_enable_snippet = 'UltiSnips'
-
-" Trigger configuration.
-let g:UltiSnipsExpandTrigger="<C-w>"
-let g:UltiSnipsJumpForwardTrigger="<C-w>"
-let g:UltiSnipsJumpBackwardTrigger="<C-b>"
+let g:completion_enable_snippet = 'vim-vsnip'
 
 " Use <Tab> and <S-Tab> to navigate through popup menu
 inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
@@ -60,16 +55,12 @@ let g:completion_chain_complete_list = {
   \   {'mode': '<c-n>'}
   \ ],
   \ 'tex' : [
-  \   {'complete_items': ['vimtex', 'lsp', 'snippet']},
+  \   {'complete_items': ['lsp', 'snippet']},
   \   {'complete_items': ['path'], 'triggered_only': ['/']},
-  \   {'mode': '<c-p>'},
-  \   {'mode': '<c-n>'}
   \ ],
   \ 'pandoc' : [
   \   {'complete_items': ['pandoc', 'lsp', 'ts', 'snippet']},
   \   {'complete_items': ['path'], 'triggered_only': ['/']},
-  \   {'mode': '<c-p>'},
-  \   {'mode': '<c-n>'}
   \ ],
   \}
 

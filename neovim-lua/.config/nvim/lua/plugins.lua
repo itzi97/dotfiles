@@ -24,12 +24,13 @@ local function init()
           {"aca/completion-tabnine", run = "./install.sh", event = "InsertEnter *"},
           {"steelsojka/completion-buffers", event = "InsertEnter *"},
           {
-            "SirVer/UltiSnips",
+            "hrsh7th/vim-vsnip",
             event = "InsertEnter *",
-            requires = {"honza/vim-snippets", event = "InsertEnter *"}
+            requires = {"hrsh7th/vim-vsnip-integ", event = "InsertEnter *"}
           }
         }
       },
+      {"RishabhRD/nvim-lsputils", requires = "RishabhRD/popfix"},
       "nvim-lua/lsp_extensions.nvim",
       "nvim-lua/diagnostic-nvim",
       {
@@ -41,7 +42,23 @@ local function init()
   }
 
   -- ALE
-  use "dense-analysis/ale"
+  use {
+    "dense-analysis/ale",
+    ft = {
+      "sh",
+      "zsh",
+      "bash",
+      "c",
+      "cpp",
+      "cmake",
+      "cmake",
+      "html",
+      "markdown",
+      "pandoc",
+      "vim",
+      "tex"
+    }
+  }
 
   -- TODO: Only use this when lsp doesn't offer formatting.
   use "sbdchd/neoformat"
@@ -128,6 +145,9 @@ local function init()
   -- Rust
   use {"rust-lang/rust.vim", ft = "rust"}
 
+  -- Vue
+  use {"posva/vim-vue", ft = "vue"}
+
   -- }}}
 
   -- {{{ Styling
@@ -146,8 +166,14 @@ local function init()
 
   -- {{{ Visuals and Menus
 
+  -- Float term
+  use "voldikss/vim-floaterm"
+
+  -- Telescope
+  use {"nvim-lua/popup.nvim", "nvim-lua/plenary.nvim", "nvim-lua/telescope.nvim"}
+
   -- Tree
-  use {"kyazdani42/nvim-tree.lua", requires = "kyazdani42/nvim-web-devicons"}
+  use "kyazdani42/nvim-tree.lua"
 
   -- Startify
   use "mhinz/vim-startify"
@@ -156,8 +182,10 @@ local function init()
   use {"vim-airline/vim-airline", requires = "vim-airline/vim-airline-themes"}
   use "edkolev/tmuxline.vim"
 
-  -- Icons in Airline and Startify
+  -- Icons in Airline, Startify, Lua Tree, Telescope
   use "ryanoasis/vim-devicons"
+  use "kyazdani42/nvim-web-devicons"
+
   -- }}}
 end
 

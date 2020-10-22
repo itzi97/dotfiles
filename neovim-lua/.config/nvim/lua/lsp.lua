@@ -118,41 +118,42 @@ local servers = {
   julials = {},
 
   -- TODO LaTeX
-  texlab = {
-    default_config = {
-      cmd = {"texlab"},
-      filetypes = {"tex", "bib"},
-      root_dir = vim.loop.os_homedir,
-      settings = {
-        latex = {
-          build = {
-            args = {"-pdf", "-interaction=nonstopmode", "-synctex=1"},
-            executable = "latexmk",
-            onSave = false
-          },
-          forwardSearch = {args = {}, executable = nil, onSave = false},
-          lint = {onChange = true}
-        },
-        bibtex = {formatting = {lineLength = 120}}
-      }
-    },
-    commands = {
-      TexlabBuild = {
-        function()
-          buf_build(0)
-        end,
-        description = "Build the current buffer"
-      }
-    },
-    docs = {
-      description = [[
-        https://texlab.netlify.com/
-        A completion engine built from scratch for (La)TeX.
-        See https://texlab.netlify.com/docs/reference/configuration for configuration options.
-      ]],
-      default_config = {root_dir = "vim's starting directory"}
-    }
-  },
+  texlab = {},
+  -- texlab = {
+  --  default_config = {
+  --    cmd = {"texlab"},
+  --    filetypes = {"tex", "bib"},
+  --    root_dir = vim.loop.os_homedir,
+  --    settings = {
+  --      latex = {
+  --        build = {
+  --          args = {"-pdf", "-interaction=nonstopmode", "-synctex=1"},
+  --          executable = "latexmk",
+  --          onSave = false
+  --        },
+  --        forwardSearch = {args = {}, executable = nil, onSave = false},
+  --        lint = {onChange = true}
+  --      },
+  --      bibtex = {formatting = {lineLength = 120}}
+  --    }
+  --  },
+  --  commands = {
+  --    TexlabBuild = {
+  --      function()
+  --        buf_build(0)
+  --      end,
+  --      description = "Build the current buffer"
+  --    }
+  --  },
+  --  docs = {
+  --    description = [[
+  --      https://texlab.netlify.com/
+  --      A completion engine built from scratch for (La)TeX.
+  --      See https://texlab.netlify.com/docs/reference/configuration for configuration options.
+  --    ]],
+  --    default_config = {root_dir = "vim's starting directory"}
+  --  }
+  -- },
 
   -- Lua
   sumneko_lua = {

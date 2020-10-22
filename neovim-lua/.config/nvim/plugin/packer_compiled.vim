@@ -12,11 +12,11 @@ local plugins = {
     only_setup = false,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/Nvim-R"
   },
-  UltiSnips = {
+  ale = {
     loaded = false,
     only_sequence = false,
     only_setup = false,
-    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/UltiSnips"
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/ale"
   },
   ["completion-buffers"] = {
     loaded = false,
@@ -89,6 +89,18 @@ local plugins = {
     only_sequence = false,
     only_setup = false,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/vim-pandoc"
+  },
+  ["vim-vsnip"] = {
+    loaded = false,
+    only_sequence = false,
+    only_setup = false,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/vim-vsnip"
+  },
+  ["vim-vue"] = {
+    loaded = false,
+    only_sequence = false,
+    only_setup = false,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/vim-vue"
   },
   vimtex = {
     loaded = false,
@@ -246,20 +258,27 @@ command! -nargs=* -range -bang -complete=file VimwikiIndex call s:load(['vimwiki
 augroup packer_load_aucmds
   au!
   " Filetype lazy-loads
-  au FileType pandoc ++once call s:load(['markdown-preview.nvim', 'vim-pandoc'], { "ft": "pandoc" })
-  au FileType go ++once call s:load(['vim-go'], { "ft": "go" })
+  au FileType html ++once call s:load(['ale'], { "ft": "html" })
+  au FileType zsh ++once call s:load(['ale'], { "ft": "zsh" })
+  au FileType c ++once call s:load(['ale', 'vim-lsp-cxx-highlight'], { "ft": "c" })
+  au FileType r ++once call s:load(['Nvim-R'], { "ft": "r" })
+  au FileType cpp ++once call s:load(['ale', 'vim-lsp-cxx-highlight'], { "ft": "cpp" })
+  au FileType tex ++once call s:load(['ale', 'vimtex'], { "ft": "tex" })
+  au FileType cmake ++once call s:load(['ale', 'ale'], { "ft": "cmake" })
+  au FileType pandoc ++once call s:load(['ale', 'vim-pandoc', 'markdown-preview.nvim'], { "ft": "pandoc" })
+  au FileType vue ++once call s:load(['vim-vue'], { "ft": "vue" })
+  au FileType bash ++once call s:load(['ale'], { "ft": "bash" })
   au FileType nix ++once call s:load(['vim-nix'], { "ft": "nix" })
   au FileType rust ++once call s:load(['rust.vim'], { "ft": "rust" })
   au FileType rmarkdown ++once call s:load(['Nvim-R', 'vim-pandoc'], { "ft": "rmarkdown" })
-  au FileType haskell ++once call s:load(['haskell-vim'], { "ft": "haskell" })
-  au FileType markdown ++once call s:load(['markdown-preview.nvim', 'vim-pandoc'], { "ft": "markdown" })
+  au FileType markdown ++once call s:load(['ale', 'vim-pandoc', 'markdown-preview.nvim'], { "ft": "markdown" })
   au FileType julia ++once call s:load(['julia-vim'], { "ft": "julia" })
-  au FileType r ++once call s:load(['Nvim-R'], { "ft": "r" })
-  au FileType c ++once call s:load(['vim-lsp-cxx-highlight'], { "ft": "c" })
-  au FileType cpp ++once call s:load(['vim-lsp-cxx-highlight'], { "ft": "cpp" })
-  au FileType tex ++once call s:load(['vimtex'], { "ft": "tex" })
+  au FileType haskell ++once call s:load(['haskell-vim'], { "ft": "haskell" })
+  au FileType vim ++once call s:load(['ale'], { "ft": "vim" })
+  au FileType sh ++once call s:load(['ale'], { "ft": "sh" })
+  au FileType go ++once call s:load(['vim-go'], { "ft": "go" })
   " Event lazy-loads
   au BufRead ~/Documents/vimwiki/*.wiki ++once call s:load(['vimwiki'], { "event": "BufRead ~/Documents/vimwiki/*.wiki" })
-  au InsertEnter * ++once call s:load(['completion-buffers', 'completion-nvim', 'completion-tabnine', 'UltiSnips'], { "event": "InsertEnter *" })
+  au InsertEnter * ++once call s:load(['completion-buffers', 'Nvim-R', 'completion-nvim', 'completion-tabnine', 'vim-vsnip'], { "event": "InsertEnter *" })
   au BufNewFile ~/Documents/vimwiki/*.wiki ++once call s:load(['vimwiki'], { "event": "BufNewFile ~/Documents/vimwiki/*.wiki" })
 augroup END
