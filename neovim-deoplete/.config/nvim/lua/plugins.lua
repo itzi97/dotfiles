@@ -126,6 +126,9 @@ local function init()
   -- Rust
   use {"rust-lang/rust.vim", ft = "rust"}
 
+  -- Vue
+  use {"posva/vim-vue", ft = "vue"}
+
   -- }}}
 
   -- {{{ Styling

@@ -72,6 +72,12 @@ local plugins = {
     only_setup = false,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/vim-pandoc"
   },
+  ["vim-vue"] = {
+    loaded = false,
+    only_sequence = false,
+    only_setup = false,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/vim-vue"
+  },
   vimtex = {
     loaded = false,
     only_sequence = false,
@@ -229,13 +235,14 @@ augroup packer_load_aucmds
   au!
   " Filetype lazy-loads
   au FileType pandoc ++once call s:load(['vim-pandoc', 'markdown-preview.nvim'], { "ft": "pandoc" })
+  au FileType vue ++once call s:load(['vim-vue'], { "ft": "vue" })
   au FileType go ++once call s:load(['vim-go'], { "ft": "go" })
-  au FileType haskell ++once call s:load(['haskell-vim'], { "ft": "haskell" })
+  au FileType nix ++once call s:load(['vim-nix'], { "ft": "nix" })
   au FileType c ++once call s:load(['vim-lsp-cxx-highlight'], { "ft": "c" })
   au FileType rmarkdown ++once call s:load(['vim-pandoc'], { "ft": "rmarkdown" })
   au FileType markdown ++once call s:load(['vim-pandoc', 'markdown-preview.nvim'], { "ft": "markdown" })
   au FileType julia ++once call s:load(['julia-vim'], { "ft": "julia" })
-  au FileType nix ++once call s:load(['vim-nix'], { "ft": "nix" })
+  au FileType haskell ++once call s:load(['haskell-vim'], { "ft": "haskell" })
   au FileType rust ++once call s:load(['rust.vim'], { "ft": "rust" })
   au FileType cpp ++once call s:load(['vim-lsp-cxx-highlight'], { "ft": "cpp" })
   au FileType tex ++once call s:load(['vimtex'], { "ft": "tex" })

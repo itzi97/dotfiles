@@ -5,36 +5,21 @@ let g:tex_conceal='abdmg'
 let g:vimtex_compiler_progname = 'nvr'
 
 let g:vimtex_quickfix_mode = 0
+let g:vimtex_view_method = 'general'
+let g:vimtex_view_general_viewer = 'evince'
 
 " Completion
 let g:vimtex_complete_recursive_bib = 1
 let g:vimtex_complete_enabled = 1
-
-" Viewer
-let g:vimtex_view_method = 'zathura'
-let g:vimtex_view_forward_search_on_start = 0
-
-" Use xelatex by default
-let g:vimtex_compiler_latexmk_engines = {
-  \ '_'                : '-xelatex',
-  \ 'xelatex'          : '-xelatex',
-  \ 'context (xetex)'  : '-pdf -pdflatex=''texexec --xtx''',
-  \}
 
 let g:vimtex_compiler_latexmk = {
   \ 'options'    : [
   \   '-verbose',
   \   '-file-line-error',
   \   '-interaction=nonstopmode',
-  \   '--shell-escape',
   \   '-synctex=1',
+  \   '--shell-escape'
   \ ],
   \}
 
 let g:vimtex_grammar_vlty = {'lt_command': 'languagetool'}
-
-" Show window after linting is finished
-augroup Vimtex
-  autocmd!
-  autocmd QuickFixCmdPost lmake lwindow
-augroup END

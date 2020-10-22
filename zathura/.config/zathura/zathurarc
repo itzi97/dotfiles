@@ -3,7 +3,7 @@
 
 # Tells zathura whether to save document history at each page save or only when
 # closing a document.
-set continuous-hist-save "true"
+#set continuous-hist-save "true"
 
 # Enable DBus service for SyncTeX forward synchronization.
 set dbus-service "true"
@@ -24,6 +24,7 @@ set statusbar-home-tilde "true"
 # Clipboard
 set selection-clipboard clipboard
 
-# Zoom in zoom
-#map <C-i> zoom in
-#map <C-o> zoom out
+# Basic settings
+set highlight-transparency .1
+#set zoom-center "true"
+set render-loading "false"
