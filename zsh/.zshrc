@@ -50,7 +50,7 @@ zplug load
 # }}}
 
 # Show system configuration
-neofetch
+screenfetch
 
 # {{{ Options
 setopt correct                         # Auto correct mistakes
@@ -109,3 +109,4 @@ alias lat="exa --icons --long --all"  # Tree with extended details with all
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+#eval "$(starship init zsh)"
