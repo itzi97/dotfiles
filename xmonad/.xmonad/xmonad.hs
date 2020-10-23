@@ -340,11 +340,12 @@ myManageHook = composeAll
     , resource  =? "kdesktop"           --> doIgnore
 
     -- Assign programs to workspaces
-    , className =? "firefox"     --> doF(W.shift (myWorkspaces !! 1))
-    , className =? "Thunderbird" --> doF(W.shift (myWorkspaces !! 2))
-    , className =? "discord"     --> doF(W.shift (myWorkspaces !! 3))
+    , className =? "firefox"       --> doF(W.shift (myWorkspaces !! 1))
+    , className =? "Brave-browser" --> doF(W.shift (myWorkspaces !! 1))
+    , className =? "Thunderbird"   --> doF(W.shift (myWorkspaces !! 2))
+    , className =? "discord"       --> doF(W.shift (myWorkspaces !! 3))
     -- Spotify not working
-    , className =? "spotify"     --> doF(W.shift (myWorkspaces !! 7))]
+    , className =? "spotify"       --> doF(W.shift (myWorkspaces !! 7))]
 
 
 myManageHook' = composeOne [ isFullscreen -?> doFullFloat ]
