@@ -48,6 +48,8 @@ let g:rainbow_active = 1
 " Disable for Pandoc and VimWiki
 let g:rainbow_conf = {
   \ 'separately': {
+  \   'help': 0,
+  \   'LuaTree': 0,
   \   'pandoc': 0,
   \   'vimwiki': 0,
   \   'vue': 0
