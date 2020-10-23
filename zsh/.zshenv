@@ -5,7 +5,10 @@ if [[ "${resolution}" = "3840" ]]; then
 	# Unlock gnome-keyring if not a desktop environment
 	if [[ "${DESKTOP_SESSION}" != "gnome" &&
 		"${DESKTOP_SESSION}" != "cinnamon" ]];then
-		eval $(gnome-keyring-daemon --start)
+
+		eval $(gnome-keyring-daemon --start --components=gpg,pkcs11,secrets,ssh)
+		#export $(gnome-keyring-daemon --start --components=gpg,pkcs11,secrets,ssh)
+		#dbus-update-activation-environment --systemd DISPLAY
 		export SSH_AUTH_SOCK
 
 		# Set gnome as desktop environment
