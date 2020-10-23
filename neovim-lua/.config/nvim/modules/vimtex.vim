@@ -2,16 +2,15 @@ let g:tex_flavor = 'latex'
 let g:tex_conceal='abdmg'
 
 " Use this alongside neovim
-let g:vimtex_compiler_progname = 'nvr'
-
-let g:vimtex_quickfix_mode = 0
+"let g:vimtex_compiler_progname = 'nvr'
 
 " Completion
 let g:vimtex_complete_recursive_bib = 1
 let g:vimtex_complete_enabled = 1
 
 " Viewer
-let g:vimtex_view_method = 'zathura'
+let g:vimtex_quickfix_mode = 0
+let g:vimtex_view_method = 'mupdf'
 let g:vimtex_view_forward_search_on_start = 0
 
 " Use xelatex by default

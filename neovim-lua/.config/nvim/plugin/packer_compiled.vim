@@ -96,12 +96,6 @@ local plugins = {
     only_setup = false,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/vim-vsnip"
   },
-  ["vim-vue"] = {
-    loaded = false,
-    only_sequence = false,
-    only_setup = false,
-    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/vim-vue"
-  },
   vimtex = {
     loaded = false,
     only_sequence = false,
@@ -266,7 +260,6 @@ augroup packer_load_aucmds
   au FileType tex ++once call s:load(['ale', 'vimtex'], { "ft": "tex" })
   au FileType cmake ++once call s:load(['ale', 'ale'], { "ft": "cmake" })
   au FileType pandoc ++once call s:load(['ale', 'vim-pandoc', 'markdown-preview.nvim'], { "ft": "pandoc" })
-  au FileType vue ++once call s:load(['vim-vue'], { "ft": "vue" })
   au FileType bash ++once call s:load(['ale'], { "ft": "bash" })
   au FileType nix ++once call s:load(['vim-nix'], { "ft": "nix" })
   au FileType rust ++once call s:load(['rust.vim'], { "ft": "rust" })
