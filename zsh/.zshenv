@@ -20,7 +20,7 @@ if [[ "${resolution}" = "3840" ]]; then
 		export GDK_DPI_SCALE=0.5
 
 		export PDFVIEWER=zathura
-	elif
+	else
 		export PDFVIEWER=evince
 	fi
 fi
