@@ -13,8 +13,6 @@ let g:lsp_signs_hint = {'text': ' '} "
 " Highlight references to the symbol under the cursor.
 let g:lsp_highlight_references_enabled = 1
 
-highlight link LspErrorText GruvboxRedSign " requires gruvbox
-
 function! s:on_lsp_buffer_enabled() abort
   setlocal omnifunc=lsp#complete
   setlocal signcolumn=yes
@@ -26,7 +24,7 @@ function! s:on_lsp_buffer_enabled() abort
   nmap <buffer> <leader>rn <plug>(lsp-rename)
   nmap <buffer> [g <Plug>(lsp-previous-diagnostic)
   nmap <buffer> ]g <Plug>(lsp-next-diagnostic)
-  nmap <buffer> K <plug>(lsp-hover)  
+  nmap <buffer> K <plug>(lsp-hover)
   " refer to doc to add more commands
 endfunction
 

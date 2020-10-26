@@ -1,4 +1,11 @@
-let g:polyglot_disabled = ['vim', 'tex', 'markdown', 'pandoc']
+" Neovim configuration without lua
+
+let g:polyglot_disabled = [
+  \ 'vim',
+  \ 'tex',
+  \ 'markdown',
+  \ 'pandoc'
+  \]
 
 " Source plugins
 source $HOME/.config/nvim/modules/packager.vim
@@ -12,11 +19,12 @@ source $HOME/.config/nvim/modules/indentLine.vim
 source $HOME/.config/nvim/modules/airline.vim
 source $HOME/.config/nvim/modules/nerdtree.vim
 source $HOME/.config/nvim/modules/startify.vim
+source $HOME/.config/nvim/modules/floaterm.vim
 
 " Source language configurations
 source $HOME/.config/nvim/modules/pandoc.vim
 source $HOME/.config/nvim/modules/vimtex.vim
-source $HOME/.config/nvim/modules/vsnip.vim
+source $HOME/.config/nvim/modules/ultisnips.vim
 
 " LSP, formatting and linting
 source $HOME/.config/nvim/modules/neoformat.vim

@@ -8,8 +8,10 @@ function! PackagerInit() abort
   call packager#add('mattn/vim-lsp-settings')
   call packager#add('Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' })
   call packager#add('lighttiger2505/deoplete-vim-lsp')
-  call packager#add('hrsh7th/vim-vsnip')
-  call packager#add('hrsh7th/vim-vsnip-integ')
+  call packager#add('sirver/UltiSnips')
+  call packager#add('honza/vim-snippets')
+  call packager#add('thomasfaingnaert/vim-lsp-snippets')
+  call packager#add('thomasfaingnaert/vim-lsp-ultisnips')
 
   " Auto formatting (until vim-lsp supports more types)
   call packager#add('sbdchd/neoformat')
@@ -36,6 +38,9 @@ function! PackagerInit() abort
   call packager#add('Yggdroot/indentLine')
   call packager#add('rrethy/vim-hexokinase', { 'do': 'make hexokinase' })
   call packager#add('luochen1990/rainbow')
+
+  " Floating terminal
+  call packager#add('voldikss/vim-floaterm')
 
   " Fugitive + Gitgutter
   call packager#add('tpope/vim-fugitive')
