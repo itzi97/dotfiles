@@ -53,12 +53,14 @@ function! PackagerInit() abort
   " Eyecandy
   call packager#add('Yggdroot/indentLine')
   call packager#add('luochen1990/rainbow')
-  "call packager#add('RRethy/vim-hexokinase', {'do': 'make hexokinase'})
   call packager#add('norcalli/nvim-colorizer.lua')
 
   " }}}
 
-  " {{{ Interfaces
+  " {{{ Interfaces & Navigation
+
+  " Sneak
+  call packager#add('justinmk/vim-sneak')
 
   " Fzf
   call packager#add('junegunn/fzf', { 'do': './install --all && ln -s $(pwd) ~/.fzf'})
@@ -86,7 +88,6 @@ function! PackagerInit() abort
 
   " Icons
   call packager#add('ryanoasis/vim-devicons')
-
   " }}}
 
   " }}}
@@ -97,6 +98,8 @@ let g:rainbow_active = 1
 let g:rainbow_conf = {
       \ 'separately': {
       \   'nerdtree': 0,
+      \   'startify': 0,
+      \   'fzf'     : 0,
       \}}
 
 syntax on

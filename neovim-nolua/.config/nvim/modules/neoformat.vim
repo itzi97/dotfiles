@@ -1,31 +1,37 @@
-" Disable alignment formatting
-let g:neoformat_basic_format_align = 0
-
-" Disable tab to spaces conversion
-let g:neoformat_basic_format_retab = 0
-
-" Enable trimmming of trailing whitespace
-let g:neoformat_basic_format_trim = 1
-
-" Don't run all formtters, only specified
-let g:neoformat_run_all_formatters = 1
-
-" Run on save
-augroup fmt
-      autocmd!
-      autocmd BufWritePre * undojoin | Neoformat
-augroup END
-
 let g:neoformat_lua_luaformatter = {
-                  \ 'exe': 'lua-format',
-                  \ 'args': ['--config=/home/itziar/.config/nvim/formatters/luaformat.yaml'],
-                  \ 'replace': 0,
-                  \ 'stdin': 1,
-                  \ 'env': ['DEBUG=1'],
-                  \ 'valid_exit_codes': [0, 23],
-                  \ 'no_append': 1,
-                  \ }
+  \ 'exe': 'lua-format',
+  \ 'args': ['--config=/home/itziar/.config/nvim/formatters/luaformat.yaml'],
+  \ 'replace': 0,
+  \ 'stdin': 1,
+  \ 'env': ['DEBUG=1'],
+  \ 'valid_exit_codes': [0, 23],
+  \ 'no_append': 1,
+  \ }
 let g:neoformat_enabled_lua = ['luaformatter']
 
-" Disable formatters for pandoc (due to bug with backslash)
-let g:neoformat_enabled_pandoc = []
+" TODO: Find out how to preserve yaml header using pandoc.
+"let g:neoformat_pandoc_pandoc = {
+"  \ 'exe': 'pandoc',
+"  \ 'args': [
+"  \   '--tab-stop=2',
+"  \   '--columns=100',
+"  \   '--to=markdown'
+"  \   ],
+"  \ 'stdin': 1,
+"  \ 'valid_exit_codes': [0],
+"  \}
+let g:neoformat_enabled_pandoc = [ ]
+
+" Enable alignment globally
+let g:neoformat_basic_format_align = 0
+
+" Enable tab to spaces conversion globally
+let g:neoformat_basic_format_retab = 0
+
+" Enable trimmming of trailing whitespace globally
+let g:neoformat_basic_format_trim = 1
+
+augroup fmt
+  autocmd!
+  autocmd BufWritePre * undojoin | Neoformat
+augroup END

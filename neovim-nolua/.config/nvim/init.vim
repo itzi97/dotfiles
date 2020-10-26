@@ -18,10 +18,10 @@ source $HOME/.config/nvim/modules/settings.vim
 
 " Color + Eyecandy
 source $HOME/.config/nvim/modules/colors.vim
-"source $HOME/.config/nvim/modules/hexokinase.vim
 source $HOME/.config/nvim/modules/indentLine.vim
 
-" Interfaces
+" Interfaces & Navigation
+source $HOME/.config/nvim/modules/sneak.vim
 source $HOME/.config/nvim/modules/airline.vim
 source $HOME/.config/nvim/modules/nerdtree.vim
 source $HOME/.config/nvim/modules/startify.vim
