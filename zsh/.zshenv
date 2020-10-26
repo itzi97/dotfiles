@@ -12,21 +12,18 @@ if [[ "${resolution}" = "3840" ]]; then
 		export SSH_AUTH_SOCK
 
 		# Set gnome as desktop environment
-		export DE="gnome"
+		export DE=gnome
 
 		# HighDPI Settings
 		export QT_AUTO_SCREEN_SCALE_FACTOR=1
 		export GDK_SCALE=2
 		export GDK_DPI_SCALE=0.5
-
-		export PDFVIEWER=zathura
-	else
-		export PDFVIEWER=evince
 	fi
 fi
 
 # Default programs
-export EDITOR="nvim"
+export EDITOR=nvim
+export PDFVIEWER=evince
 if [ -n "$DISPLAY" ]; then
     export BROWSER=brave
 else

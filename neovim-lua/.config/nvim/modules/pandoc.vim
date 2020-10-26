@@ -1,4 +1,4 @@
-let g:pandoc#filetypes#handled = ['pandoc', 'rst', 'textile']
+let g:pandoc#filetypes#handled = ['pandoc', 'markdown', 'rst', 'textile']
 let g:pandoc#filetypes#pandoc_markdown = 1
 
 " Formatting
@@ -56,6 +56,10 @@ let g:pandoc#compiler#arguments = '--overwrite'
 let g:pandoc#biblio#sources = 'bclgy'
 let g:pandoc#biblio#bibs = [ '/home/itziar/Documents/Notes/global.bib' ]
 
-augroup pandoc_markdown
-  autocmd BufEnter *.md set filetype=pandoc
+"augroup pandoc_markdown
+"  autocmd BufEnter *.md set filetype=pandoc
+"augroup END
+
+augroup pandoc_syntax
+    au! BufNewFile,BufFilePre,BufRead *.md set filetype=markdown.pandoc
 augroup END

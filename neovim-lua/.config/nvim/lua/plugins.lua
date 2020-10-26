@@ -117,7 +117,7 @@ local function init()
   use {"fatih/vim-go", run = ":GoUpdateBinaries", ft = "go"}
 
   -- Julia
-  use {"JuliaEditorSupport/julia-vim", ft = "julia"}
+  use {"JuliaEditorSupport/julia-vim", ft = {"julia", "pandoc", "markdown", "rmarkdown"}}
 
   -- Markdown
   use {
@@ -146,7 +146,7 @@ local function init()
   use {"rust-lang/rust.vim", ft = "rust"}
 
   -- Vue
-  -- use {"posva/vim-vue", ft = "vue"}
+  use {"posva/vim-vue", ft = "vue"}
 
   -- }}}
 
