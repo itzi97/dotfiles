@@ -95,6 +95,9 @@ local function init()
     cmd = {"VimwikiIndex", "VimwikiDiaryIndex"}
   }
 
+  -- Lua init.lua
+  use "svermeulen/vimpeccable"
+
   -- }}}
 
   -- {{{ Language Support
@@ -129,7 +132,6 @@ local function init()
     }
   }
 
-  -- Nix
   use {"LnL7/vim-nix", ft = "nix"}
 
   -- PlantUML

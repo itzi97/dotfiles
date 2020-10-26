@@ -1,6 +1,8 @@
 # Vim
 vim/.vim/pack
 neovim-nolua/.config/nvim/pack/packager
+neovim-lua/.config/nvim/pack/packager
+neovim-deoplete/.config/nvim/pack/packager
 
 # XMonad
 xmonad/.xmonad/*.o

@@ -43,6 +43,10 @@ function! PackagerInit() abort
   call packager#add('rrethy/vim-hexokinase', { 'do': 'make hexokinase' })
   call packager#add('luochen1990/rainbow')
 
+  " Fzf
+  call packager#add('junegunn/fzf', { 'do': './install --all && ln -s $(pwd) ~/.fzf'})
+  call packager#add('junegunn/fzf.vim')
+
   " Fugitive + Gitgutter
   call packager#add('tpope/vim-fugitive')
   call packager#add('airblade/vim-gitgutter')

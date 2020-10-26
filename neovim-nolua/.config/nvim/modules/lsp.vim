@@ -6,9 +6,9 @@ let g:lsp_signs_enabled = 1           " enable signs
 let g:lsp_diagnostics_echo_cursor = 1 " enable echo under cursor when in normal mode
 
 " Tweak lsp
-let g:lsp_signs_error = {'text': '✗'}
-let g:lsp_signs_warning = {'text': ' '}
-let g:lsp_signs_hint = {'text': ' '} "
+let g:lsp_signs_error = {'text': ' '}
+let g:lsp_signs_warning = {'text': '𥉉'}
+let g:lsp_signs_hint = {'text': ' '} "
 
 " Highlight references to the symbol under the cursor.
 let g:lsp_highlight_references_enabled = 1
@@ -48,3 +48,11 @@ packadd deoplete.nvim
 call deoplete#custom#var('omni', 'input_patterns', {
   \ 'tex': g:vimtex#re#deoplete
   \})
+
+" Airline Integration
+let g:airline#extensions#lsp#enabled = 1
+let g:airline#extensions#lsp#error_symbol = ' '
+let g:airline#extensions#lsp#warning_symbol = '𥉉'
+let g:airline#extensions#lsp#show_line_numbers = 1
+let g:airline#extensions#lsp#open_lnum_symbol = '('
+let g:airline#extensions#lsp#close_lnum_symbol = ')'

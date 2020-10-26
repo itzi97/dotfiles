@@ -7,15 +7,14 @@ let g:airline#extensions#nvimlsp#error_symbol = ' '
 let g:airline#extensions#nvimlsp#warning_symbol = '𥉉'
 
 " Extensions
-autocmd InsertLeave,BufEnter,BufWinEnter,TabEnter,BufWritePost *
-  \ :lua require'lsp_extensions'.inlay_hints{
-  \   highlight = "Comment",
-  \   prefix    = ' » ',
-  \   aligned   = true,
-  \ }
+augroup lsp_extensions
+  autocmd InsertLeave,BufEnter,BufWinEnter,TabEnter,BufWritePost *.rs lua require'plug-lsp_extensions'
+augroup end
 
 " Diagnostics
-autocmd CursorHold * lua vim.lsp.util.show_line_diagnostics()
+augroup lsp_diagnostics
+  autocmd CursorHold * lua vim.lsp.util.show_line_diagnostics()
+augroup end
 
 let g:diagnostic_enable_virtual_text = 1
 let g:diagnostic_virtual_text_prefix = ' '
@@ -55,7 +54,7 @@ let g:completion_chain_complete_list = {
   \   {'mode': '<c-n>'}
   \ ],
   \ 'tex' : [
-  \   {'complete_items': ['lsp', 'snippet']},
+  \   {'complete_items': ['vimtex', 'lsp', 'snippet']},
   \   {'complete_items': ['path'], 'triggered_only': ['/']},
   \ ],
   \ 'pandoc' : [

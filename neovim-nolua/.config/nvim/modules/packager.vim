@@ -3,6 +3,8 @@ function! PackagerInit() abort
   call packager#init()
   call packager#add('kristijanhusak/vim-packager', { 'type': 'opt' })
 
+  " {{{ Linting, completion, formatting
+
   " LSP + Deoplete
   call packager#add('prabirshrestha/vim-lsp')
   call packager#add('mattn/vim-lsp-settings')
@@ -13,11 +15,21 @@ function! PackagerInit() abort
   call packager#add('thomasfaingnaert/vim-lsp-snippets')
   call packager#add('thomasfaingnaert/vim-lsp-ultisnips')
 
+  " Linting when LSP not available
+  call packager#add('dense-analysis/ale')
+
   " Auto formatting (until vim-lsp supports more types)
   call packager#add('sbdchd/neoformat')
 
+  " }}}
+
+  " {{{ Languages
+
   " Language Support
   call packager#add('sheerun/vim-polyglot')
+
+  " Go
+  call packager#add('fatih/vim-go', { 'do': ':GoInstallBinaries', 'type': 'opt' })
 
   " Markdown+
   call packager#add('vim-pandoc/vim-pandoc')
@@ -30,14 +42,28 @@ function! PackagerInit() abort
   " R
   call packager#add('jalvesaq/Nvim-R', {'branch': 'master'})
 
-  " Colorscheme + eyecandy
+  " }}}
+
+  " {{{ Color & Eyecandy
+
+  " Color
   call packager#add('morhetz/gruvbox')
   call packager#add('kaicataldo/material.vim', { 'branch': 'main' })
 
   " Eyecandy
   call packager#add('Yggdroot/indentLine')
   call packager#add('luochen1990/rainbow')
+  "call packager#add('RRethy/vim-hexokinase', {'do': 'make hexokinase'})
   call packager#add('norcalli/nvim-colorizer.lua')
+
+  " }}}
+
+  " {{{ Interfaces
+
+  " Fzf
+  call packager#add('junegunn/fzf', { 'do': './install --all && ln -s $(pwd) ~/.fzf'})
+  call packager#add('junegunn/fzf.vim')
+  call packager#add('airblade/vim-rooter')
 
   " Floating terminal
   call packager#add('voldikss/vim-floaterm')
@@ -60,6 +86,10 @@ function! PackagerInit() abort
 
   " Icons
   call packager#add('ryanoasis/vim-devicons')
+
+  " }}}
+
+  " }}}
 endfunction
 
 let g:deoplete#enable_at_startup = 1
@@ -77,3 +107,11 @@ command! -bang PackagerUpdate call PackagerInit() |
       \ call packager#update({ 'force_hooks': '<bang>' })
 command! PackagerClean call PackagerInit()        | call packager#clean()
 command! PackagerStatus call PackagerInit()       | call packager#status()
+
+"Load plugins only for specific filetype
+"Note that this should not be done for plugins that handle their loading using ftplugin file.
+"More info in :help pack-add
+augroup packager_filetype
+  autocmd!
+  autocmd FileType go packadd vim-go
+augroup END
