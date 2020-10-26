@@ -49,3 +49,4 @@ source $HOME/.config/nvim/modules/lsp.vim
 " Source pure Lua plugins
 execute 'luafile' . stdpath('config') . '/lua/plug-treesitter.lua'
 execute 'luafile' . stdpath('config') . '/lua/plug-colorizer.lua'
+"execute 'luafile' . stdpath('config') . '/lua/plug-galaxyline.lua'

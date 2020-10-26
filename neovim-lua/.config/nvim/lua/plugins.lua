@@ -36,7 +36,7 @@ local function init()
       {
         "nvim-treesitter/nvim-treesitter",
         run = ":TSUpdate",
-        requires = "nvim-treesitter/completion-treesitter"
+        requires = {"nvim-treesitter/completion-treesitter", "romgrk/nvim-treesitter-context"}
       }
     }
   }
@@ -82,7 +82,7 @@ local function init()
   -- Open file in last place it was edited
   use "farmergreg/vim-lastplace"
 
-  -- Colorizer
+  -- Colorizer (use local version)
   use {"norcalli/nvim-colorizer.lua", as = "nvim-colorizer"}
 
   -- Rainbow Brackets
@@ -99,7 +99,7 @@ local function init()
 
   -- {{{ Language Support
 
-  use "sheerun/vim-polyglot"
+  -- use "sheerun/vim-polyglot"
 
   -- C/C++
   use {"jackguo380/vim-lsp-cxx-highlight", ft = {"c", "cpp"}}
@@ -178,9 +178,14 @@ local function init()
   -- Startify
   use "mhinz/vim-startify"
 
+  -- Galaxyline
+  -- use "glepnir/galaxyline.nvim"
+
   -- Airline
-  use {"vim-airline/vim-airline", requires = "vim-airline/vim-airline-themes"}
-  use "edkolev/tmuxline.vim"
+  use {
+    "vim-airline/vim-airline",
+    requires = {"vim-airline/vim-airline-themes", "edkolev/tmuxline.vim"}
+  }
 
   -- Icons in Airline, Startify, Lua Tree, Telescope
   use "ryanoasis/vim-devicons"
