@@ -36,8 +36,8 @@ function! PackagerInit() abort
 
   " Eyecandy
   call packager#add('Yggdroot/indentLine')
-  call packager#add('rrethy/vim-hexokinase', { 'do': 'make hexokinase' })
   call packager#add('luochen1990/rainbow')
+  call packager#add('norcalli/nvim-colorizer.lua')
 
   " Floating terminal
   call packager#add('voldikss/vim-floaterm')

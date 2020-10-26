@@ -29,3 +29,6 @@ source $HOME/.config/nvim/modules/ultisnips.vim
 " LSP, formatting and linting
 source $HOME/.config/nvim/modules/neoformat.vim
 source $HOME/.config/nvim/modules/lsp.vim
+
+" Source lua configs
+execute 'luafile' . stdpath('config') . '/lua/plug-colorizer.lua'
