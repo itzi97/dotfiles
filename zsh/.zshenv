@@ -63,3 +63,16 @@ export PERL5LIB="${HOME}/.local/share/perl5/lib/perl5";
 export PERL_LOCAL_LIB_ROOT="${HOME}/.local/share/perl5";
 export PERL_MB_OPT="--install_base \"${HOME}/.local/share/perl5\"";
 export PERL_MM_OPT="INSTALL_BASE=${HOME}/.local/share/perl5";
+
+# Hadoop
+export HADOOP_CONF_DIR="/etc/hadoop"
+export HADOOP_LOG_DIR="/tmp/hadoop/log"
+export HADOOP_WORKERS="/etc/hadoop/workers"
+export HADOOP_PID_DIR="/tmp/hadoop/run"
+
+# Spark
+export SPARK_HOME="/opt/apache-spark"
+export PATH="${PATH}:${SPARK_HOME}/bin"
+
+export PYSPARK_DRIVER_PYTHON=jupyter
+export PYSPARK_DRIVER_PYTHON_OPTS="lab"
