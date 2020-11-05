@@ -8,3 +8,6 @@ require("telescope").setup {
     shorten_path = true -- currently the default value is true
   }
 }
+
+vim.api.nvim_set_keymap("n", "<leader>p", "<cmd>lua require'telescope.builtin'.git_files{}<CR>",
+                        {noremap = true, silent = true})

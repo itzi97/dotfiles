@@ -1,11 +1,6 @@
 " Source the lua part
 execute 'luafile' . stdpath('config') . '/lua/lsp.lua'
 
-" Airline integration
-let g:airline#extensions#nvimlsp#enabled = 1
-let g:airline#extensions#nvimlsp#error_symbol = ' '
-let g:airline#extensions#nvimlsp#warning_symbol = '𥉉'
-
 " Extensions
 augroup lsp_extensions
   autocmd InsertLeave,BufEnter,BufWinEnter,TabEnter,BufWritePost *.rs lua require'plug-lsp_extensions'

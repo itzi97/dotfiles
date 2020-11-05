@@ -26,14 +26,6 @@ let g:ale_sign_column_always = 1
 let g:ale_sign_error = ' '
 let g:ale_sign_warning = '𥉉'
 
-" Enable Airline integration
-let g:airline#extensions#ale#enabled = 1
-let g:airline#extensions#ale#error_symbol = ' '
-let g:airline#extensions#ale#warning_symbol = '𥉉'
-let g:airline#extensions#ale#show_line_numbers = 1
-let g:airline#extensions#ale#open_lnum_symbol = '('
-let g:airline#extensions#ale#close_lnum_symbol = ')'
-
 " Disable trailing whitespace warnings (NeoFormat handles them)
 let g:ale_warn_about_trailing_whitespace = 0
 
