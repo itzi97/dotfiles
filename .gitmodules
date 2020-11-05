@@ -1,3 +1,6 @@
 [submodule "awesome/.config/awesome"]
 	path = awesome/.config/awesome
 	url = git@github.com:itzi97/material-awesome.git
+[submodule "awesome-pro/.config/awesome"]
+	path = awesome-pro/.config/awesome
+	url = https://github.com/4ban/awesome-pro
