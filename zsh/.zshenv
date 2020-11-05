@@ -30,8 +30,9 @@ else
     export BROWSER=links
 fi
 
-
 # Default Programs
+
+export WORKSPACE="${HOME}/Workspace"
 
 # Add local path
 export PATH="${PATH}:${HOME}/.local/bin"
@@ -40,8 +41,9 @@ export PATH="${PATH}:${HOME}/.local/bin"
 export PATH="${PATH}:${HOME}/.cargo/bin"
 
 # Go path
-export GOPATH="${HOME}/.go"
-export PATH="${PATH}:${GOPATH}/bin"
+export GOPATH="${WORKSPACE}/go"
+export GOBIN="${GOPATH}/bin"
+export PATH="${PATH}:${GOBIN}"
 
 # Jupyter path
 export JUPYTERLAB_DIR="${HOME}/.local/share/jupyter/lab"

@@ -428,13 +428,12 @@ myStartupHook = do
     spawnOnce "dunst"
     spawn "~/.config/polybar/launch.sh"
     spawnOnce "redshift-gtk"
-    spawnOnce "nm-applet"
-    spawnOnce "pasystray"
-    spawnOnce "birdtray"
+    --spawnOnce "nm-applet"
+    --spawnOnce "pasystray"
     spawnOnce "piactl connect"
-    spawnOnce "megasync"
-    spawnOnce "flameshot"
-    spawnOnce "mntray"
+    --spawnOnce "megasync"
+    --spawnOnce "flameshot"
+    --spawnOnce "mntray"
 
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
