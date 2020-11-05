@@ -5,17 +5,32 @@ local gls = gl.section
 gl.short_line_list = {"LuaTree", "vista", "dbui"}
 
 local colors = {
-  bg = "#282c34",
-  yellow = "#fabd2f",
-  cyan = "#008080",
-  darkblue = "#081633",
-  green = "#afd700",
-  orange = "#FF8800",
-  purple = "#5d4d7a",
-  magenta = "#d16d9e",
-  grey = "#c0c0c0",
-  blue = "#0087d7",
-  red = "#ec5f67"
+  fg = "#ABB2BF",
+  bg = "#1E1E1E",
+
+  red = "#D16969",
+  error_red = "#F44747",
+  green = "#608B4E",
+  light_green = "#B5CEA8",
+  yellow = "#DCDCAA",
+  dark_yellow = "#D7BA7D",
+  orange = "#CE9178",
+  blue = "#569CD6",
+  light_blue = "#9CDCFE",
+  dark_blue = "#192e40",
+  vivid_blue = "#4FC1FF",
+  purple = "#C586C0",
+  dark_purple = "#3b2839",
+  cyan = "#4EC9B0",
+  white = "#ABB2BF",
+  black = "#1E1E1E",
+  line_grey = "#5C6370",
+  gutter_fg_grey = "#4B5263",
+  cursor_grey = "#2C323C",
+  visual_grey = "#3E4452",
+  menu_grey = "#282C34",
+  special_grey = "#3B4048",
+  vertsplit = "#181A1F"
 }
 
 local empty_buffer = function()
@@ -30,7 +45,7 @@ gls.left[1] = {
     provider = function()
       return "▋"
     end,
-    highlight = {colors.blue, colors.yellow}
+    highlight = {colors.blue, colors.blue}
   }
 }
 gls.left[2] = {
@@ -39,24 +54,24 @@ gls.left[2] = {
       local alias = {n = "NORMAL", i = "INSERT", c = "COMMAND", V = "VISUAL", [""] = "VISUAL"}
       return alias[vim.fn.mode()]
     end,
-    separator = "",
+    separator = " ",
     separator_highlight = {
-      colors.yellow,
+      colors.blue,
       function()
         if not empty_buffer() then
-          return colors.purple
+          return colors.blue
         end
-        return colors.darkblue
+        return colors.dark_blue
       end
     },
-    highlight = {colors.magenta, colors.yellow, "bold"}
+    highlight = {colors.bg, colors.blue, "bold"}
   }
 }
 gls.left[3] = {
   FileIcon = {
     provider = "FileIcon",
     condition = empty_buffer,
-    highlight = {require("galaxyline.provider_fileinfo").get_file_icon_color, colors.darkblue}
+    highlight = {require("galaxyline.provider_fileinfo").get_file_icon_color, colors.dark_blue}
   }
 }
 gls.left[4] = {
@@ -64,8 +79,8 @@ gls.left[4] = {
     provider = {"FileName"},
     condition = empty_buffer,
     separator = "",
-    separator_highlight = {colors.purple, colors.darkblue},
-    highlight = {colors.magenta, colors.darkblue}
+    separator_highlight = {colors.dark_purple, colors.dark_blue},
+    highlight = {colors.purple, colors.dark_blue}
   }
 }
 gls.left[5] = {
@@ -74,14 +89,14 @@ gls.left[5] = {
       return "  "
     end,
     condition = empty_buffer,
-    highlight = {colors.orange, colors.purple}
+    highlight = {colors.orange, colors.dark_purple}
   }
 }
 gls.left[6] = {
   GitBranch = {
     provider = "GitBranch",
     condition = empty_buffer,
-    highlight = {colors.grey, colors.purple}
+    highlight = {colors.grey, colors.dark_purple}
   }
 }
 
@@ -98,7 +113,7 @@ gls.left[7] = {
     provider = "DiffAdd",
     condition = checkwidth,
     icon = " ",
-    highlight = {colors.green, colors.purple}
+    highlight = {colors.green, colors.dark_purple}
   }
 }
 gls.left[8] = {
@@ -106,7 +121,7 @@ gls.left[8] = {
     provider = "DiffModified",
     condition = checkwidth,
     icon = " ",
-    highlight = {colors.orange, colors.purple}
+    highlight = {colors.orange, colors.dark_purple}
   }
 }
 gls.left[9] = {
@@ -114,7 +129,7 @@ gls.left[9] = {
     provider = "DiffRemove",
     condition = checkwidth,
     icon = " ",
-    highlight = {colors.red, colors.purple}
+    highlight = {colors.red, colors.dark_purple}
   }
 }
 gls.left[10] = {
@@ -123,8 +138,8 @@ gls.left[10] = {
       return ""
     end,
     separator = "",
-    separator_highlight = {colors.purple, colors.bg},
-    highlight = {colors.purple, colors.purple}
+    separator_highlight = {colors.dark_purple, colors.bg},
+    highlight = {colors.dark_purple, colors.dark_purple}
   }
 }
 gls.left[11] = {
@@ -152,41 +167,43 @@ gls.right[1] = {
   FileFormat = {
     provider = "FileFormat",
     separator = "",
-    separator_highlight = {colors.bg, colors.purple},
-    highlight = {colors.grey, colors.purple}
+    separator_highlight = {colors.bg, colors.dark_purple},
+    highlight = {colors.grey, colors.dark_purple}
   }
 }
 gls.right[2] = {
   LineInfo = {
     provider = "LineColumn",
     separator = " | ",
-    separator_highlight = {colors.darkblue, colors.purple},
-    highlight = {colors.grey, colors.purple}
+    separator_highlight = {colors.dark_blue, colors.dark_purple},
+    highlight = {colors.grey, colors.dark_purple}
   }
 }
 gls.right[3] = {
   PerCent = {
     provider = "LinePercent",
     separator = "",
-    separator_highlight = {colors.darkblue, colors.purple},
-    highlight = {colors.grey, colors.darkblue}
+    separator_highlight = {colors.dark_blue, colors.dark_purple},
+    highlight = {colors.grey, colors.dark_blue}
   }
 }
-gls.right[4] = {ScrollBar = {provider = "ScrollBar", highlight = {colors.yellow, colors.purple}}}
+gls.right[4] = {
+  ScrollBar = {provider = "ScrollBar", highlight = {colors.yellow, colors.dark_purple}}
+}
 
 gls.short_line_left[1] = {
   BufferType = {
     provider = "FileTypeName",
     separator = "",
-    separator_highlight = {colors.purple, colors.bg},
-    highlight = {colors.grey, colors.purple}
+    separator_highlight = {colors.dark_purple, colors.bg},
+    highlight = {colors.grey, colors.dark_purple}
   }
 }
 gls.short_line_right[1] = {
   BufferIcon = {
     provider = "BufferIcon",
     separator = "",
-    separator_highlight = {colors.purple, colors.bg},
-    highlight = {colors.grey, colors.purple}
+    separator_highlight = {colors.dark_purple, colors.bg},
+    highlight = {colors.grey, colors.dark_purple}
   }
 }

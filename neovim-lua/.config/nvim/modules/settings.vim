@@ -1,3 +1,8 @@
+" Set encoding
+set encoding=utf-8
+set fileencoding=utf-8
+scriptencoding utf-8
+
 " Map keys
 let mapleader='ñ'
 let maplocalleader='º'

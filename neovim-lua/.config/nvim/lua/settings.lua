@@ -5,11 +5,8 @@ local function global_settings()
   vim.g.mapleader = "ñ"
   vim.g.maplocalleader = "º"
 
-  -- vim.bo[0].number = true
-  -- vim.bo[0].relativenumber = true
-
-  vim.api.nvim_set_option("number", true)
-  vim.api.nvim_set_option("relativenumber", true)
+  vim.o.number = true
+  vim.o.relativenumber = true
 
   -- Set to wrap at textwidth (80)
   vim.o.wrap = true
@@ -57,7 +54,7 @@ local function global_settings()
 
   -- Always show sign column
   -- vim.o.signcolumn = "yes"
-  -- vim.api.nvim_set_option("signcolumn", "yes")
+  vim.api.nvim_set_option("signcolumn", "yes")
 
   -- Give more space for displaying messages
   vim.o.cmdheight = 2

@@ -32,11 +32,22 @@ set completeopt=menuone,noinsert,noselect
 set shortmess+=c
 
 " Enable snippet usage
-let g:completion_enable_snippet = 'vim-vsnip'
+packadd UltiSnips
+let g:completion_enable_snippet = 'UltiSnips'
 
 " Use <Tab> and <S-Tab> to navigate through popup menu
 inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+
+" Trigger configuration. You need to change this to something other than <tab> if you use one of the following:
+" - https://github.com/Valloric/YouCompleteMe
+" - https://github.com/nvim-lua/completion-nvim
+let g:UltiSnipsExpandTrigger="<c-w>"
+let g:UltiSnipsJumpForwardTrigger="<c-w>"
+let g:UltiSnipsJumpBackwardTrigger="<c-b>"
+
+" If you want :UltiSnipsEdit to split your window.
+let g:UltiSnipsEditSplit="vertical"
 
 " Enable auto switching between completion sources
 let g:completion_auto_change_source = 1

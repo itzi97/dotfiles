@@ -37,10 +37,19 @@ let g:rehash256 = 1
 let g:material_terminal_italics = 1
 let g:material_theme_style = 'darker'
 
+" NVCode
+let g:nvcode_termcolors=256
+
 " Set color schemes
 set background=dark
-colorscheme gruvbox
-let g:airline_theme = 'gruvbox'
+colorscheme nvcode
+"let g:airline_theme = 'gruvbox'
+
+" checks if your terminal has 24-bit color support
+if (has('termguicolors'))
+  set termguicolors
+  hi LineNr ctermbg=NONE guibg=NONE
+endif
 
 " Color brackets
 let g:rainbow_active = 1
@@ -52,6 +61,9 @@ let g:rainbow_conf = {
   \   'LuaTree': 0,
   \   'pandoc': 0,
   \   'vimwiki': 0,
+  \   'html': 0,
+  \   'javascript': 0,
+  \   'jsx': 0,
   \   'vue': 0
   \ }
   \}

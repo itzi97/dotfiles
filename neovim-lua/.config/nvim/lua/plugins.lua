@@ -1,6 +1,7 @@
 local packer = nil
 local function init()
   if packer == nil then
+    vim.cmd [[packadd packer.nvim]]
     packer = require("packer")
     packer.init()
   end
@@ -24,9 +25,9 @@ local function init()
           {"aca/completion-tabnine", run = "./install.sh", event = "InsertEnter *"},
           {"steelsojka/completion-buffers", event = "InsertEnter *"},
           {
-            "hrsh7th/vim-vsnip",
+            "sirver/UltiSnips",
             event = "InsertEnter *",
-            requires = {"hrsh7th/vim-vsnip-integ", event = "InsertEnter *"}
+            requires = {"honza/vim-snippets", event = "InsertEnter *"}
           }
         }
       },
@@ -96,13 +97,16 @@ local function init()
   }
 
   -- Lua init.lua
-  use "svermeulen/vimpeccable"
+  -- use "svermeulen/vimpeccable"
+
+  -- Debugging
+  use "puremourning/vimspector"
 
   -- }}}
 
   -- {{{ Language Support
 
-  -- use "sheerun/vim-polyglot"
+  use "sheerun/vim-polyglot"
 
   -- C/C++
   use {"jackguo380/vim-lsp-cxx-highlight", ft = {"c", "cpp"}}
@@ -119,6 +123,11 @@ local function init()
   -- Go
   use {"fatih/vim-go", run = ":GoUpdateBinaries", ft = "go"}
 
+  -- JavaScript
+  -- use {"mxw/vim-jsx", "pangloss/vim-javascript", ft = "javascript"}
+  use {"yuezk/vim-js", "maxmellon/vim-jsx-pretty", ft = "javascript"}
+  use "Glench/Vim-Jinja2-Syntax"
+
   -- Julia
   use {"JuliaEditorSupport/julia-vim", ft = {"julia", "pandoc", "markdown", "rmarkdown"}}
 
@@ -127,11 +136,16 @@ local function init()
     {"iamcco/markdown-preview.nvim", run = "cd app && yarn install", ft = {"pandoc", "markdown"}},
     {
       "vim-pandoc/vim-pandoc",
-      requires = {"vim-pandoc/vim-pandoc-syntax", "vim-pandoc/vim-rmarkdown"},
+      requires = {
+        "vim-pandoc/vim-pandoc-syntax",
+        "vim-pandoc/vim-rmarkdown",
+        "dhruvasagar/vim-table-mode"
+      },
       ft = {"pandoc", "markdown", "rmarkdown"}
     }
   }
 
+  -- Nix
   use {"LnL7/vim-nix", ft = "nix"}
 
   -- PlantUML
@@ -160,6 +174,7 @@ local function init()
   use "rakr/vim-one"
   use "NLKNguyen/papercolor-theme"
   use "tomasr/molokai"
+  use "christianchiarulli/nvcode-color-schemes.vim"
 
   -- Indent Line
   use "Yggdroot/indentLine"
@@ -181,13 +196,13 @@ local function init()
   use "mhinz/vim-startify"
 
   -- Galaxyline
-  -- use "glepnir/galaxyline.nvim"
+  use {"glepnir/galaxyline.nvim", branch = "main", requires = "nvim-lua/lsp-status.nvim"}
 
   -- Airline
-  use {
-    "vim-airline/vim-airline",
-    requires = {"vim-airline/vim-airline-themes", "edkolev/tmuxline.vim"}
-  }
+  -- use {
+  --  "vim-airline/vim-airline",
+  --  requires = {"vim-airline/vim-airline-themes", "edkolev/tmuxline.vim"}
+  -- }
 
   -- Icons in Airline, Startify, Lua Tree, Telescope
   use "ryanoasis/vim-devicons"

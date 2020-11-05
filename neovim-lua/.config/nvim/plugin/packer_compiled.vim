@@ -12,6 +12,12 @@ local plugins = {
     only_setup = false,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/Nvim-R"
   },
+  UltiSnips = {
+    loaded = false,
+    only_sequence = false,
+    only_setup = false,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/UltiSnips"
+  },
   ale = {
     loaded = false,
     only_sequence = false,
@@ -89,12 +95,6 @@ local plugins = {
     only_sequence = false,
     only_setup = false,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/vim-pandoc"
-  },
-  ["vim-vsnip"] = {
-    loaded = false,
-    only_sequence = false,
-    only_setup = false,
-    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/vim-vsnip"
   },
   ["vim-vue"] = {
     loaded = false,
@@ -265,20 +265,20 @@ augroup packer_load_aucmds
   au FileType cpp ++once call s:load(['ale', 'vim-lsp-cxx-highlight'], { "ft": "cpp" })
   au FileType tex ++once call s:load(['ale', 'vimtex'], { "ft": "tex" })
   au FileType cmake ++once call s:load(['ale', 'ale'], { "ft": "cmake" })
-  au FileType pandoc ++once call s:load(['ale', 'julia-vim', 'vim-pandoc', 'markdown-preview.nvim'], { "ft": "pandoc" })
+  au FileType pandoc ++once call s:load(['ale', 'julia-vim', 'markdown-preview.nvim', 'vim-pandoc'], { "ft": "pandoc" })
   au FileType vue ++once call s:load(['vim-vue'], { "ft": "vue" })
   au FileType bash ++once call s:load(['ale'], { "ft": "bash" })
-  au FileType nix ++once call s:load(['vim-nix'], { "ft": "nix" })
-  au FileType rust ++once call s:load(['rust.vim'], { "ft": "rust" })
-  au FileType rmarkdown ++once call s:load(['Nvim-R', 'julia-vim', 'vim-pandoc'], { "ft": "rmarkdown" })
-  au FileType markdown ++once call s:load(['ale', 'julia-vim', 'vim-pandoc', 'markdown-preview.nvim'], { "ft": "markdown" })
-  au FileType julia ++once call s:load(['julia-vim'], { "ft": "julia" })
   au FileType haskell ++once call s:load(['haskell-vim'], { "ft": "haskell" })
-  au FileType vim ++once call s:load(['ale'], { "ft": "vim" })
+  au FileType rust ++once call s:load(['rust.vim'], { "ft": "rust" })
+  au FileType rmarkdown ++once call s:load(['julia-vim', 'Nvim-R', 'vim-pandoc'], { "ft": "rmarkdown" })
+  au FileType markdown ++once call s:load(['ale', 'julia-vim', 'markdown-preview.nvim', 'vim-pandoc'], { "ft": "markdown" })
+  au FileType julia ++once call s:load(['julia-vim'], { "ft": "julia" })
+  au FileType nix ++once call s:load(['vim-nix'], { "ft": "nix" })
   au FileType sh ++once call s:load(['ale'], { "ft": "sh" })
+  au FileType vim ++once call s:load(['ale'], { "ft": "vim" })
   au FileType go ++once call s:load(['vim-go'], { "ft": "go" })
   " Event lazy-loads
   au BufRead ~/Documents/vimwiki/*.wiki ++once call s:load(['vimwiki'], { "event": "BufRead ~/Documents/vimwiki/*.wiki" })
-  au InsertEnter * ++once call s:load(['completion-buffers', 'Nvim-R', 'completion-nvim', 'completion-tabnine', 'vim-vsnip'], { "event": "InsertEnter *" })
+  au InsertEnter * ++once call s:load(['Nvim-R', 'completion-nvim', 'completion-tabnine', 'UltiSnips', 'completion-buffers'], { "event": "InsertEnter *" })
   au BufNewFile ~/Documents/vimwiki/*.wiki ++once call s:load(['vimwiki'], { "event": "BufNewFile ~/Documents/vimwiki/*.wiki" })
 augroup END

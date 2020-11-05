@@ -5,5 +5,6 @@ require("colorizer").setup({
   "!LuaTree",
   "!packer",
   "!startify",
-  markdown = {mode = "background"}
+  markdown = {mode = "background"},
+  lua = {mode = "background"}
 }, {mode = "foreground"})
