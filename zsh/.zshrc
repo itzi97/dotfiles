@@ -75,6 +75,9 @@ zstyle ':completion:*' cache-path ~/.zsh/cache
 zstyle ':notify:*' error-title "Command failed (in #{time_elapsed} seconds)"
 zstyle ':notify:*' success-title "Command finished (in #{time_elapsed} seconds)"
 
+# Unset autocompletion beeps
+unsetopt LIST_BEEP
+
 # History
 HISTFILE=~/.zhistory
 HISTSIZE=1000
@@ -87,7 +90,6 @@ compinit -d
 kitty + complete setup zsh | source /dev/stdin
 
 colors
-
 
 bindkey '^[[A' history-substring-search-up
 bindkey '^[[B' history-substring-search-down
