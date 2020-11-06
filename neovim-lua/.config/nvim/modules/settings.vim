@@ -14,6 +14,7 @@ set guifont=Hack\ Nerd\ Font\ 10
 set number                    " Show number lines
 set relativenumber            " Show number of lines above and below
 set textwidth=80 wrap         " Line wrap at 80 characters
+set colorcolumn=+0            " Show color column
 set showbreak=﬌               " Wrap-broken line prefix
 set showmatch                 " Highlight matching brace
 set foldmethod=marker         " Enable folding by markers
