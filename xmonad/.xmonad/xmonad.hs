@@ -424,7 +424,7 @@ myStartupHook = do
     spawnOnce "gsettings set org.gnome.settings-daemon.plugins.xsettings overrides '[{'Gdk/WindowScalingFactor', <2>}]'"
     spawnOnce "gsettings set org.gnome.desktop.interface scaling-factor 2"
     spawnOnce "nitrogen --restore"
-    spawnOnce "picom -b --config ~/.config/picom/picom.conf"
+    spawnOnce "compton -b --config ~/.config/picom/picom.conf"
     spawnOnce "dunst"
     spawn "~/.config/polybar/launch.sh"
     spawnOnce "redshift-gtk"
