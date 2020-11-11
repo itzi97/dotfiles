@@ -49,3 +49,4 @@ source $HOME/.config/nvim/modules/nvimR.vim
 source $HOME/.config/nvim/modules/neoformat.vim
 source $HOME/.config/nvim/modules/ale.vim
 source $HOME/.config/nvim/modules/lsp.vim
+execute 'luafile' . stdpath('config') . '/lua/plug-nvim-dap.lua'

@@ -16,49 +16,33 @@ local function init()
 
   -- LSP
   use {
-    "neovim/nvim-lspconfig",
-    {
+    "neovim/nvim-lspconfig", {
       {
         "nvim-lua/completion-nvim",
         event = "InsertEnter *",
         requires = {
           {"aca/completion-tabnine", run = "./install.sh", event = "InsertEnter *"},
-          {"steelsojka/completion-buffers", event = "InsertEnter *"},
-          {
+          {"steelsojka/completion-buffers", event = "InsertEnter *"}, {
             "sirver/UltiSnips",
             event = "InsertEnter *",
-            requires = {"honza/vim-snippets", event = "InsertEnter *"}
-          }
-        }
-      },
-      {"RishabhRD/nvim-lsputils", requires = "RishabhRD/popfix"},
-      "nvim-lua/lsp_extensions.nvim",
-      "nvim-lua/diagnostic-nvim",
-      {
+            requires = {"honza/vim-snippets", event = "InsertEnter *"},
+          },
+        },
+      }, {"RishabhRD/nvim-lsputils", requires = "RishabhRD/popfix"}, "nvim-lua/lsp_extensions.nvim",
+      "nvim-lua/diagnostic-nvim", {
         "nvim-treesitter/nvim-treesitter",
         run = ":TSUpdate",
-        requires = {"nvim-treesitter/completion-treesitter", "romgrk/nvim-treesitter-context"}
-      }
-    }
+        requires = {"nvim-treesitter/completion-treesitter", "romgrk/nvim-treesitter-context"},
+      },
+    },
   }
 
   -- ALE
   use {
     "dense-analysis/ale",
     ft = {
-      "sh",
-      "zsh",
-      "bash",
-      "c",
-      "cpp",
-      "cmake",
-      "cmake",
-      "html",
-      "markdown",
-      "pandoc",
-      "vim",
-      "tex"
-    }
+      "sh", "zsh", "bash", "c", "cpp", "cmake", "cmake", "html", "markdown", "pandoc", "vim", "tex",
+    },
   }
 
   -- TODO: Only use this when lsp doesn't offer formatting.
@@ -93,14 +77,14 @@ local function init()
   use {
     "vimwiki/vimwiki",
     event = {"BufNewFile ~/Documents/vimwiki/*.wiki", "BufRead ~/Documents/vimwiki/*.wiki"},
-    cmd = {"VimwikiIndex", "VimwikiDiaryIndex"}
+    cmd = {"VimwikiIndex", "VimwikiDiaryIndex"},
   }
 
   -- Lua init.lua
   -- use "svermeulen/vimpeccable"
 
   -- Debugging
-  use "puremourning/vimspector"
+  use {"mfussenegger/nvim-dap", requires = "theHamsta/nvim-dap-virtual-text"}
 
   -- }}}
 
@@ -137,12 +121,10 @@ local function init()
     {
       "vim-pandoc/vim-pandoc",
       requires = {
-        "vim-pandoc/vim-pandoc-syntax",
-        "vim-pandoc/vim-rmarkdown",
-        "dhruvasagar/vim-table-mode"
+        "vim-pandoc/vim-pandoc-syntax", "vim-pandoc/vim-rmarkdown", "dhruvasagar/vim-table-mode",
       },
-      ft = {"pandoc", "markdown", "rmarkdown"}
-    }
+      ft = {"pandoc", "markdown", "rmarkdown"},
+    },
   }
 
   -- Nix
@@ -152,7 +134,7 @@ local function init()
   use {
     "weirongxu/plantuml-previewer.vim",
     as = "plantuml-previewer",
-    requires = {"aklt/plantuml-syntax", "tyru/open-browser.vim"}
+    requires = {"aklt/plantuml-syntax", "tyru/open-browser.vim"},
   }
 
   -- R
@@ -211,11 +193,13 @@ local function init()
   -- }}}
 end
 
-local plugins = setmetatable({}, {
-  __index = function(_, key)
-    init()
-    return packer[key]
-  end
-})
+local plugins = setmetatable(
+  {}, {
+    __index = function(_, key)
+      init()
+      return packer[key]
+    end,
+  }
+)
 
 return plugins
