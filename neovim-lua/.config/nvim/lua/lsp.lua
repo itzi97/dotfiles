@@ -1,32 +1,30 @@
 -- Load Lua plugins.
 vim.cmd [[packadd nvim-lspconfig]]
 vim.cmd [[packadd diagnostic-nvim]]
-local nvim_lsp = require("nvim_lsp")
+local lspconfig = require("lspconfig")
 local diagnostic = require("diagnostic")
 
 local texlab_build_status = vim.tbl_add_reverse_lookup {
   Success = 0,
   Error = 1,
   Failure = 2,
-  Cancelled = 3
+  Cancelled = 3,
 }
 
 local function buf_build(bufnr)
-  bufnr = require("nvim_lsp/util").validate_bufnr(bufnr)
+  bufnr = require("lspconfig/util").validate_bufnr(bufnr)
   local params = {textDocument = {uri = vim.uri_from_bufnr(bufnr)}}
-  vim.lsp.buf_request(bufnr, "textDocument/build", params, function(err, _, result, _)
-    if err then
-      error(tostring(err))
+  vim.lsp.buf_request(
+    bufnr, "textDocument/build", params, function(err, _, result, _)
+      if err then error(tostring(err)) end
+      print("Build " .. texlab_build_status[result.status])
     end
-    print("Build " .. texlab_build_status[result.status])
-  end)
+  )
 end
 
 local function make_on_attach(config)
   return function(client)
-    if config.before then
-      config.before(client)
-    end
+    if config.before then config.before(client) end
 
     diagnostic.on_attach()
 
@@ -58,9 +56,7 @@ local function make_on_attach(config)
       vim.api.nvim_command("augroup END")
     end
 
-    if config.after then
-      config.after(client)
-    end
+    if config.after then config.after(client) end
   end
 end
 
@@ -73,19 +69,15 @@ local servers = {
   ccls = {},
   clangd = {
     cmd = {
-      "clangd",
-      "--clang-tidy",
-      "--completion-style=bundled",
-      "--header-insertion=iwyu",
-      "--suggest-missing-includes",
-      "--cross-file-rename"
+      "clangd", "--clang-tidy", "--completion-style=bundled", "--header-insertion=iwyu",
+      "--suggest-missing-includes", "--cross-file-rename",
     },
     init_options = {
       clangdFileStatus = true,
       usePlaceholders = true,
       completeUnimported = true,
-      semanticHighlighting = true
-    }
+      semanticHighlighting = true,
+    },
   },
 
   -- CMake
@@ -166,11 +158,11 @@ local servers = {
         workspace = {
           library = {
             [vim.fn.expand("$VIMRUNTIME/lua")] = true,
-            [vim.fn.expand("$VIMRUNTIME/lua/vim/lsp")] = true
-          }
-        }
-      }
-    }
+            [vim.fn.expand("$VIMRUNTIME/lua/vim/lsp")] = true,
+          },
+        },
+      },
+    },
   },
 
   -- Nix
@@ -196,11 +188,11 @@ local servers = {
   vimls = {},
 
   -- Vue
-  vuels = {}
+  vuels = {},
 }
 
 local snippet_capabilities = {
-  textDocument = {completion = {completionItem = {snippetSupport = true}}}
+  textDocument = {completion = {completionItem = {snippetSupport = true}}},
 }
 
 local function deep_extend(policy, ...)
@@ -236,5 +228,5 @@ for server, config in pairs(servers) do
   config.on_attach = make_on_attach(config)
   config.capabilities = deep_extend("keep", config.capabilities or {}, snippet_capabilities)
 
-  nvim_lsp[server].setup(config)
+  lspconfig[server].setup(config)
 end
