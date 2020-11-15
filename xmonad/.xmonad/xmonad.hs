@@ -301,7 +301,7 @@ myLayouts = renamed [CutWordsLeft 1] .
         )
   where
     aTabbed = renamed [Replace "Tab"] $ tabbedBottom shrinkText defTabbed
-    aFullscreen = renamed [Replace "Full"] $ noBorders Full
+    aFullscreen = renamed [Replace "Full"] $ noBorders $ Full
     aTiled = renamed [Replace "Tile"] $ smartSpacingWithEdge 10 $ Tall 1 (3 / 100) (1 / 2)
     defTabbed = def
         { activeColor = bg

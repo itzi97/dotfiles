@@ -32,7 +32,10 @@ local function init()
       "nvim-lua/diagnostic-nvim", {
         "nvim-treesitter/nvim-treesitter",
         run = ":TSUpdate",
-        requires = {"nvim-treesitter/completion-treesitter", "romgrk/nvim-treesitter-context"},
+        requires = {
+          "nvim-treesitter/completion-treesitter",
+          -- "romgrk/nvim-treesitter-context"
+        },
       },
     },
   }
@@ -178,13 +181,13 @@ local function init()
   use "mhinz/vim-startify"
 
   -- Galaxyline
-  use {"glepnir/galaxyline.nvim", branch = "main", requires = "nvim-lua/lsp-status.nvim"}
+  -- use {"glepnir/galaxyline.nvim", branch = "main", requires = "nvim-lua/lsp-status.nvim"}
 
   -- Airline
-  -- use {
-  --  "vim-airline/vim-airline",
-  --  requires = {"vim-airline/vim-airline-themes", "edkolev/tmuxline.vim"}
-  -- }
+  use {
+    "vim-airline/vim-airline",
+    requires = {"vim-airline/vim-airline-themes", "edkolev/tmuxline.vim"},
+  }
 
   -- Icons in Airline, Startify, Lua Tree, Telescope
   use "ryanoasis/vim-devicons"

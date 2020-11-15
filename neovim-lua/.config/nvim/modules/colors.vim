@@ -43,7 +43,6 @@ let g:nvcode_termcolors=256
 " Set color schemes
 set background=dark
 colorscheme nvcode
-"let g:airline_theme = 'gruvbox'
 
 " checks if your terminal has 24-bit color support
 if (has('termguicolors'))

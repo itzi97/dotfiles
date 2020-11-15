@@ -32,11 +32,12 @@ source $HOME/.config/nvim/modules/startify.vim
 source $HOME/.config/nvim/modules/signify.vim
 source $HOME/.config/nvim/modules/luaTree.vim
 source $HOME/.config/nvim/modules/floaterm.vim
+source $HOME/.config/nvim/modules/airline.vim
 "source $HOME/.config/nvim/modules/telescope.vim
 execute 'luafile' . stdpath('config') . '/lua/plug-telescope.lua'
 execute 'luafile' . stdpath('config') . '/lua/plug-treesitter.lua'
 execute 'luafile' . stdpath('config') . '/lua/plug-colorizer.lua'
-execute 'luafile' . stdpath('config') . '/lua/plug-galaxyline.lua'
+"execute 'luafile' . stdpath('config') . '/lua/plug-galaxyline.lua'
 
 " Modular configurations
 source $HOME/.config/nvim/modules/vimtex.vim
