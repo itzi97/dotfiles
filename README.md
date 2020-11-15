@@ -19,3 +19,9 @@ stow neovim
 ```
 
 For example, if you want to use the stable neovim configuration.
+
+## External Dependencies
+
+- [zplug/zplug](https://github.com/zplug/zplug): Managing zsh dependencies
+- [wbthomason/packer.nvim](https://github.com/wbthomason/packer.nvim): Nvim plugins
+- [kristijanhusak/vim-packager](https://github.com/kristijanhusak/vim-packager): Vim plugins
