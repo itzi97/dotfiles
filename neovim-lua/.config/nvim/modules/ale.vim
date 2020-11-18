@@ -2,6 +2,7 @@
 let g:ale_lint_on_text_change = 1
 
 let g:ale_linters = {
+	\ 'go': ['golint'],
   \ 'pandoc': ['alex', 'languagetool', 'redpen'],
   \ 'tex': ['lacheck'],
   \ 'vim': ['vint'],
