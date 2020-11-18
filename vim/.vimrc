@@ -1,11 +1,11 @@
-if &compatible
-  set nocompatible
-endif
-
-let g:polyglot_disabled = ['vim', 'tex', 'markdown', 'pandoc']
+" Source pre pack import config
+source $HOME/.vim/modules/prePacks.vim
 
 " Source plugins
 source $HOME/.vim/modules/packager.vim
+
+" Source post pack import config
+source $HOME/.vim/modules/postPacks.vim
 
 " Source genreal configurations
 source $HOME/.vim/modules/settings.vim

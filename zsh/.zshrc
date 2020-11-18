@@ -75,8 +75,10 @@ zstyle ':completion:*' cache-path ~/.zsh/cache
 zstyle ':notify:*' error-title "Command failed (in #{time_elapsed} seconds)"
 zstyle ':notify:*' success-title "Command finished (in #{time_elapsed} seconds)"
 
-# Unset autocompletion beeps
-unsetopt LIST_BEEP
+# Turn off all beeps
+unsetopt BEEP
+# Turn off autocomplete beeps
+# unsetopt LIST_BEEP
 
 # History
 HISTFILE=~/.zhistory

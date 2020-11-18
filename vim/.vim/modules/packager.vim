@@ -3,6 +3,8 @@ function! PackagerInit() abort
   call packager#init()
   call packager#add('kristijanhusak/vim-packager', { 'type': 'opt' })
 
+  " {{{ INTELLISENSE
+
   " LSP + Deoplete
   call packager#add('prabirshrestha/vim-lsp')
   call packager#add('mattn/vim-lsp-settings')
@@ -25,13 +27,15 @@ function! PackagerInit() abort
   " Auto formatting (until vim-lsp supports more types)
   call packager#add('sbdchd/neoformat')
 
-  " Language Support
+  " }}}
+
+  " {{{ LANGUAGE SUPPORT
   call packager#add('sheerun/vim-polyglot')
 
   " Go
   call packager#add('fatih/vim-go', { 'do': ':GoInstallBinaries', 'type': 'opt' })
 
-  " Markdown+
+  " Markdown, RMarkdown
   call packager#add('vim-pandoc/vim-pandoc')
   call packager#add('vim-pandoc/vim-pandoc-syntax')
   call packager#add('vim-pandoc/vim-rmarkdown')
@@ -42,17 +46,25 @@ function! PackagerInit() abort
   " R
   call packager#add('jalvesaq/Nvim-R', {'branch': 'master'})
 
+  " }}}
+
+  " {{{ COLORS
+
   " Colorscheme + eyecandy
   call packager#add('morhetz/gruvbox')
   call packager#add('kaicataldo/material.vim', { 'branch': 'main' })
-
-  " Discord RPC
-  call packager#add('hugolgst/vimsence')
 
   " Eyecandy
   call packager#add('Yggdroot/indentLine')
   call packager#add('rrethy/vim-hexokinase', { 'do': 'make hexokinase' })
   call packager#add('luochen1990/rainbow')
+
+  " }}}
+
+  " {{{ MENUS & INTERFACES
+
+  " Discord RPC
+  call packager#add('hugolgst/vimsence')
 
   " Fzf
   call packager#add('junegunn/fzf', { 'do': './install --all && ln -s $(pwd) ~/.fzf'})
@@ -76,18 +88,13 @@ function! PackagerInit() abort
 
   " Icons
   call packager#add('ryanoasis/vim-devicons')
+
+  " }}}
 endfunction
 
-let g:deoplete#enable_at_startup = 1
-let g:rainbow_active = 1
-let g:rainbow_conf = {
-      \ 'separately': {
-      \   'nerdtree': 0,
-      \}}
+" {{{ PACKAGER COMMANDS
 
-syntax on
-filetype plugin indent on
-
+" User commands
 command! PackagerInstall call PackagerInit()      | call packager#install()
 command! -bang PackagerUpdate call PackagerInit() |
       \ call packager#update({ 'force_hooks': '<bang>' })
@@ -101,3 +108,5 @@ augroup packager_filetype
   autocmd!
   autocmd FileType go packadd vim-go
 augroup END
+
+" }}}
