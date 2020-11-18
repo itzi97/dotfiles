@@ -49,8 +49,14 @@ zplug "zsh-users/zsh-history-substring-search", defer:2
 zplug load
 # }}}
 
+# Source local fzf completion bindings
+source /usr/share/fzf/completion.zsh
+source /usr/share/fzf/key-bindings.zsh
+
 # Show system configuration
 screenfetch
+
+zle
 
 # {{{ Options
 setopt correct                         # Auto correct mistakes
@@ -71,6 +77,11 @@ zstyle ':completion:*' accept-exact '*(N)'
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path ~/.zsh/cache
 
+# Enable menu select for completions
+zstyle ':completion:*' menu select
+zstyle ':completion::complete:*' gain-privileges 1
+zmodload zsh/complist
+
 # Set up notifications
 zstyle ':notify:*' error-title "Command failed (in #{time_elapsed} seconds)"
 zstyle ':notify:*' success-title "Command finished (in #{time_elapsed} seconds)"
@@ -78,7 +89,7 @@ zstyle ':notify:*' success-title "Command finished (in #{time_elapsed} seconds)"
 # Turn off all beeps
 unsetopt BEEP
 # Turn off autocomplete beeps
-# unsetopt LIST_BEEP
+unsetopt LIST_BEEP
 
 # History
 HISTFILE=~/.zhistory
@@ -86,15 +97,63 @@ HISTSIZE=1000
 SAVEHIST=500
 # }}}
 
+# {{{ Terminal specific
+
 # Load kitty after completion loads
 autoload -Uz compinit colors
 compinit -d
 kitty + complete setup zsh | source /dev/stdin
-
 colors
 
-bindkey '^[[A' history-substring-search-up
-bindkey '^[[B' history-substring-search-down
+# }}}
+
+# {{{ Vi mode + Keybinds
+
+# Vi mode
+bindkey -v
+export KEYTIMEOUT=1
+
+# Use vim keys in tab complete menu:
+bindkey -M menuselect "h" vi-backward-char
+bindkey -M menuselect "k" vi-up-line-or-history
+bindkey -M menuselect "l" vi-forward-char
+bindkey -M menuselect "j" vi-down-line-or-history
+bindkey -v "^?" backward-delete-char
+
+# Change cursor shape for different vi modes
+zle-keymap-select() {
+if [[ ${KEYMAP} == vicmd ]] ||
+  [[ $1 = "block" ]]; then
+  echo -ne "\e[1 q"
+elif [[ ${KEYMAP} == main ]] ||
+  [[ ${KEYMAP} == viins ]] ||
+  [[ ${KEYMAP} = '' ]] ||
+  [[ $1 = "beam" ]]; then
+  echo -ne "\e[5 q"
+fi
+}
+
+zle -N zle-keymap-select
+
+zle-line-init() {
+zle -K viins
+echo -ne "\e[5 q"
+}
+
+zle -N zle-line-init
+
+echo -ne "\e[5 q"
+preexec() {
+  echo -ne "\e[5 q"
+}
+
+#bindkey '^[[A' history-substring-search-up
+#bindkey '^[[B' history-substring-search-down
+
+autoload edit-command-line; zle edit-command-line
+bindkey "^e" edit-command-line
+
+# }}}
 
 # {{{ Aliases
 alias cp="cp -i"                      # Confirm before overwriting something
@@ -111,7 +170,38 @@ alias la="exa --icons --long --all"   # Display extended details with all
 alias lat="exa --icons --long --all"  # Tree with extended details with all
 # }}}
 
+# {{{ Distro specific
+
+# If distro is based on arch linux
+
+if command -v COMMAND &> /dev/null; then
+  command_not_found_handler() {
+    local pkgs cmd="$1" files=()
+    # Print command not found asap, then search for packages
+    printf 'zsh: command not found: %s' "$cmd"
+    files=(${(f)"$(pacman -F --machinereadable -- "/usr/bin/${cmd}")"})
+    if (( ${#files[@]} )); then
+      printf '\r%s may be found in the following packages:\n' "$cmd"
+      local res=() repo package version file
+      for file in "$files[@]"; do
+        res=("${(0)file}")
+        repo="$res[1]"
+        package="$res[2]"
+        version="$res[3]"
+        file="$res[4]"
+        printf '  %s/%s %s: /%s\n' "$repo" "$package" "$version" "$file"
+      done
+    else
+      printf '\n'
+    fi
+    return 127
+  }
+fi
+
+# }}}
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
+# Source fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
