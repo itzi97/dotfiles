@@ -1,5 +1,8 @@
 if (has('termguicolors'))
   set termguicolors
+
+  " Needed for kitty terminal background rendering
+  let &t_ut=''
 endif
 
 set background=dark
@@ -15,6 +18,9 @@ let g:gruvbox_contrast_light = 'hard'
 let g:material_terminal_italics = 1
 let g:material_theme_style = 'darker'
 
-" Configure airline theme
-colorscheme material
-let g:airline_theme = 'material'
+" Set colorscheme
+colorscheme gruvbox
+if filereadable($HOME . '/.vim/modules/airline.vim')
+  " Configure airline theme
+  let g:airline_theme = 'gruvbox'
+endif

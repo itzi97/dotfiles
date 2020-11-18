@@ -13,15 +13,23 @@ function! PackagerInit() abort
     call packager#add('roxma/nvim-yarp')
     call packager#add('roxma/vim-hug-neovim-rpc')
   endif
+
   call packager#add('lighttiger2505/deoplete-vim-lsp')
-  call packager#add('hrsh7th/vim-vsnip')
-  call packager#add('hrsh7th/vim-vsnip-integ')
+  call packager#add('SirVer/ultisnips')
+  call packager#add('SirVer/ultisnips')
+  call packager#add('thomasfaingnaert/vim-lsp-snippets')
+  call packager#add('thomasfaingnaert/vim-lsp-ultisnips')
+  call packager#add('honza/vim-snippets')
+
 
   " Auto formatting (until vim-lsp supports more types)
   call packager#add('sbdchd/neoformat')
 
   " Language Support
   call packager#add('sheerun/vim-polyglot')
+
+  " Go
+  call packager#add('fatih/vim-go', { 'do': ':GoInstallBinaries', 'type': 'opt' })
 
   " Markdown+
   call packager#add('vim-pandoc/vim-pandoc')
@@ -37,6 +45,9 @@ function! PackagerInit() abort
   " Colorscheme + eyecandy
   call packager#add('morhetz/gruvbox')
   call packager#add('kaicataldo/material.vim', { 'branch': 'main' })
+
+  " Discord RPC
+  call packager#add('hugolgst/vimsence')
 
   " Eyecandy
   call packager#add('Yggdroot/indentLine')
@@ -82,3 +93,11 @@ command! -bang PackagerUpdate call PackagerInit() |
       \ call packager#update({ 'force_hooks': '<bang>' })
 command! PackagerClean call PackagerInit()        | call packager#clean()
 command! PackagerStatus call PackagerInit()       | call packager#status()
+
+"Load plugins only for specific filetype
+"Note that this should not be done for plugins that handle their loading using ftplugin file.
+"More info in :help pack-add
+augroup packager_filetype
+  autocmd!
+  autocmd FileType go packadd vim-go
+augroup END

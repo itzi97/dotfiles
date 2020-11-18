@@ -1,3 +1,4 @@
+" Completion shortcuts
 inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 inoremap <expr> <cr>    pumvisible() ? "\<C-y>" : "\<cr>"
@@ -26,7 +27,7 @@ function! s:on_lsp_buffer_enabled() abort
   nmap <buffer> <leader>rn <plug>(lsp-rename)
   nmap <buffer> [g <Plug>(lsp-previous-diagnostic)
   nmap <buffer> ]g <Plug>(lsp-next-diagnostic)
-  nmap <buffer> K <plug>(lsp-hover)  
+  nmap <buffer> K <plug>(lsp-hover)
   " refer to doc to add more commands
 endfunction
 
@@ -48,5 +49,5 @@ augroup END
 packadd vimtex
 packadd deoplete.nvim
 call deoplete#custom#var('omni', 'input_patterns', {
-  \ 'tex': g:vimtex#re#deoplete
-  \})
+      \ 'tex': g:vimtex#re#deoplete
+      \})
