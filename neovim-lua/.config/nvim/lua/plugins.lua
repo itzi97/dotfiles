@@ -180,9 +180,6 @@ local function init()
   -- Startify
   use "mhinz/vim-startify"
 
-  -- Galaxyline
-  -- use {"glepnir/galaxyline.nvim", branch = "main", requires = "nvim-lua/lsp-status.nvim"}
-
   -- Airline
   use {
     "vim-airline/vim-airline",
