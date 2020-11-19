@@ -19,23 +19,16 @@ local function init()
     "neovim/nvim-lspconfig", {
       {
         "nvim-lua/completion-nvim",
-        event = "InsertEnter *",
+        commit = "3b6774ed1c1b4720efe3385f06883483f5e16884",
         requires = {
-          {"aca/completion-tabnine", run = "./install.sh", event = "InsertEnter *"},
-          {"steelsojka/completion-buffers", event = "InsertEnter *"}, {
-            "sirver/UltiSnips",
-            event = "InsertEnter *",
-            requires = {"honza/vim-snippets", event = "InsertEnter *"},
-          },
+          {"aca/completion-tabnine", run = "./install.sh"}, "steelsojka/completion-buffers",
+          "kristijanhusak/completion-tags", {"sirver/UltiSnips", requires = {"honza/vim-snippets"}},
         },
       }, {"RishabhRD/nvim-lsputils", requires = "RishabhRD/popfix"}, "nvim-lua/lsp_extensions.nvim",
       "nvim-lua/diagnostic-nvim", {
         "nvim-treesitter/nvim-treesitter",
         run = ":TSUpdate",
-        requires = {
-          "nvim-treesitter/completion-treesitter",
-          -- "romgrk/nvim-treesitter-context"
-        },
+        requires = {"nvim-treesitter/completion-treesitter"},
       },
     },
   }

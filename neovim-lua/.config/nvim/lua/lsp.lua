@@ -1,32 +1,46 @@
 -- Load Lua plugins.
+local vim = vim
 vim.cmd [[packadd nvim-lspconfig]]
 vim.cmd [[packadd diagnostic-nvim]]
+vim.cmd [[packadd completion-nvim]]
 local lspconfig = require("lspconfig")
 local diagnostic = require("diagnostic")
+local completion = require("completion")
 
-local texlab_build_status = vim.tbl_add_reverse_lookup {
-  Success = 0,
-  Error = 1,
-  Failure = 2,
-  Cancelled = 3,
+-- Set up completion sources
+completion.addCompletionSource("ale", require("ale").completion_item)
+completion.addCompletionSource("pandoc", require("pandoc").complete_item)
+completion.addCompletionSource("vimtex", require("vimtex").complete_item)
+
+-- Tabnine completionsource
+vim.g.completion_tabnine_priority = 0
+vim.g.completion_tabnine_max_num_results = 5
+vim.g.completion_tabnine_sort_by_details = 1
+vim.g.completion_tabnine_max_lines = 1000
+
+-- define an chain complete list
+local chain_complete_list = {
+  default = {
+    {complete_items = {"lsp", "snippet", "tabnine", "tags"}},
+    {complete_items = {"path"}, triggered_only = {"/"}}, {complete_items = {"buffers"}},
+    {mode = {"<c-p>"}}, {mode = {"<c-n>"}},
+  },
+  string = {{complete_items = {"path"}, triggered_only = {"/"}}},
+  comment = {},
 }
-
-local function buf_build(bufnr)
-  bufnr = require("lspconfig/util").validate_bufnr(bufnr)
-  local params = {textDocument = {uri = vim.uri_from_bufnr(bufnr)}}
-  vim.lsp.buf_request(
-    bufnr, "textDocument/build", params, function(err, _, result, _)
-      if err then error(tostring(err)) end
-      print("Build " .. texlab_build_status[result.status])
-    end
-  )
-end
 
 local function make_on_attach(config)
   return function(client)
     if config.before then config.before(client) end
 
     diagnostic.on_attach()
+    completion.on_attach(
+      {
+        sorting = "alphabet",
+        matching_strategy_list = {"exact", "fuzzy"},
+        chain_completion_list = chain_complete_list,
+      }
+    )
 
     local mapper = function(mode, key, result)
       vim.api.nvim_buf_set_keymap(0, mode, key, result, {noremap = true, silent = true})
@@ -46,7 +60,9 @@ local function make_on_attach(config)
     mapper("n", "[e", "<cmd>PrevDiagnosticCycle<cr>")
 
     if client.resolved_capabilities.document_formatting then
-      mapper("n", "<leader>lf", "<cmd>lua vim.lsp.buf.formatting()<cr>")
+      vim.api.nvim_command("augroup lsp_auformatting")
+      vim.api.nvim_command("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting()")
+      vim.api.nvim_command("augroup END")
     end
 
     if client.resolved_capabilities.document_highlight then
@@ -100,7 +116,7 @@ local servers = {
   html = {},
 
   -- Java
-  jdtls = {},
+  -- jdtls = {},
 
   -- JavaScript
   flow = {},
@@ -111,41 +127,6 @@ local servers = {
 
   -- TODO LaTeX
   texlab = {},
-  -- texlab = {
-  --  default_config = {
-  --    cmd = {"texlab"},
-  --    filetypes = {"tex", "bib"},
-  --    root_dir = vim.loop.os_homedir,
-  --    settings = {
-  --      latex = {
-  --        build = {
-  --          args = {"-pdf", "-interaction=nonstopmode", "-synctex=1"},
-  --          executable = "latexmk",
-  --          onSave = false
-  --        },
-  --        forwardSearch = {args = {}, executable = nil, onSave = false},
-  --        lint = {onChange = true}
-  --      },
-  --      bibtex = {formatting = {lineLength = 120}}
-  --    }
-  --  },
-  --  commands = {
-  --    TexlabBuild = {
-  --      function()
-  --        buf_build(0)
-  --      end,
-  --      description = "Build the current buffer"
-  --    }
-  --  },
-  --  docs = {
-  --    description = [[
-  --      https://texlab.netlify.com/
-  --      A completion engine built from scratch for (La)TeX.
-  --      See https://texlab.netlify.com/docs/reference/configuration for configuration options.
-  --    ]],
-  --    default_config = {root_dir = "vim's starting directory"}
-  --  }
-  -- },
 
   -- Lua
   sumneko_lua = {

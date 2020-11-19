@@ -12,35 +12,11 @@ local plugins = {
     only_setup = false,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/Nvim-R"
   },
-  UltiSnips = {
-    loaded = false,
-    only_sequence = false,
-    only_setup = false,
-    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/UltiSnips"
-  },
   ale = {
     loaded = false,
     only_sequence = false,
     only_setup = false,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/ale"
-  },
-  ["completion-buffers"] = {
-    loaded = false,
-    only_sequence = false,
-    only_setup = false,
-    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/completion-buffers"
-  },
-  ["completion-nvim"] = {
-    loaded = false,
-    only_sequence = false,
-    only_setup = false,
-    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/completion-nvim"
-  },
-  ["completion-tabnine"] = {
-    loaded = false,
-    only_sequence = false,
-    only_setup = false,
-    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/completion-tabnine"
   },
   ["haskell-vim"] = {
     loaded = false,
@@ -277,6 +253,6 @@ augroup packer_load_aucmds
   au FileType go ++once call s:load(['vim-go'], { "ft": "go" })
   " Event lazy-loads
   au BufRead ~/Documents/vimwiki/*.wiki ++once call s:load(['vimwiki'], { "event": "BufRead ~/Documents/vimwiki/*.wiki" })
-  au InsertEnter * ++once call s:load(['Nvim-R', 'completion-nvim', 'completion-tabnine', 'UltiSnips', 'completion-buffers'], { "event": "InsertEnter *" })
+  au InsertEnter * ++once call s:load(['Nvim-R'], { "event": "InsertEnter *" })
   au BufNewFile ~/Documents/vimwiki/*.wiki ++once call s:load(['vimwiki'], { "event": "BufNewFile ~/Documents/vimwiki/*.wiki" })
 augroup END

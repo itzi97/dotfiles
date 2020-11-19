@@ -37,7 +37,6 @@ source $HOME/.config/nvim/modules/airline.vim
 execute 'luafile' . stdpath('config') . '/lua/plug-telescope.lua'
 execute 'luafile' . stdpath('config') . '/lua/plug-treesitter.lua'
 execute 'luafile' . stdpath('config') . '/lua/plug-colorizer.lua'
-"execute 'luafile' . stdpath('config') . '/lua/plug-galaxyline.lua'
 
 " Modular configurations
 source $HOME/.config/nvim/modules/vimtex.vim

@@ -47,28 +47,6 @@ let g:UltiSnipsEditSplit="vertical"
 " Enable auto switching between completion sources
 let g:completion_auto_change_source = 1
 
-" Load lua source
-execute 'luafile' . stdpath('config') . '/lua/plug-completion.lua'
-
-" Set sources for tex documents
-let g:completion_chain_complete_list = {
-  \ 'default' : [
-  \   {'complete_items': ['lsp', 'ale', 'ts', 'snippet', 'tabnine']},
-  \   {'complete_items': ['path'], 'triggered_only': ['/']},
-  \   {'complete_items': ['buffer']},
-  \   {'mode': '<c-p>'},
-  \   {'mode': '<c-n>'}
-  \ ],
-  \ 'tex' : [
-  \   {'complete_items': ['vimtex', 'lsp', 'snippet']},
-  \   {'complete_items': ['path'], 'triggered_only': ['/']},
-  \ ],
-  \ 'pandoc' : [
-  \   {'complete_items': ['pandoc', 'lsp', 'ts', 'snippet']},
-  \   {'complete_items': ['path'], 'triggered_only': ['/']},
-  \ ],
-  \}
-
 " Max tabnine completion
 let g:completion_tabnine_max_num_results=3
 
