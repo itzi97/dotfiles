@@ -82,6 +82,9 @@ zstyle ':completion:*' menu select
 zstyle ':completion::complete:*' gain-privileges 1
 zmodload zsh/complist
 
+# Enaable tcp ssh connections
+zmodload zsh/net/tcp
+
 # Set up notifications
 zstyle ':notify:*' error-title "Command failed (in #{time_elapsed} seconds)"
 zstyle ':notify:*' success-title "Command finished (in #{time_elapsed} seconds)"
