@@ -25,23 +25,25 @@ function! PackagerInit() abort
 
   " {{{ Intellisense
 
-  " LSP + Deoplete
+  " LSP + Asyncomplete
   call packager#add('prabirshrestha/vim-lsp')
   call packager#add('mattn/vim-lsp-settings')
-  if has('nvim')
-    call packager#add('Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' })
-  else
-    call packager#add('Shougo/deoplete.nvim')
-    call packager#add('roxma/nvim-yarp')
-    call packager#add('roxma/vim-hug-neovim-rpc')
-  endif
+  call packager#add('prabirshrestha/asyncomplete.vim')
+  call packager#add('prabirshrestha/asyncomplete-lsp.vim')
 
-  call packager#add('lighttiger2505/deoplete-vim-lsp')
-  call packager#add('SirVer/ultisnips')
-  call packager#add('SirVer/ultisnips')
-  call packager#add('thomasfaingnaert/vim-lsp-snippets')
-  call packager#add('thomasfaingnaert/vim-lsp-ultisnips')
-  call packager#add('honza/vim-snippets')
+  " Sources
+  call packager#add('prabirshrestha/asyncomplete-file.vim')
+  call packager#add('prabirshrestha/asyncomplete-buffer.vim')
+  call packager#add('yami-beta/asyncomplete-omni.vim')
+
+  " Ultisnips
+  if has('python3')
+    call packager#add('SirVer/ultisnips')
+    call packager#add('thomasfaingnaert/vim-lsp-snippets')
+    call packager#add('thomasfaingnaert/vim-lsp-ultisnips')
+    call packager#add('honza/vim-snippets')
+    call packager#add('prabirshrestha/asyncomplete-ultisnips.vim')
+  endif
 
 
   " Auto formatting (until vim-lsp supports more types)

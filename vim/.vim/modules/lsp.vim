@@ -1,7 +1,55 @@
-" Completion shortcuts
 inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-inoremap <expr> <cr>    pumvisible() ? "\<C-y>" : "\<cr>"
+inoremap <expr> <cr>    pumvisible() ? asyncomplete#close_popup() : "\<cr>"
+
+packadd asyncomplete.vim
+packadd asyncomplete-file.vim
+packadd asyncomplete-buffer.vim
+packadd asyncomplete-omni.vim
+packadd asyncomplete-ultisnips.vim
+
+" Enable preview window
+let g:asyncomplete_auto_completeopt = 0
+set completeopt=menuone,noinsert,noselect,preview
+
+" Auto close window
+autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
+
+" Add file sources
+call asyncomplete#register_source(asyncomplete#sources#file#get_source_options({
+      \ 'name': 'file',
+      \ 'allowlist': ['*'],
+      \ 'priority': 10,
+      \ 'completor': function('asyncomplete#sources#file#completor')
+      \ }))
+
+" Add buffer sources
+call asyncomplete#register_source(asyncomplete#sources#buffer#get_source_options({
+      \ 'name': 'buffer',
+      \ 'allowlist': ['*'],
+      \ 'completor': function('asyncomplete#sources#buffer#completor'),
+      \ 'config': {
+      \    'max_buffer_size': 5000000,
+      \  },
+      \ }))
+
+" Add omnifunc sources
+call asyncomplete#register_source(asyncomplete#sources#omni#get_source_options({
+      \ 'name': 'omni',
+      \ 'allowlist': ['*'],
+      \ 'blocklist': ['c', 'cpp', 'html'],
+      \ 'completor': function('asyncomplete#sources#omni#completor'),
+      \ 'config': {
+      \   'show_source_kind': 1
+      \ }
+      \ }))
+
+" Add ultisnips sources
+call asyncomplete#register_source(asyncomplete#sources#ultisnips#get_source_options({
+      \ 'name': 'ultisnips',
+      \ 'allowlist': ['*'],
+      \ 'completor': function('asyncomplete#sources#ultisnips#completor'),
+      \ }))
 
 let g:lsp_signs_enabled = 1           " enable signs
 let g:lsp_diagnostics_echo_cursor = 1 " enable echo under cursor in normal mode
@@ -45,9 +93,3 @@ augroup lsp_format
   autocmd BufWritePre <buffer> LspDocumentFormatSync
 augroup END
 
-" Enable vimtex with deoplete
-packadd vimtex
-packadd deoplete.nvim
-call deoplete#custom#var('omni', 'input_patterns', {
-      \ 'tex': g:vimtex#re#deoplete
-      \})
