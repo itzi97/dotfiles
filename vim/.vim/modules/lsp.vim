@@ -1,12 +1,7 @@
+packadd asyncomplete.vim
 inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 inoremap <expr> <cr>    pumvisible() ? asyncomplete#close_popup() : "\<cr>"
-
-packadd asyncomplete.vim
-packadd asyncomplete-file.vim
-packadd asyncomplete-buffer.vim
-packadd asyncomplete-omni.vim
-packadd asyncomplete-ultisnips.vim
 
 " Enable preview window
 let g:asyncomplete_auto_completeopt = 0
@@ -16,6 +11,7 @@ set completeopt=menuone,noinsert,noselect,preview
 autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
 
 " Add file sources
+packadd asyncomplete-file.vim
 call asyncomplete#register_source(asyncomplete#sources#file#get_source_options({
       \ 'name': 'file',
       \ 'allowlist': ['*'],
@@ -24,6 +20,7 @@ call asyncomplete#register_source(asyncomplete#sources#file#get_source_options({
       \ }))
 
 " Add buffer sources
+packadd asyncomplete-buffer.vim
 call asyncomplete#register_source(asyncomplete#sources#buffer#get_source_options({
       \ 'name': 'buffer',
       \ 'allowlist': ['*'],
@@ -34,6 +31,7 @@ call asyncomplete#register_source(asyncomplete#sources#buffer#get_source_options
       \ }))
 
 " Add omnifunc sources
+packadd asyncomplete-omni.vim
 call asyncomplete#register_source(asyncomplete#sources#omni#get_source_options({
       \ 'name': 'omni',
       \ 'allowlist': ['*'],
@@ -45,11 +43,20 @@ call asyncomplete#register_source(asyncomplete#sources#omni#get_source_options({
       \ }))
 
 " Add ultisnips sources
+packadd asyncomplete-ultisnips.vim
 call asyncomplete#register_source(asyncomplete#sources#ultisnips#get_source_options({
       \ 'name': 'ultisnips',
       \ 'allowlist': ['*'],
       \ 'completor': function('asyncomplete#sources#ultisnips#completor'),
       \ }))
+
+" Add vimtex source
+packadd vimtex
+call asyncomplete#register_source({
+      \ 'name': 'vimtex',
+      \ 'allowlist': ['tex'],
+      \ 'completor': function('vimtex#complete#omnifunc')
+      \})
 
 let g:lsp_signs_enabled = 1           " enable signs
 let g:lsp_diagnostics_echo_cursor = 1 " enable echo under cursor in normal mode
