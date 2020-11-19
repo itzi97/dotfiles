@@ -19,7 +19,6 @@ local function init()
     "neovim/nvim-lspconfig", {
       {
         "nvim-lua/completion-nvim",
-        commit = "3b6774ed1c1b4720efe3385f06883483f5e16884",
         requires = {
           {"aca/completion-tabnine", run = "./install.sh"}, "steelsojka/completion-buffers",
           "kristijanhusak/completion-tags", {"sirver/UltiSnips", requires = {"honza/vim-snippets"}},
@@ -60,21 +59,8 @@ local function init()
   -- Comments
   use "preservim/nerdcommenter"
 
-  -- Open file in last place it was edited
-  use "farmergreg/vim-lastplace"
-
   -- Colorizer (use local version)
   use {"norcalli/nvim-colorizer.lua", as = "nvim-colorizer"}
-
-  -- Rainbow Brackets
-  use "luochen1990/rainbow"
-
-  -- Vim Wiki
-  use {
-    "vimwiki/vimwiki",
-    event = {"BufNewFile ~/Documents/vimwiki/*.wiki", "BufRead ~/Documents/vimwiki/*.wiki"},
-    cmd = {"VimwikiIndex", "VimwikiDiaryIndex"},
-  }
 
   -- Lua init.lua
   -- use "svermeulen/vimpeccable"
@@ -87,9 +73,6 @@ local function init()
   -- {{{ Language Support
 
   use "sheerun/vim-polyglot"
-
-  -- C/C++
-  use {"jackguo380/vim-lsp-cxx-highlight", ft = {"c", "cpp"}}
 
   -- Haskell
   use {"neovimhaskell/haskell-vim", ft = "haskell"}
@@ -108,9 +91,6 @@ local function init()
   use {"yuezk/vim-js", "maxmellon/vim-jsx-pretty", ft = "javascript"}
   use "Glench/Vim-Jinja2-Syntax"
 
-  -- Julia
-  use {"JuliaEditorSupport/julia-vim", ft = {"julia", "pandoc", "markdown", "rmarkdown"}}
-
   -- Markdown
   use {
     {"iamcco/markdown-preview.nvim", run = "cd app && yarn install", ft = {"pandoc", "markdown"}},
@@ -126,13 +106,6 @@ local function init()
   -- Nix
   use {"LnL7/vim-nix", ft = "nix"}
 
-  -- PlantUML
-  use {
-    "weirongxu/plantuml-previewer.vim",
-    as = "plantuml-previewer",
-    requires = {"aklt/plantuml-syntax", "tyru/open-browser.vim"},
-  }
-
   -- R
   use {"jalvesaq/Nvim-R", branch = "stable", event = "InsertEnter *", ft = {"r", "rmarkdown"}}
 
@@ -147,11 +120,6 @@ local function init()
   -- {{{ Styling
 
   -- Color Themes
-  use {"kaicataldo/material.vim", branch = "main"}
-  use "morhetz/gruvbox"
-  use "rakr/vim-one"
-  use "NLKNguyen/papercolor-theme"
-  use "tomasr/molokai"
   use "christianchiarulli/nvcode-color-schemes.vim"
 
   -- Indent Line

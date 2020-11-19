@@ -21,7 +21,7 @@ source $HOME/.config/nvim/modules/prePlugins.vim
 " Load plugins
 source $HOME/.config/nvim/modules/packer.vim
 
-"" After loading plugins
+" After loading plugins
 source $HOME/.config/nvim/modules/settings.vim
 ""execute 'luafile' . stdpath('config') . '/lua/settings.lua'
 
