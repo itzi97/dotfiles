@@ -1,8 +1,11 @@
-if (has('termguicolors'))
+if has('termguicolors')
   set termguicolors
+  hi LineNr ctermbg=NONE guibg=NONE
 
   " Needed for kitty terminal background rendering
-  let &t_ut=''
+  if !has('nvim')
+    let &t_ut=''
+  endif
 endif
 
 set background=dark
@@ -13,10 +16,6 @@ let g:gruvbox_bold=1
 
 let g:gruvbox_contrast_dark = 'hard'
 let g:gruvbox_contrast_light = 'hard'
-
-" Material
-let g:material_terminal_italics = 1
-let g:material_theme_style = 'darker'
 
 " Set colorscheme
 colorscheme gruvbox

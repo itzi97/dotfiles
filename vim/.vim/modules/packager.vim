@@ -1,9 +1,29 @@
+" {{{ Auto Intallation
+
+let s:packager_repo = 'https://github.com/kristijanhusak/vim-packager'
+let s:packager_dir_vim = '~/.vim/pack/packager/opt/vim-packager'
+let s:packager_dir_nvim = '~/.config/nvim/pack/packager/opt/vim-packager'
+
+" Install vim packager if not installed
+if has('nvim') && !isdirectory(expand(s:packager_dir_nvim))
+  execute '!git clone ' . s:packager_repo . ' ' . s:packager_dir_nvim
+elseif !has('nvim') && !isdirectory(expand(s:packager_dir_vim))
+  execute '!git clone ' . s:packager_repo . ' ' . s:packager_dir_vim
+endif
+
+" }}}
+
 function! PackagerInit() abort
+
+  " {{{ Init
+
   packadd vim-packager
   call packager#init()
   call packager#add('kristijanhusak/vim-packager', { 'type': 'opt' })
 
-  " {{{ INTELLISENSE
+  " }}}
+
+  " {{{ Intellisense
 
   " LSP + Deoplete
   call packager#add('prabirshrestha/vim-lsp')
@@ -29,7 +49,8 @@ function! PackagerInit() abort
 
   " }}}
 
-  " {{{ LANGUAGE SUPPORT
+  " {{{ Language Support
+
   call packager#add('sheerun/vim-polyglot')
 
   " Go
@@ -48,11 +69,10 @@ function! PackagerInit() abort
 
   " }}}
 
-  " {{{ COLORS
+  " {{{ Colors
 
   " Colorscheme + eyecandy
   call packager#add('morhetz/gruvbox')
-  call packager#add('kaicataldo/material.vim', { 'branch': 'main' })
 
   " Eyecandy
   call packager#add('Yggdroot/indentLine')
@@ -61,7 +81,7 @@ function! PackagerInit() abort
 
   " }}}
 
-  " {{{ MENUS & INTERFACES
+  " {{{ Menus & Interfaces
 
   " Discord RPC
   call packager#add('hugolgst/vimsence')
@@ -69,10 +89,18 @@ function! PackagerInit() abort
   " Fzf
   call packager#add('junegunn/fzf', { 'do': './install --all && ln -s $(pwd) ~/.fzf'})
   call packager#add('junegunn/fzf.vim')
+  call packager#add('airblade/vim-rooter')
 
-  " Fugitive + Gitgutter
+  " Floaterm
+  call packager#add('voldikss/vim-floaterm')
+
+  " Git
   call packager#add('tpope/vim-fugitive')
-  call packager#add('airblade/vim-gitgutter')
+  if has('nvim') || has('patch-8.0.902')
+    call packager#add('mhinz/vim-signify')
+  else
+    call packager#add('mhinz/vim-signify', { 'branch': 'legacy' })
+  endif
 
   " Startify
   call packager#add('mhinz/vim-startify')
@@ -90,9 +118,10 @@ function! PackagerInit() abort
   call packager#add('ryanoasis/vim-devicons')
 
   " }}}
+
 endfunction
 
-" {{{ PACKAGER COMMANDS
+" {{{ Commands
 
 " User commands
 command! PackagerInstall call PackagerInit()      | call packager#install()
