@@ -39,8 +39,8 @@ set formatoptions+=n          " Respect list indents
 set formatoptions+=j          " Remote comment leader when joining lines
 
 " Spelling
-set nospell                   " Disable by default
-set spelllang=es,en           " English + spanish
+"set nospell                   " Disable by default
+"set spelllang=es,en           " English + spanish
 
 " Text edit might fail if hidden is not set
 set hidden

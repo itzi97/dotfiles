@@ -8,6 +8,10 @@ source $HOME/.vim/modules/packager.vim
 source $HOME/.vim/modules/postPacks.vim
 source $HOME/.vim/modules/settings.vim
 
+" Misc packages
+source $HOME/.vim/modules/NERDCommenter.vim
+source $HOME/.vim/modules/lexical.vim
+
 " Source interface + color configurations
 source $HOME/.vim/modules/colors.vim
 source $HOME/.vim/modules/indentLine.vim

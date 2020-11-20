@@ -51,6 +51,16 @@ function! PackagerInit() abort
 
   " }}}
 
+  " {{{ Misc
+
+  " Nice auto commenting
+  call packager#add('preservim/nerdcommenter')
+
+  " Extensible spelling
+  call packager#add('reedes/vim-lexical')
+
+  " }}}
+
   " {{{ Language Support
 
   call packager#add('sheerun/vim-polyglot')
