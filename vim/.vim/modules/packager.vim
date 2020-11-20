@@ -26,28 +26,23 @@ function! PackagerInit() abort
   " {{{ Intellisense
 
   " LSP + Asyncomplete
+  call packager#add('prabirshrestha/vim-lsp')
+  call packager#add('mattn/vim-lsp-settings')
+  call packager#add('prabirshrestha/asyncomplete.vim')
+  call packager#add('prabirshrestha/asyncomplete-lsp.vim')
+
+  " Sources
+  call packager#add('prabirshrestha/asyncomplete-file.vim')
+  call packager#add('prabirshrestha/asyncomplete-buffer.vim')
+  call packager#add('yami-beta/asyncomplete-omni.vim')
+
+  " Ultisnips
   if has('python3')
-
-    " Asymcomplete
-    call packager#add('prabirshrestha/asyncomplete.vim', {'requires': [
-          \ 'prabirshrestha/asyncomplete-file.vim',
-          \ 'prabirshrestha/asyncomplete-buffer.vim',
-          \ 'yami-beta/asyncomplete-omni.vim'
-          \]})
-
-    " Ultisnips
-    call packager#add('SirVer/ultisnips', {'requires': [
-          \ 'honza/vim-snippets',
-          \ 'prabirshrestha/asyncomplete-ultisnips.vim'
-          \]})
-
-    " LSP
-    call packager#add('prabirshrestha/vim-lsp', { 'requires': [
-          \ 'mattn/vim-lsp-settings',
-          \ 'prabirshrestha/asyncomplete-lsp.vim',
-          \ 'thomasfaingnaert/vim-lsp-snippets',
-          \ 'thomasfaingnaert/vim-lsp-ultisnips'
-          \]})
+    call packager#add('SirVer/ultisnips')
+    call packager#add('thomasfaingnaert/vim-lsp-snippets')
+    call packager#add('thomasfaingnaert/vim-lsp-ultisnips')
+    call packager#add('honza/vim-snippets')
+    call packager#add('prabirshrestha/asyncomplete-ultisnips.vim')
   endif
 
 
@@ -61,8 +56,8 @@ function! PackagerInit() abort
   " Nice auto commenting
   call packager#add('preservim/nerdcommenter')
 
-  " Spelling
-  "call packager#add('git@github.com:itzi97/auto-spell.vim.git')
+  " Extensible spelling
+  "call packager#add('reedes/vim-lexical')
 
   " }}}
 
@@ -71,16 +66,12 @@ function! PackagerInit() abort
   call packager#add('sheerun/vim-polyglot')
 
   " Go
-  call packager#add('fatih/vim-go', {
-        \ 'do': ':GoInstallBinaries',
-        \ 'type': 'opt'
-        \ })
+  call packager#add('fatih/vim-go', { 'do': ':GoInstallBinaries', 'type': 'opt' })
 
   " Markdown, RMarkdown
-  call packager#add('vim-pandoc/vim-pandoc', { 'requires': [
-        \ 'vim-pandoc/vim-pandoc-syntax',
-        \ 'vim-pandoc/vim-rmarkdown'
-        \]})
+  call packager#add('vim-pandoc/vim-pandoc')
+  call packager#add('vim-pandoc/vim-pandoc-syntax')
+  call packager#add('vim-pandoc/vim-rmarkdown')
 
   " LaTeX
   call packager#add('lervag/vimtex')
@@ -108,12 +99,9 @@ function! PackagerInit() abort
   call packager#add('hugolgst/vimsence')
 
   " Fzf
-  call packager#add('junegunn/fzf', {
-        \ 'do': './install --all && ln -s $(pwd) ~/.fzf',
-        \ 'requires': [
-        \   'junegunn/fzf.vim',
-        \   'airblade/vim-rooter'
-        \ ]})
+  call packager#add('junegunn/fzf', { 'do': './install --all && ln -s $(pwd) ~/.fzf'})
+  call packager#add('junegunn/fzf.vim')
+  call packager#add('airblade/vim-rooter')
 
   " Floaterm
   call packager#add('voldikss/vim-floaterm')
@@ -130,15 +118,13 @@ function! PackagerInit() abort
   call packager#add('mhinz/vim-startify')
 
   " Airline
-  call packager#add('vim-airline/vim-airline', {
-        \ 'requires': 'vim-airline/vim-airline-themes'
-        \})
+  call packager#add('vim-airline/vim-airline')
+  call packager#add('vim-airline/vim-airline-themes')
 
   " NERDTRee
-  call packager#add('preservim/nerdtree', {'requires': [
-        \ 'Xuyuanp/nerdtree-git-plugin',
-        \ 'tiagofumo/vim-nerdtree-syntax-highlight'
-        \]})
+  call packager#add('preservim/nerdtree')
+  call packager#add('Xuyuanp/nerdtree-git-plugin')
+  call packager#add('tiagofumo/vim-nerdtree-syntax-highlight')
 
   " Icons
   call packager#add('ryanoasis/vim-devicons')
