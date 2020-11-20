@@ -10,7 +10,7 @@ source $HOME/.vim/modules/settings.vim
 
 " Misc packages
 source $HOME/.vim/modules/NERDCommenter.vim
-source $HOME/.vim/modules/lexical.vim
+source $HOME/.vim/modules/spelling.vim
 
 " Source interface + color configurations
 source $HOME/.vim/modules/colors.vim

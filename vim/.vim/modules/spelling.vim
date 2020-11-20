@@ -1,7 +1,9 @@
-func! SpellMath()
+packadd auto-spell.vim.git
+
+function! SpellMath() abort
   set spell
-  set complete+=kspell
   set spelllang=es_es,en_us,math
+  set complete+=kspell
 
   " Add spellfiles
   set spellfile=~/.vim/spell/math.utf-8.add
@@ -9,9 +11,8 @@ func! SpellMath()
   set spellfile+=~/.vim/spell/es.utf-8.add
 
   " Add dictionaries
-  set dictionary=~/.vim/spell/dictionary/math_terms.txt
+  set dictionary=~/.vim/spell/dictionary/math.txt
   set dictionary+=/usr/share/dict/words
-
   if len(&dictionary) > 0
     setlocal complete+=k
   else
@@ -19,22 +20,22 @@ func! SpellMath()
   endif
 
   " Add thesaurus
-  set thesaurus=~/.vim/spell/thesaurus/math_synonyms.txt
+  set thesaurus=~/.vim/spell/thesaurus/compsci_synonyms.txt
   set thesaurus+=~/.vim/spell/thesaurus/mthesaur.txt
-
   if len(&thesaurus) > 0
     setlocal complete+=s
   else
     setlocal complete-=s
   endif
-endfunc
+
+endfunction
 
 command! SpellMath call SpellMath()
 
-func! SpellComp()
+function! SpellComp() abort
   set spell
-  set complete+=kspell
   set spelllang=es_es,en_us,compsci
+  set complete+=kspell
 
   " Add spellfiles
   set spellfile=~/.vim/spell/compsci.utf-8.add
@@ -60,14 +61,14 @@ func! SpellComp()
   else
     setlocal complete-=s
   endif
-endfunc
+endfunction
 
 command! SpellComp call SpellComp()
 
-func! SpellCompMath()
+function! SpellCompMath() abort
   set spell
-  set complete+=kspell
   set spelllang=es_es,en_us,compmath
+  set complete+=kspell
 
   " Add spellfiles
   set spellfile=~/.vim/spell/compmath.utf-8.add
@@ -93,7 +94,7 @@ func! SpellCompMath()
   else
     setlocal complete-=s
   endif
-endfunc
+endfunction
 
 command! SpellCompMath call SpellCompMath()
 
