@@ -1,14 +1,20 @@
 " {{{ Auto Intallation
 
-let s:packager_repo = 'https://github.com/kristijanhusak/vim-packager'
-let s:packager_dir_vim = '~/.vim/pack/packager/opt/vim-packager'
-let s:packager_dir_nvim = '~/.config/nvim/pack/packager/opt/vim-packager'
+packadd vim-packager
 
-" Install vim packager if not installed
-if has('nvim') && !isdirectory(expand(s:packager_dir_nvim))
-  execute '!git clone ' . s:packager_repo . ' ' . s:packager_dir_nvim
-elseif !has('nvim') && !isdirectory(expand(s:packager_dir_vim))
-  execute '!git clone ' . s:packager_repo . ' ' . s:packager_dir_vim
+if !exists('g:loaded_vim_packager')
+
+  let s:packager_repo = 'https://github.com/kristijanhusak/vim-packager'
+  let s:packager_dir_vim = '~/.vim/pack/packager/opt/vim-packager'
+  let s:packager_dir_nvim = '~/.config/nvim/pack/packager/opt/vim-packager'
+
+  " Install vim packager if not installed
+  if has('nvim')
+    execute '!git clone ' . s:packager_repo . ' ' . s:packager_dir_nvim
+  else
+    execute '!git clone ' . s:packager_repo . ' ' . s:packager_dir_vim
+  endif
+
 endif
 
 " }}}
@@ -17,7 +23,6 @@ function! PackagerInit() abort
 
   " {{{ Init
 
-  packadd vim-packager
   call packager#init()
   call packager#add('kristijanhusak/vim-packager', { 'type': 'opt' })
 
