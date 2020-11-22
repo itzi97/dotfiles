@@ -336,6 +336,7 @@ myManageHook = composeAll
     , className =? "MEGAsync"           --> doFloat
     , className =? "Org.gnome.Nautilus" --> doFloat
     , className =? "Toggl Desktop"      --> doFloat
+    , className =? "Clockify"           --> doFloat
     , resource  =? "desktop_window"     --> doIgnore
     , resource  =? "kdesktop"           --> doIgnore
 
