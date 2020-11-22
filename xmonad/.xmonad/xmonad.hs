@@ -425,16 +425,12 @@ myStartupHook = do
     spawnOnce "gsettings set org.gnome.settings-daemon.plugins.xsettings overrides '[{'Gdk/WindowScalingFactor', <2>}]'"
     spawnOnce "gsettings set org.gnome.desktop.interface scaling-factor 2"
     spawnOnce "nitrogen --restore"
-    spawnOnce "compton -b --config ~/.config/picom/picom.conf"
+    spawnOnce "compton -b --config ~/.xmonad/confs/picom.conf"
     spawnOnce "dunst"
     spawn "~/.config/polybar/launch.sh"
     spawnOnce "redshift-gtk"
-    --spawnOnce "nm-applet"
-    --spawnOnce "pasystray"
     spawnOnce "piactl connect"
-    --spawnOnce "megasync"
-    --spawnOnce "flameshot"
-    --spawnOnce "mntray"
+    spawnOnce "mntray"
 
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
