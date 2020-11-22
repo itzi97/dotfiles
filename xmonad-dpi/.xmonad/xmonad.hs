@@ -80,7 +80,7 @@ myFocusFollowsMouse = True
 
 -- Width of the window border in pixels.
 --
-myBorderWidth   = 1
+myBorderWidth   = 2
 
 -- modMask lets you specify which modkey you want to use. The default
 -- is mod1Mask ("left alt").  You may also consider using mod3Mask
@@ -152,7 +152,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm,               xK_r     ), spawn "~/.config/rofi/scripts/run.sh")
 
     -- launch 1password
-    , ((modm .|. shiftMask, xK_p     ), spawn "rofi -modi 1pass:rofi-1pass -show 1pass")
+    , ((modm .|. shiftMask, xK_p     ), spawn "rofi -modi 1pass:rofi-1pass -show 1pass -dpi 192")
 
     -- close focused window
     , ((modm .|. shiftMask, xK_c     ), kill)
@@ -300,7 +300,7 @@ myLayouts = renamed [CutWordsLeft 1] .
         )
   where
     aFullscreen = renamed [Replace "Full"] $ noBorders $ Full
-    aTiled = renamed [Replace "Tile"] $ smartSpacingWithEdge 5 $ Tall 1 (3 / 100) (1 / 2)
+    aTiled = renamed [Replace "Tile"] $ smartSpacingWithEdge 10 $ Tall 1 (3 / 100) (1 / 2)
 
 ------------------------------------------------------------------------
 -- Window rules:
@@ -409,6 +409,8 @@ dbusOutput dbus str = do
 --spawnOnce "export GDK_DPI_SCALE=0.5"
 --
 myStartupHook = do
+    spawnOnce "gsettings set org.gnome.settings-daemon.plugins.xsettings overrides '[{'Gdk/WindowScalingFactor', <2>}]'"
+    spawnOnce "gsettings set org.gnome.desktop.interface scaling-factor 2"
     spawnOnce "nitrogen --restore"
     spawnOnce "compton -b --config ~/.xmonad/confs/picom.conf"
     spawnOnce "dunst"
