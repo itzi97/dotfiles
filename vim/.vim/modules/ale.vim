@@ -2,9 +2,11 @@
 let g:ale_lint_on_text_change = 1
 
 let g:ale_linters = {
+      \ 'gitcommit': ['gitlint'],
       \ 'go': ['golint'],
       \ 'pandoc': ['alex', 'languagetool', 'redpen'],
-      \ 'tex': ['languagetool', 'lacheck'],
+      \ 'rust': ['cargo', 'analyzer'],
+      \ 'tex': ['lacheck'],
       \ 'vim': ['vint'],
       \ 'vue': ['eslint', 'vls'],
       \ 'zsh': ['shell']

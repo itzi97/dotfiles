@@ -1,5 +1,5 @@
 " Not compatible with vi
-if &compatible
+if !has('nvim') && &compatible
   set nocompatible
 endif
 
@@ -9,5 +9,6 @@ let g:polyglot_disabled = [
       \ 'vim',
       \ 'tex',
       \ 'markdown',
-      \ 'pandoc'
+      \ 'pandoc',
+      \ 'rust'
       \]
