@@ -427,7 +427,7 @@ myStartupHook = do
     spawnOnce "nitrogen --restore"
     spawnOnce "compton -b --config ~/.xmonad/confs/picom.conf"
     spawnOnce "dunst"
-    spawn "~/.config/polybar/launch.sh"
+    spawn "~/.xmonad/confs/polybar/launch.sh"
     spawnOnce "redshift-gtk"
     spawnOnce "piactl connect"
     spawnOnce "mntray"
