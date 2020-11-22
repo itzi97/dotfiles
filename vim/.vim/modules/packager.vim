@@ -71,9 +71,12 @@ function! PackagerInit() abort
 
   " Discord RPC
   if has('nvim')
-    call packager#add('aurieh/discord.nvim', { 'do': ':UpdateRemotePlugins'})
+    call packager#add('aurieh/discord.nvim', {
+          \ 'do': ':UpdateRemotePlugins',
+          \ 'type': 'opt'
+          \ })
   else
-    call packager#add('hugolgst/vimsence')
+    call packager#add('hugolgst/vimsence', {'type': 'opt'})
   endif
 
   " }}}
@@ -168,5 +171,12 @@ augroup packager_filetype
   autocmd!
   autocmd FileType go packadd vim-go
 augroup END
+
+" Add plugins depending on whether using vim or neovim
+if has('nvim')
+  packadd discord.nvim
+else
+  packadd vimsence
+endif
 
 " }}}

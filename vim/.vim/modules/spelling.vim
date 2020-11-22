@@ -1,5 +1,3 @@
-packadd auto-spell.vim.git
-
 function! SpellMath() abort
   set spell
   set spelllang=es,en,math
