@@ -17,7 +17,7 @@ source $HOME/.vim/modules/colors.vim
 source $HOME/.vim/modules/indentLine.vim
 source $HOME/.vim/modules/airline.vim
 source $HOME/.vim/modules/signify.vim
-source $HOME/.vim/modules/nerdtree.vim
+source $HOME/.vim/modules/NERDTree.vim
 source $HOME/.vim/modules/startify.vim
 source $HOME/.vim/modules/fzf.vim
 source $HOME/.vim/modules/floaterm.vim
@@ -28,5 +28,6 @@ source $HOME/.vim/modules/vimtex.vim
 
 " LSP, formatting and linting
 source $HOME/.vim/modules/neoformat.vim
+source $HOME/.vim/modules/ale.vim
 source $HOME/.vim/modules/lsp.vim
 source $HOME/.vim/modules/ultisnips.vim
