@@ -31,18 +31,18 @@ function! PackagerInit() abort
   " {{{ Intellisense
 
   " LSP + Asyncomplete
-  call packager#add('prabirshrestha/vim-lsp')
-  call packager#add('mattn/vim-lsp-settings')
-  call packager#add('prabirshrestha/asyncomplete.vim')
-  call packager#add('prabirshrestha/asyncomplete-lsp.vim')
-
-  " Sources
-  call packager#add('prabirshrestha/asyncomplete-file.vim')
-  call packager#add('prabirshrestha/asyncomplete-buffer.vim')
-  call packager#add('yami-beta/asyncomplete-omni.vim')
-
-  " Ultisnips
   if has('python3')
+    call packager#add('prabirshrestha/vim-lsp')
+    call packager#add('mattn/vim-lsp-settings')
+    call packager#add('prabirshrestha/asyncomplete.vim')
+    call packager#add('prabirshrestha/asyncomplete-lsp.vim')
+
+    " Sources
+    call packager#add('prabirshrestha/asyncomplete-file.vim')
+    call packager#add('prabirshrestha/asyncomplete-buffer.vim')
+    call packager#add('yami-beta/asyncomplete-omni.vim')
+
+    " Ultisnips
     call packager#add('SirVer/ultisnips')
     call packager#add('thomasfaingnaert/vim-lsp-snippets')
     call packager#add('thomasfaingnaert/vim-lsp-ultisnips')
@@ -50,6 +50,8 @@ function! PackagerInit() abort
     call packager#add('prabirshrestha/asyncomplete-ultisnips.vim')
   endif
 
+  " Linting
+  call packager#add('dense-analysis/ale')
 
   " Auto formatting (until vim-lsp supports more types)
   call packager#add('sbdchd/neoformat')
@@ -58,11 +60,21 @@ function! PackagerInit() abort
 
   " {{{ Misc
 
+  " Change surrounding delimiters
+  call packager#add('tpope/vim-surround')
+
   " Nice auto commenting
   call packager#add('preservim/nerdcommenter')
 
-  " Extensible spelling
-  "call packager#add('reedes/vim-lexical')
+  " Exchange words (foo bar -> bar foo)
+  call packager#add('tommcdo/vim-exchange')
+
+  " Discord RPC
+  if has('nvim')
+    call packager#add('aurieh/discord.nvim', { 'do': ':UpdateRemotePlugins'})
+  else
+    call packager#add('hugolgst/vimsence')
+  endif
 
   " }}}
 
@@ -84,6 +96,9 @@ function! PackagerInit() abort
   " R
   call packager#add('jalvesaq/Nvim-R', {'branch': 'master'})
 
+  " Rust
+  call packager#add('rust-lang/rust.vim')
+
   " }}}
 
   " {{{ Colors
@@ -100,11 +115,10 @@ function! PackagerInit() abort
 
   " {{{ Menus & Interfaces
 
-  " Discord RPC
-  call packager#add('hugolgst/vimsence')
-
   " Fzf
-  call packager#add('junegunn/fzf', { 'do': './install --all && ln -s $(pwd) ~/.fzf'})
+  call packager#add('junegunn/fzf', {
+        \ 'do': './install --all && ln -s $(pwd) ~/.fzf'
+        \ })
   call packager#add('junegunn/fzf.vim')
   call packager#add('airblade/vim-rooter')
 

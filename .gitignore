@@ -1,11 +1,10 @@
-# Vim
-vim/.vim/pack
-neovim-nolua/.config/nvim/pack/packager
-neovim-lua/.config/nvim/pack/packer
-neovim-deoplete/.config/nvim/packer
+# Vim & Neovim packages
+**/pack/packager/
+**/pack/packer/
 
 # XMonad
 xmonad/.xmonad/*.o
-xmonad/.xmonad/*.errors
-xmonad/.xmonad/*.hi
-xmonad/.xmonad/xmonad-x86_64-linux
+
+                xmonad/.xmonad/*.errors
+                xmonad/.xmonad/*.hi
+                xmonad/.xmonad/xmonad-x86_64-linux

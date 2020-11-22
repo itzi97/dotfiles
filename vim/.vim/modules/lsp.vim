@@ -60,6 +60,9 @@ call asyncomplete#register_source({
 
 let g:lsp_signs_enabled = 1           " enable signs
 let g:lsp_diagnostics_echo_cursor = 1 " enable echo under cursor in normal mode
+if has('nvim')
+  let g:lsp_virtual_text_enabled = 1
+endif
 
 " Tweak lsp
 let g:lsp_signs_error = {'text': '✗'}
