@@ -2,7 +2,7 @@ packadd auto-spell.vim.git
 
 function! SpellMath() abort
   set spell
-  set spelllang=es_es,en_us,math
+  set spelllang=es,en,math
   set complete+=kspell
 
   " Add spellfiles
@@ -34,7 +34,7 @@ command! SpellMath call SpellMath()
 
 function! SpellComp() abort
   set spell
-  set spelllang=es_es,en_us,compsci
+  set spelllang=es,en,compsci
   set complete+=kspell
 
   " Add spellfiles
@@ -67,7 +67,7 @@ command! SpellComp call SpellComp()
 
 function! SpellCompMath() abort
   set spell
-  set spelllang=es_es,en_us,compmath
+  set spelllang=es,en,compmath
   set complete+=kspell
 
   " Add spellfiles
