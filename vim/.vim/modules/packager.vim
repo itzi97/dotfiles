@@ -164,6 +164,10 @@ command! -bang PackagerUpdate call PackagerInit() |
 command! PackagerClean call PackagerInit()        | call packager#clean()
 command! PackagerStatus call PackagerInit()       | call packager#status()
 
+" }}}
+
+" {{{ Package Loading
+
 "Load plugins only for specific filetype
 "Note that this should not be done for plugins that handle their loading using ftplugin file.
 "More info in :help pack-add
