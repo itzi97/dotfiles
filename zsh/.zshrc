@@ -30,6 +30,9 @@ zplug "plugins/colorize", from:oh-my-zsh
 # SSH
 zplug "hkupty/ssh-agent"
 
+# Vi mode keybinds
+zplug "okapia/zsh-viexchange"
+
 # Completion sources
 zplug "zpm-zsh/ssh"
 zplug "spwhitt/nix-zsh-completions"

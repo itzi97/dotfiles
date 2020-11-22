@@ -6,10 +6,10 @@ if [[ "${resolution}" = "3840" ]]; then
 	if [[ "${DESKTOP_SESSION}" != "gnome" &&
 		"${DESKTOP_SESSION}" != "cinnamon" ]];then
 
-		eval $(gnome-keyring-daemon --start --components=gpg,pkcs11,secrets,ssh)
-		#export $(gnome-keyring-daemon --start --components=gpg,pkcs11,secrets,ssh)
-		#dbus-update-activation-environment --systemd DISPLAY
-		export SSH_AUTH_SOCK
+	eval $(gnome-keyring-daemon --start --components=gpg,pkcs11,secrets,ssh)
+	#export $(gnome-keyring-daemon --start --components=gpg,pkcs11,secrets,ssh)
+	#dbus-update-activation-environment --systemd DISPLAY
+	export SSH_AUTH_SOCK
 
 		# Set gnome as desktop environment
 		export DE=gnome
@@ -26,9 +26,9 @@ fi
 export EDITOR=nvim
 export PDFVIEWER=evince
 if [ -n "$DISPLAY" ]; then
-    export BROWSER=brave
+	export BROWSER=brave
 else
-    export BROWSER=links
+	export BROWSER=links
 fi
 
 # Default Programs
@@ -56,8 +56,8 @@ export R_ENVIRON_USER="${HOME}/.config/R/.Renviron"
 export PATH="/var/lib/flatpak/exports/bin:${PATH}"
 
 # Nix
-if [ -e /home/itziar/.nix-profile/etc/profile.d/nix.sh ];
-	then . /home/itziar/.nix-profile/etc/profile.d/nix.sh;
+if [ -e /home/itziar/.nix-profile/etc/profile.d/nix.sh ]; then
+	. /home/itziar/.nix-profile/etc/profile.d/nix.sh;
 fi
 
 # Perl
@@ -79,3 +79,6 @@ export PATH="${PATH}:${SPARK_HOME}/bin"
 
 export PYSPARK_DRIVER_PYTHON=jupyter
 export PYSPARK_DRIVER_PYTHON_OPTS="lab"
+
+# Source private keys
+source ~/.zsh/private.zsh
