@@ -297,23 +297,10 @@ myLayouts = renamed [CutWordsLeft 1] .
     smartBorders
         ( aTiled
         ||| aFullscreen
-        ||| aTabbed
         )
   where
-    aTabbed = renamed [Replace "Tab"] $ tabbedBottom shrinkText defTabbed
     aFullscreen = renamed [Replace "Full"] $ noBorders $ Full
     aTiled = renamed [Replace "Tile"] $ smartSpacingWithEdge 10 $ Tall 1 (3 / 100) (1 / 2)
-    defTabbed = def
-        { activeColor = bg
-        , urgentColor = red
-        , inactiveColor = bg
-        , activeBorderColor = bg
-        , inactiveBorderColor = bg
-        , urgentBorderColor = red
-        , inactiveTextColor = gray -- Gray color on dark gray background
-        , activeTextColor = green
-        , urgentTextColor = "#ffffff"
-        , fontName = "VictorMono Nerd Font:size=20" }
 
 ------------------------------------------------------------------------
 -- Window rules:
