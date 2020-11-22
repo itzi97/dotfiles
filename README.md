@@ -5,10 +5,11 @@ Contains my dotfiles for:
 - [Dunst](https://dunst-project.org/)
 - [Kitty](https://sw.kovidgoyal.net/kitty/)
 - [Neovim](https://neovim.io/)
-- [Picom](https://wiki.archlinux.org/index.php/Picom)
-- [Polybar](https://polybar.github.io/)
 - [Vim](https://github.com/vim/vim)
 - [Zsh](https://www.zsh.org/)
+- [XMonad](https://xmonad.org/)
+  - [Polybar](https://polybar.github.io/)
+  - [Picom](https://wiki.archlinux.org/index.php/Picom)
 
 ## Usage
 
