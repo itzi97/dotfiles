@@ -80,7 +80,7 @@ myFocusFollowsMouse = True
 
 -- Width of the window border in pixels.
 --
-myBorderWidth   = 2
+myBorderWidth   = 4
 
 -- modMask lets you specify which modkey you want to use. The default
 -- is mod1Mask ("left alt").  You may also consider using mod3Mask
@@ -219,7 +219,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm, xK_Print), spawn "flameshot gui  -p    ~/Pictures/Screenshots/")
 
     -- Lock Screen
-    , ((modm .|. shiftMask, xK_l     ), spawn "dm-tool lock")
+    , ((modm .|. shiftMask, xK_l     ), spawn "i3lock-fancy")
 
     -- Programs
 
@@ -404,20 +404,19 @@ dbusOutput dbus str = do
 -- It will add initialization of EWMH support to your custom startup
 -- hook by combining it with ewmhDesktopsStartup.
 --
---spawnOnce "export QT_AUTO_SCREEN_SCALE_FACTOR=1"
---spawnOnce "export GDK_SCALE=2"
---spawnOnce "export GDK_DPI_SCALE=0.5"
+    --spawnOnce "gsettings set org.gnome.settings-daemon.plugins.xsettings overrides '[{'Gdk/WindowScalingFactor', <2>}]'"
+    --spawnOnce "gsettings set org.gnome.desktop.interface scaling-factor 2"
+--
 --
 myStartupHook = do
-    spawnOnce "gsettings set org.gnome.settings-daemon.plugins.xsettings overrides '[{'Gdk/WindowScalingFactor', <2>}]'"
-    spawnOnce "gsettings set org.gnome.desktop.interface scaling-factor 2"
     spawnOnce "nitrogen --restore"
-    spawnOnce "compton -b --config ~/.xmonad/confs/picom.conf"
+    spawnOnce "picom --experimental-backend --config ~/.xmonad/confs/picom.conf"
     spawnOnce "dunst"
     spawn "~/.xmonad/confs/polybar/launch.sh"
     spawnOnce "redshift-gtk"
     spawnOnce "piactl connect"
     spawnOnce "mntray"
+    spawnOnce "~/.xmonad/scripts/locker.sh"
 
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
