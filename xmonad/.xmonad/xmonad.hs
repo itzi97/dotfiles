@@ -80,7 +80,7 @@ myFocusFollowsMouse = True
 
 -- Width of the window border in pixels.
 --
-myBorderWidth   = 1
+myBorderWidth   = 2
 
 -- modMask lets you specify which modkey you want to use. The default
 -- is mod1Mask ("left alt").  You may also consider using mod3Mask
@@ -219,7 +219,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm, xK_Print), spawn "flameshot gui  -p    ~/Pictures/Screenshots/")
 
     -- Lock Screen
-    , ((modm .|. shiftMask, xK_l     ), spawn "dm-tool lock")
+    , ((modm .|. shiftMask, xK_l     ), spawn "i3lock-fancy")
 
     -- Programs
 
@@ -410,12 +410,13 @@ dbusOutput dbus str = do
 --
 myStartupHook = do
     spawnOnce "nitrogen --restore"
-    spawnOnce "compton -b --config ~/.xmonad/confs/picom.conf"
+    spawnOnce "compton --config ~/.xmonad/confs/compton.conf"
     spawnOnce "dunst"
     spawn "~/.xmonad/confs/polybar/launch.sh"
     spawnOnce "redshift-gtk"
     spawnOnce "piactl connect"
     spawnOnce "mntray"
+    spawnOnce "~/.xmonad/scripts/locker.sh"
 
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
