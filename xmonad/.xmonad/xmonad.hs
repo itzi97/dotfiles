@@ -410,7 +410,7 @@ dbusOutput dbus str = do
 --
 myStartupHook = do
     spawnOnce "nitrogen --restore"
-    spawnOnce "compton --config ~/.xmonad/confs/compton.conf"
+    spawnOnce "picom --experimental-backend --config ~/.xmonad/confs/compton.conf"
     spawnOnce "dunst"
     spawn "~/.xmonad/confs/polybar/launch.sh"
     spawnOnce "redshift-gtk"
