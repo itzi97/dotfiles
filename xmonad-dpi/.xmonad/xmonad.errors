@@ -1,8 +1,31 @@
 
-xmonad.hs:303:41: warning: [-Wdeprecations]
+xmonad.hs:300:1: warning: [-Wtabs]
+    Tab character found here, and in 7 further locations.
+    Please use spaces instead.
+    |
+300 |                                 ||| aGrid
+    | ^^^^^^^^
+
+xmonad.hs:306:48: warning: [-Wdeprecations]
     In the use of ‘smartSpacingWithEdge’
     (imported from XMonad.Layout.Spacing):
     Deprecated: "Use spacingRaw instead."
     |
-303 |     aTiled = renamed [Replace "Tile"] $ smartSpacingWithEdge 10 $ Tall 1 (3 / 100) (1 / 2)
+306 |     aThreeCol = renamed [Replace "ThreeCol"] $ smartSpacingWithEdge 10 $ ThreeCol 1 (3/100) (1/2)
+    |                                                ^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:307:40: warning: [-Wdeprecations]
+    In the use of ‘smartSpacingWithEdge’
+    (imported from XMonad.Layout.Spacing):
+    Deprecated: "Use spacingRaw instead."
+    |
+307 |     aGrid = renamed [Replace "Grid"] $ smartSpacingWithEdge 10 $ Grid
+    |                                        ^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:308:41: warning: [-Wdeprecations]
+    In the use of ‘smartSpacingWithEdge’
+    (imported from XMonad.Layout.Spacing):
+    Deprecated: "Use spacingRaw instead."
+    |
+308 |     aTiled = renamed [Replace "Tile"] $ smartSpacingWithEdge 10 $ Tall 1 (3 / 100) (1 / 2)
     |                                         ^^^^^^^^^^^^^^^^^^^^

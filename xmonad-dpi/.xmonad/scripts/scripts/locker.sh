@@ -3,7 +3,7 @@
 exec xautolock \
   -detectsleep \
   -time 10 \
-  -locker "${HOME}/.xmonad/scripts/lock.sh" \
+  -locker "i3lock-fancy" \
   -nowlocker "i3lock" \
   -notify 30 \
   -notifier "dunstify -u critical -t 10000 -- 'LOCKING screen in 30 seconds'" &

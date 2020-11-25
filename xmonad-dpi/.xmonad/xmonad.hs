@@ -45,7 +45,8 @@ import           XMonad.Layout.Minimize
 import           XMonad.Layout.NoBorders
 import           XMonad.Layout.Renamed
 import           XMonad.Layout.Spacing
-import           XMonad.Layout.Tabbed
+import           XMonad.Layout.ThreeColumns
+import           XMonad.Layout.Grid
 import qualified XMonad.StackSet                as W
 import           XMonad.Util.EZConfig           (additionalKeys,
                                                  additionalKeysP)
@@ -80,7 +81,7 @@ myFocusFollowsMouse = True
 
 -- Width of the window border in pixels.
 --
-myBorderWidth   = 4
+myBorderWidth   = 2
 
 -- modMask lets you specify which modkey you want to use. The default
 -- is mod1Mask ("left alt").  You may also consider using mod3Mask
@@ -219,7 +220,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm, xK_Print), spawn "flameshot gui  -p    ~/Pictures/Screenshots/")
 
     -- Lock Screen
-    , ((modm .|. shiftMask, xK_l     ), spawn "i3lock-fancy")
+    , ((modm .|. shiftMask, xK_l     ), spawn "~/.xmonad/scripts/lock.sh")
 
     -- Programs
 
@@ -236,13 +237,13 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_f     ), spawn "nautilus")
 
     -- Brightness Commands
-    , ((0, xF86XK_MonBrightnessUp)    , spawn "~/.config/dunst/scripts/brightness.sh -i 5 -pyn")
-    , ((0, xF86XK_MonBrightnessDown)  , spawn "~/.config/dunst/scripts/brightness.sh -d 5 -pyn")
+    , ((0, xF86XK_MonBrightnessUp)    , spawn "~/.xmonad/scripts/brightness.sh -i 5 -pyn")
+    , ((0, xF86XK_MonBrightnessDown)  , spawn "~/.xmonad/scripts/brightness.sh -d 5 -pyn")
 
       -- Volume Notifications
-    , ((0, xF86XK_AudioLowerVolume)   , spawn "~/.config/dunst/scripts/volume.sh -d 5 -pnyl")
-    , ((0, xF86XK_AudioMute)          , spawn "~/.config/dunst/scripts/volume.sh      -nyml")
-    , ((0, xF86XK_AudioRaiseVolume)   , spawn "~/.config/dunst/scripts/volume.sh -i 5 -pnyl")
+    , ((0, xF86XK_AudioLowerVolume)   , spawn "~/.xmonad/scripts/volume.sh -d 5 -pnyl")
+    , ((0, xF86XK_AudioMute)          , spawn "~/.xmonad/scripts/volume.sh      -nyml")
+    , ((0, xF86XK_AudioRaiseVolume)   , spawn "~/.xmonad/scripts/volume.sh -i 5 -pnyl")
     ]
     ++
 
@@ -296,10 +297,14 @@ myLayouts = renamed [CutWordsLeft 1] .
     avoidStruts . minimize .  B.boringWindows $
     smartBorders
         ( aTiled
+				||| aGrid
+				||| aThreeCol
         ||| aFullscreen
         )
   where
     aFullscreen = renamed [Replace "Full"] $ noBorders $ Full
+    aThreeCol = renamed [Replace "ThreeCol"] $ smartSpacingWithEdge 10 $ ThreeCol 1 (3/100) (1/2)
+    aGrid = renamed [Replace "Grid"] $ smartSpacingWithEdge 10 $ Grid
     aTiled = renamed [Replace "Tile"] $ smartSpacingWithEdge 10 $ Tall 1 (3 / 100) (1 / 2)
 
 ------------------------------------------------------------------------
@@ -410,13 +415,14 @@ dbusOutput dbus str = do
 --
 myStartupHook = do
     spawnOnce "nitrogen --restore"
-    spawnOnce "picom --experimental-backend --config ~/.xmonad/confs/picom.conf"
-    spawnOnce "dunst"
+    spawnOnce "picom --experimental-backend --config ~/.xmonad/confs/compton.conf"
+    spawnOnce "dunst -conf ~/.xmonad/confs/dunstrc"
     spawn "~/.xmonad/confs/polybar/launch.sh"
     spawnOnce "redshift-gtk"
     spawnOnce "piactl connect"
     spawnOnce "mntray"
     spawnOnce "~/.xmonad/scripts/locker.sh"
+
 
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
