@@ -215,7 +215,7 @@ startup_notification = true
 #  mesg: Important Messages
 #  info: all unimportant stuff
 # debug: all less than unimportant stuff
-verbosity = mesg
+verbosity = info
 
 # Define the corner radius of the notification window
 # in pixel size. If the radius is 0, you have no rounded

@@ -147,13 +147,14 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
 
     -- launch dmenu
-    , ((modm,               xK_p     ), spawn "~/.config/rofi/scripts/menu.sh")
+    --, ((modm,               xK_p     ), spawn "~/.config/rofi/bin/launcher_colorful")
+    , ((modm,               xK_p     ), spawn "~/.xmonad/confs/rofi/launchers/misc/launcher.sh")
 
     -- launch command runner
-    , ((modm,               xK_r     ), spawn "~/.config/rofi/scripts/run.sh")
+    , ((modm,               xK_r     ), spawn "~/.xmonad/confs/rofi/launchers/text/launcher.sh")
 
     -- launch 1password
-    , ((modm .|. shiftMask, xK_p     ), spawn "rofi -modi 1pass:rofi-1pass -show 1pass -dpi 192")
+    , ((modm .|. shiftMask, xK_p     ), spawn "~/.xmonad/confs/rofi/powermenu/powermenu.sh")
 
     -- close focused window
     , ((modm .|. shiftMask, xK_c     ), kill)
@@ -196,6 +197,12 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- Push window back into tiling
     , ((modm,               xK_t     ), withFocused $ windows . W.sink)
+
+    -- Increase window spacing
+    , ((modm,               xK_g     ), setSpacing(0))
+
+    -- Decrease window spacing
+    , ((modm .|. shiftMask, xK_g     ), setSpacing(10))
 
     -- Increment the number of windows in the master area
     , ((modm              , xK_comma ), sendMessage (IncMasterN 1))
@@ -409,16 +416,16 @@ dbusOutput dbus str = do
 -- It will add initialization of EWMH support to your custom startup
 -- hook by combining it with ewmhDesktopsStartup.
 --
-    --spawnOnce "gsettings set org.gnome.settings-daemon.plugins.xsettings overrides '[{'Gdk/WindowScalingFactor', <2>}]'"
-    --spawnOnce "gsettings set org.gnome.desktop.interface scaling-factor 2"
---
 --
 myStartupHook = do
+    spawnOnce "gsettings set org.gnome.settings-daemon.plugins.xsettings overrides '[{'Gdk/WindowScalingFactor', <2>}]'"
+    spawnOnce "gsettings set org.gnome.desktop.interface scaling-factor 2"
+    spawnOnce "/usr/lib/geoclue-2.0/demos/agent"
     spawnOnce "nitrogen --restore"
-    spawnOnce "picom --experimental-backend --config ~/.xmonad/confs/compton.conf"
+    spawnOnce "picom --experimental-backend --config ~/.xmonad/confs/picom.conf"
     spawnOnce "dunst -conf ~/.xmonad/confs/dunstrc"
     spawn "~/.xmonad/confs/polybar/launch.sh"
-    spawnOnce "redshift-gtk"
+    spawnOnce "redshift"
     spawnOnce "piactl connect"
     spawnOnce "mntray"
     spawnOnce "~/.xmonad/scripts/locker.sh"
