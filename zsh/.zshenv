@@ -2,33 +2,33 @@
 resolution=$(xrandr | grep -i '*' | awk '{print $1}' | awk 'BEGIN {FS="x"} {print $1}')
 
 if [[ "${resolution}" = "3840" ]]; then
-	# Unlock gnome-keyring if not a desktop environment
-	if [[ "${DESKTOP_SESSION}" != "gnome" &&
-		"${DESKTOP_SESSION}" != "cinnamon" ]];then
+  # Unlock gnome-keyring if not a desktop environment
+  if [[ "${DESKTOP_SESSION}" != "gnome" &&
+    "${DESKTOP_SESSION}" != "cinnamon" ]];then
 
-	eval $(gnome-keyring-daemon --start --components=gpg,pkcs11,secrets,ssh)
-	#export $(gnome-keyring-daemon --start --components=gpg,pkcs11,secrets,ssh)
-	#dbus-update-activation-environment --systemd DISPLAY
-	export SSH_AUTH_SOCK
+  eval $(gnome-keyring-daemon --start --components=gpg,pkcs11,secrets,ssh)
+  #export $(gnome-keyring-daemon --start --components=gpg,pkcs11,secrets,ssh)
+  #dbus-update-activation-environment --systemd DISPLAY
+  export SSH_AUTH_SOCK
 
-		# Set gnome as desktop environment
-		export DE=gnome
+    # Set gnome as desktop environment
+    #export DE=gnome
 
-		# HighDPI Settings
-		export QT_AUTO_SCREEN_SCALE_FACTOR=1
-		export GDK_SCALE=2
-		export GDK_DPI_SCALE=0.5
-		export ELM_SCALE=2
-	fi
+    # HighDPI Settings
+    export QT_AUTO_SCREEN_SCALE_FACTOR=1
+    export GDK_SCALE=2
+    export GDK_DPI_SCALE=0.5
+    export ELM_SCALE=2
+  fi
 fi
 
 # Default programs
 export EDITOR=nvim
 export PDFVIEWER=evince
 if [ -n "$DISPLAY" ]; then
-	export BROWSER=brave
+  export BROWSER=firefox
 else
-	export BROWSER=links
+  export BROWSER=links
 fi
 
 # Default Programs
@@ -57,7 +57,7 @@ export PATH="/var/lib/flatpak/exports/bin:${PATH}"
 
 # Nix
 if [ -e /home/itziar/.nix-profile/etc/profile.d/nix.sh ]; then
-	. /home/itziar/.nix-profile/etc/profile.d/nix.sh;
+  . /home/itziar/.nix-profile/etc/profile.d/nix.sh;
 fi
 
 # Perl
