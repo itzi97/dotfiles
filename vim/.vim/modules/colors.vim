@@ -17,9 +17,20 @@ let g:gruvbox_bold=1
 let g:gruvbox_contrast_dark = 'hard'
 let g:gruvbox_contrast_light = 'hard'
 
+" Material
+let g:material_theme_style = 'lighter'
+let g:material_terminal_italics = 1
+
+" NVCode
+let g:nvcode_termcolors=256
+
+
 " Set colorscheme
-colorscheme gruvbox
-if filereadable($HOME . '/.vim/modules/airline.vim')
-  " Configure airline theme
+if has('nvim')
+  luafile ~/.config/nvim/lua/conf_treesitter.lua
+  colorscheme nvcode
+  let g:airline_theme = 'minimalist'
+else
+  colorscheme gruvbox
   let g:airline_theme = 'gruvbox'
 endif

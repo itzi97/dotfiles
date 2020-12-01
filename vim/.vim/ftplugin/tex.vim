@@ -1,5 +1,5 @@
 " Limit to 100 columns
-set wrap textwidth=100
+set wrap textwidth=120
 
 " Use tabs with size 2 (no spaces)
 set tabstop=2 shiftwidth=2 noexpandtab

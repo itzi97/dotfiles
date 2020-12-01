@@ -83,10 +83,13 @@ function! PackagerInit() abort
 
   " {{{ Language Support
 
-  call packager#add('sheerun/vim-polyglot')
+  "call packager#add('sheerun/vim-polyglot')
 
   " Go
-  call packager#add('fatih/vim-go', { 'do': ':GoInstallBinaries', 'type': 'opt' })
+  call packager#add('fatih/vim-go', {
+        \ 'do': ':GoInstallBinaries',
+        \ 'type': 'opt'
+        \})
 
   " Markdown, RMarkdown
   call packager#add('vim-pandoc/vim-pandoc')
@@ -99,6 +102,9 @@ function! PackagerInit() abort
   " R
   call packager#add('jalvesaq/Nvim-R', {'branch': 'master'})
 
+  " Rasi (rofi advanced style information)
+  call packager#add('CantoroMC/vim-rasi')
+
   " Rust
   call packager#add('rust-lang/rust.vim')
 
@@ -108,6 +114,10 @@ function! PackagerInit() abort
 
   " Colorscheme + eyecandy
   call packager#add('morhetz/gruvbox')
+  call packager#add('kaicataldo/material.vim', { 'branch': 'main' })
+
+  call packager#add('christianchiarulli/nvcode-color-schemes.vim')
+  call packager#add('nvim-treesitter/nvim-treesitter')
 
   " Eyecandy
   call packager#add('Yggdroot/indentLine')
