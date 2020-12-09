@@ -40,13 +40,13 @@ import           XMonad.Hooks.ManageDocks
 import           XMonad.Hooks.ManageHelpers
 import           XMonad.Hooks.Place
 import qualified XMonad.Layout.BoringWindows    as B
+import           XMonad.Layout.Grid
 import           XMonad.Layout.LayoutModifier
 import           XMonad.Layout.Minimize
 import           XMonad.Layout.NoBorders
 import           XMonad.Layout.Renamed
 import           XMonad.Layout.Spacing
 import           XMonad.Layout.ThreeColumns
-import           XMonad.Layout.Grid
 import qualified XMonad.StackSet                as W
 import           XMonad.Util.EZConfig           (additionalKeys,
                                                  additionalKeysP)
@@ -422,7 +422,8 @@ myStartupHook = do
     spawnOnce "gsettings set org.gnome.desktop.interface scaling-factor 2"
     spawnOnce "/usr/lib/geoclue-2.0/demos/agent"
     spawnOnce "nitrogen --restore"
-    spawnOnce "picom --experimental-backend --config ~/.xmonad/confs/picom.conf"
+    -- spawnOnce "picom --experimental-backend --config ~/.xmonad/confs/picom.conf"
+    spawnOnce "picom --config ~/.config/awesome/configuration/compton.conf"
     spawnOnce "dunst -conf ~/.xmonad/confs/dunstrc"
     spawn "~/.xmonad/confs/polybar/launch.sh"
     spawnOnce "redshift"

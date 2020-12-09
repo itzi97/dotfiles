@@ -53,11 +53,14 @@ zplug load
 # }}}
 
 # Source local fzf completion bindings
-source /usr/share/fzf/completion.zsh
-source /usr/share/fzf/key-bindings.zsh
+if [ $DISTRO_NAME != "NixOS" ]; then
+  source /usr/share/fzf/completion.zsh
+  source /usr/share/fzf/key-bindings.zsh
+fi
 
 # Show system configuration
-screenfetch
+#screenfetch
+neofetch
 
 zle
 
@@ -180,28 +183,30 @@ alias lat="exa --icons --long --all"  # Tree with extended details with all
 
 # If distro is based on arch linux
 
-if command -v COMMAND &> /dev/null; then
-  command_not_found_handler() {
-    local pkgs cmd="$1" files=()
-    # Print command not found asap, then search for packages
-    printf 'zsh: command not found: %s' "$cmd"
-    files=(${(f)"$(pacman -F --machinereadable -- "/usr/bin/${cmd}")"})
-    if (( ${#files[@]} )); then
-      printf '\r%s may be found in the following packages:\n' "$cmd"
-      local res=() repo package version file
-      for file in "$files[@]"; do
-        res=("${(0)file}")
-        repo="$res[1]"
-        package="$res[2]"
-        version="$res[3]"
-        file="$res[4]"
-        printf '  %s/%s %s: /%s\n' "$repo" "$package" "$version" "$file"
-      done
-    else
-      printf '\n'
-    fi
-    return 127
-  }
+if [ $DISTRO_NAME != "NixOS" ]; then
+  if command -v COMMAND &> /dev/null; then
+    command_not_found_handler() {
+      local pkgs cmd="$1" files=()
+      # Print command not found asap, then search for packages
+      printf 'zsh: command not found: %s' "$cmd"
+      files=(${(f)"$(pacman -F --machinereadable -- "/usr/bin/${cmd}")"})
+      if (( ${#files[@]} )); then
+        printf '\r%s may be found in the following packages:\n' "$cmd"
+        local res=() repo package version file
+        for file in "$files[@]"; do
+          res=("${(0)file}")
+          repo="$res[1]"
+          package="$res[2]"
+          version="$res[3]"
+          file="$res[4]"
+          printf '  %s/%s %s: /%s\n' "$repo" "$package" "$version" "$file"
+        done
+      else
+        printf '\n'
+      fi
+      return 127
+    }
+  fi
 fi
 
 # }}}

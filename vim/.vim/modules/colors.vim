@@ -27,9 +27,11 @@ let g:nvcode_termcolors=256
 
 " Set colorscheme
 if has('nvim')
-  luafile ~/.config/nvim/lua/conf_treesitter.lua
-  colorscheme nvcode
-  let g:airline_theme = 'minimalist'
+  " luafile ~/.config/nvim/lua/conf_treesitter.lua
+  colorscheme gruvbox
+  let g:airline_theme = 'gruvbox'
+  "colorscheme nvcode
+  "let g:airline_theme = 'minimalist'
 else
   colorscheme gruvbox
   let g:airline_theme = 'gruvbox'

@@ -42,7 +42,7 @@ export PATH="${PATH}:${HOME}/.local/bin"
 export PATH="${PATH}:${HOME}/.cargo/bin"
 
 # Go path
-export GOPATH="${WORKSPACE}/go"
+export GOPATH="${HOME}/.go"
 export GOBIN="${GOPATH}/bin"
 export PATH="${PATH}:${GOBIN}"
 

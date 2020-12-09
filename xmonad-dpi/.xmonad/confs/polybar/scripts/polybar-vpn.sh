@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # All "custom" vpns, are prefixed with "vpn-" as the tunnel name
 PIA=$(piactl get connectionstate)

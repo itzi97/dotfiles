@@ -116,9 +116,6 @@ function! PackagerInit() abort
   call packager#add('morhetz/gruvbox')
   call packager#add('kaicataldo/material.vim', { 'branch': 'main' })
 
-  call packager#add('christianchiarulli/nvcode-color-schemes.vim')
-  call packager#add('nvim-treesitter/nvim-treesitter')
-
   " Eyecandy
   call packager#add('Yggdroot/indentLine')
   call packager#add('rrethy/vim-hexokinase', { 'do': 'make hexokinase' })
