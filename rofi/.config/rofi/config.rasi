@@ -1,3 +1,7 @@
+/** Basic config file **/
+
 configuration {
-	theme: "/usr/share/rofi/themes/arthur.rasi";
+  show-icons:         true;
+  icon-theme:         "Papirus";
+dpi:                192;
 }
