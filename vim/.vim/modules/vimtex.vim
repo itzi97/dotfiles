@@ -14,6 +14,9 @@ let g:vimtex_syntax_conceal = {
 "let g:vimtex_view_method = 'zathura'
 "let g:vimtex_view_method = 'mupdf'
 
+"let g:vimtex_view_method='zathura'
+"let g:vimtex_quickfix_mode=0
+
 let g:vimtex_view_general_viewer = 'evince'
 let g:vimtex_complete_recursive_bib = 1
 let g:vimtex_complete_enabled = 1
@@ -30,7 +33,7 @@ let g:vimtex_compiler_latexmk_engines = {
       \ 'context (luatex)' : '-pdf -pdflatex=context',
       \ 'context (xetex)'  : '-pdf -pdflatex=''texexec --xtx''',
       \}
-
+"
 let g:vimtex_compiler_latexmk = {
       \ 'build_dir' : '',
       \ 'callback' : 1,

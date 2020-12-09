@@ -1,106 +1,101 @@
-function! SpellMath() abort
-  set spell
-  set spelllang=es,en,math
-  set complete+=kspell
-
-  " Add spellfiles
-  set spellfile=~/.vim/spell/math.utf-8.add
-  set spellfile+=~/.vim/spell/en.utf-8.add
-  set spellfile+=~/.vim/spell/es.utf-8.add
-
-  " Add dictionaries
-  set dictionary=~/.vim/spell/dictionary/math.txt
-  set dictionary+=/usr/share/dict/words
+function! SetDictionary() abort
   if len(&dictionary) > 0
     setlocal complete+=k
   else
     setlocal complete-=k
   endif
+endfunction
 
-  " Add thesaurus
-  set thesaurus=~/.vim/spell/thesaurus/compsci_synonyms.txt
-  set thesaurus+=~/.vim/spell/thesaurus/mthesaur.txt
+function! SetThesaurus() abort
   if len(&thesaurus) > 0
     setlocal complete+=s
   else
     setlocal complete-=s
   endif
+endfunction
 
+function! SetSpellKeys() abort
+  nnoremap <buffer> <leader>s vaWovEa<C-X><C-S>
+  nnoremap <buffer> <leader>t vaWovEa<C-X><C-T>
+  nnoremap <buffer> <leader>d vaWovEa<C-X><C-K>
+endfunction
+
+function! SpellMath() abort
+  setlocal spell
+  setlocal spelllang=es,en,math
+  setlocal complete+=kspell
+
+  " Add spellfiles
+  setlocal spellfile=~/.vim/spell/math.utf-8.add
+  setlocal spellfile+=~/.vim/spell/en.utf-8.add
+  setlocal spellfile+=~/.vim/spell/es.utf-8.add
+
+  " Add dictionaries
+  setlocal dictionary=~/.vim/spell/dictionary/math.txt
+  setlocal dictionary+=/usr/share/dict/words
+  call SetDictionary()
+
+  " Add thesaurus
+  setlocal thesaurus=~/.vim/spell/thesaurus/compsci_synonyms.txt
+  setlocal thesaurus+=~/.vim/spell/thesaurus/mthesaur.txt
+  call SetThesaurus()
+
+  " Set keybinds
+  call SetSpellKeys()
 endfunction
 
 command! SpellMath call SpellMath()
 
 function! SpellComp() abort
-  set spell
-  set spelllang=es,en,compsci
-  set complete+=kspell
+  setlocal spell
+  setlocal spelllang=es,en,compsci
+  setlocal complete+=kspell
 
   " Add spellfiles
-  set spellfile=~/.vim/spell/compsci.utf-8.add
-  set spellfile+=~/.vim/spell/en.utf-8.add
-  set spellfile+=~/.vim/spell/es.utf-8.add
+  setlocal spellfile=~/.vim/spell/compsci.utf-8.add
+  setlocal spellfile+=~/.vim/spell/en.utf-8.add
+  setlocal spellfile+=~/.vim/spell/es.utf-8.add
 
   " Add dictionaries
-  set dictionary=~/.vim/spell/dictionary/compsci_terms.txt
-  set dictionary+=/usr/share/dict/words
-
-  if len(&dictionary) > 0
-    setlocal complete+=k
-  else
-    setlocal complete-=k
-  endif
+  setlocal dictionary=~/.vim/spell/dictionary/compsci_terms.txt
+  setlocal dictionary+=/usr/share/dict/words
+  call SetDictionary()
 
   " Add thesaurus
-  set thesaurus=~/.vim/spell/thesaurus/compsci_synonyms.txt
-  set thesaurus+=~/.vim/spell/thesaurus/mthesaur.txt
+  setlocal thesaurus=~/.vim/spell/thesaurus/compsci_synonyms.txt
+  setlocal thesaurus+=~/.vim/spell/thesaurus/mthesaur.txt
+  call SetThesaurus()
 
-  if len(&thesaurus) > 0
-    setlocal complete+=s
-  else
-    setlocal complete-=s
-  endif
+  " Set keybinds
+  call SetSpellKeys()
 endfunction
 
 command! SpellComp call SpellComp()
 
 function! SpellCompMath() abort
-  set spell
-  set spelllang=es,en,compmath
-  set complete+=kspell
+  setlocal spell
+  setlocal spelllang=es,en,compmath
+  setlocal complete+=kspell
 
   " Add spellfiles
-  set spellfile=~/.vim/spell/compmath.utf-8.add
-  set spellfile+=~/.vim/spell/en.utf-8.add
-  set spellfile+=~/.vim/spell/es.utf-8.add
+  setlocal spellfile=~/.vim/spell/compmath.utf-8.add
+  setlocal spellfile+=~/.vim/spell/en.utf-8.add
+  setlocal spellfile+=~/.vim/spell/es.utf-8.add
 
   " Add dictionaries
-  set dictionary=~/.vim/spell/dictionary/compmath_terms.txt
-  set dictionary+=/usr/share/dict/words
-
-  if len(&dictionary) > 0
-    setlocal complete+=k
-  else
-    setlocal complete-=k
-  endif
+  setlocal dictionary=~/.vim/spell/dictionary/compmath_terms.txt
+  setlocal dictionary+=/usr/share/dict/words
+  call SetDictionary()
 
   " Add thesaurus
-  set thesaurus=~/.vim/spell/thesaurus/compmath_synonyms.txt
-  set thesaurus+=~/.vim/spell/thesaurus/mthesaur.txt
+  setlocal thesaurus=~/.vim/spell/thesaurus/compmath_synonyms.txt
+  setlocal thesaurus+=~/.vim/spell/thesaurus/mthesaur.txt
+  call SetThesaurus()
 
-  if len(&thesaurus) > 0
-    setlocal complete+=s
-  else
-    setlocal complete-=s
-  endif
+  " Set keybinds
+  call SetSpellKeys()
+
 endfunction
 
 command! SpellCompMath call SpellCompMath()
 
-nnoremap <buffer> <leader>s vaWovEa<C-X><C-S>
-nnoremap <buffer> <leader>t vaWovEa<C-X><C-T>
-nnoremap <buffer> <leader>d vaWovEa<C-X><C-K>
-
-augroup au_spelling abort
-  autocmd!
-  autocmd FileType textile,pandoc call SpellMath()
-augroup END

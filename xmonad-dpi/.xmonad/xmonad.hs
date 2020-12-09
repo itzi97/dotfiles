@@ -426,7 +426,6 @@ myStartupHook = do
     spawnOnce "dunst -conf ~/.xmonad/confs/dunstrc"
     spawn "~/.xmonad/confs/polybar/launch.sh"
     spawnOnce "redshift"
-    spawnOnce "piactl connect"
     spawnOnce "mntray"
     spawnOnce "~/.xmonad/scripts/locker.sh"
 
