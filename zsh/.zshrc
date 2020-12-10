@@ -182,33 +182,32 @@ alias lat="exa --icons --long --all"  # Tree with extended details with all
 
 # {{{ Distro specific
 
+
 # If distro is based on arch linux
 
-if [ $DISTRO_NAME != "NixOS" ]; then
-  if command -v COMMAND &> /dev/null; then
-    command_not_found_handler() {
-      local pkgs cmd="$1" files=()
-      # Print command not found asap, then search for packages
-      printf 'zsh: command not found: %s' "$cmd"
-      files=(${(f)"$(pacman -F --machinereadable -- "/usr/bin/${cmd}")"})
-      if (( ${#files[@]} )); then
-        printf '\r%s may be found in the following packages:\n' "$cmd"
-        local res=() repo package version file
-        for file in "$files[@]"; do
-          res=("${(0)file}")
-          repo="$res[1]"
-          package="$res[2]"
-          version="$res[3]"
-          file="$res[4]"
-          printf '  %s/%s %s: /%s\n' "$repo" "$package" "$version" "$file"
-        done
-      else
-        printf '\n'
-      fi
-      return 127
-    }
+command_not_found_handler() {
+  if [ $DISTRO_NAME != "Arch" ]; then
+    return 127
   fi
-fi
+  local pkgs cmd="$1" files=()
+  printf 'zsh: command not found: %s' "$cmd" # print command not found asap, then search for packages
+  files=(${(f)"$(pacman -F --machinereadable -- "/usr/bin/${cmd}")"})
+  if (( ${#files[@]} )); then
+    printf '\r%s may be found in the following packages:\n' "$cmd"
+    local res=() repo package version file
+    for file in "$files[@]"; do
+      res=("${(0)file}")
+      repo="$res[1]"
+      package="$res[2]"
+      version="$res[3]"
+      file="$res[4]"
+      printf '  %s/%s %s: /%s\n' "$repo" "$package" "$version" "$file"
+    done
+  else
+    printf '\n'
+  fi
+  return 127
+}
 
 # }}}
 
