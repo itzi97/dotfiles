@@ -4,7 +4,7 @@ resolution=$(xrandr | grep -i '*' | awk '{print $1}' | awk 'BEGIN {FS="x"} {prin
 if [[ "${resolution}" = "3840" ]]; then
   # Unlock gnome-keyring if not a desktop environment
   if [[ "${DESKTOP_SESSION}" != "gnome" &&
-    "${DESKTOP_SESSION}" != "cinnamon" ]];then
+    "${DESKTOP_SESSION}" != "xfce" ]];then
 
   eval $(gnome-keyring-daemon --start --components=gpg,pkcs11,secrets,ssh)
   #export $(gnome-keyring-daemon --start --components=gpg,pkcs11,secrets,ssh)
@@ -19,6 +19,10 @@ if [[ "${resolution}" = "3840" ]]; then
     export GDK_SCALE=2
     export GDK_DPI_SCALE=0.5
     export ELM_SCALE=2
+  fi
+
+  if [[ "${DESKTOP_SESSION}" = "xfce" ]]; then
+    export GDK_DPI_SCALE=0.5
   fi
 fi
 

@@ -2,9 +2,9 @@
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
+#if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+#  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+#fi
 # }}}
 
 DISTRO_NAME=$(lsb_release -i | awk 'NF>1{print $NF}' -)
@@ -16,7 +16,8 @@ source ~/.zplug/init.zsh
 zplug 'zplug/zplug', hook-build:'zplug --self-manage'
 
 # Change ZSH theme
-zplug "romkatv/powerlevel10k", as:theme, depth:1
+#zplug "romkatv/powerlevel10k", as:theme, depth:1
+zplug "denysdovhan/spaceship-prompt", use:spaceship.zsh, from:github, as:theme
 
 zplug "marzocchi/zsh-notify"
 
@@ -114,6 +115,15 @@ autoload -Uz compinit colors
 compinit -d
 kitty + complete setup zsh | source /dev/stdin
 colors
+
+# }}}
+
+# {{{ Spaceship theme
+#export SPACESHIP_USER_SHOW=always
+#export SPACESHIP_HOST_SHOW=always
+eval spaceship_vi_mode_enable
+#export SPACESHIP_PROMPT_SEPARATE_LINE=false
+export SPACESHIP_TIME_SHOW=true
 
 # }}}
 
