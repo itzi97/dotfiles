@@ -3,5 +3,4 @@
 configuration {
   show-icons:         true;
   icon-theme:         "Papirus";
-dpi:                192;
 }
