@@ -1,4 +1,6 @@
 if has('termguicolors')
+  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
   set termguicolors
   hi LineNr ctermbg=NONE guibg=NONE
 
@@ -18,12 +20,11 @@ let g:gruvbox_contrast_dark = 'hard'
 let g:gruvbox_contrast_light = 'hard'
 
 " Material
-let g:material_theme_style = 'lighter'
+let g:material_theme_style = 'darker'
 let g:material_terminal_italics = 1
 
 " NVCode
 let g:nvcode_termcolors=256
-
 
 " Set colorscheme
 if has('nvim')
@@ -33,6 +34,6 @@ if has('nvim')
   "colorscheme nvcode
   "let g:airline_theme = 'minimalist'
 else
-  colorscheme gruvbox
-  let g:airline_theme = 'gruvbox'
+  colorscheme nord
+  let g:airline_theme = 'nord'
 endif

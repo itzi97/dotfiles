@@ -6,10 +6,10 @@ if [[ "${resolution}" = "3840" ]]; then
   if [[ "${DESKTOP_SESSION}" != "gnome" &&
     "${DESKTOP_SESSION}" != "xfce" ]];then
 
-  eval $(gnome-keyring-daemon --start --components=gpg,pkcs11,secrets,ssh)
+  #eval $(gnome-keyring-daemon --start --components=gpg,pkcs11,secrets,ssh)
   #export $(gnome-keyring-daemon --start --components=gpg,pkcs11,secrets,ssh)
   #dbus-update-activation-environment --systemd DISPLAY
-  export SSH_AUTH_SOCK
+  #export SSH_AUTH_SOCK
 
     # Set gnome as desktop environment
     #export DE=gnome

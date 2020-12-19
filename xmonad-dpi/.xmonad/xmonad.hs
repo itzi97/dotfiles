@@ -57,21 +57,21 @@ import           XMonad.Util.SpawnOnce
 -- certain contrib modules.
 --
 
-fg        = "#C4C7C5"
-bg        = "#212B30"
-gray      = "#a89984"
-bg1       = "#3c3836"
-bg2       = "#5C6F7B"
-ac        = "#4DD0E1"
+fg        = "#c5c8c6"
+bg        = "#1d1f21"
+gray      = "#707880"
+bg1       = "#1d1f21"
+bg2       = "#373b41"
+ac        = "#5f819d"
 
-green     = "#b8bb26"
-darkgreen = "#98971a"
-red       = "#EC7875"
-darkred   = "#cc241d"
-yellow    = "#fabd2f"
-blue      = "#83a598"
-purple    = "#d3869b"
-aqua      = "#8ec07c"
+green     = "#b5bd68"
+darkgreen = "#8c9440"
+red       = "#cc6666"
+darkred   = "#a54242"
+yellow    = "#f0c676"
+blue      = "#5f819d"
+purple    = "#85678f"
+aqua      = "#81a2be"
 
 myTerminal      = "kitty"
 
@@ -122,21 +122,43 @@ myModMask       = mod4Mask
 --
 -- > workspaces = ["web", "irc", "code" ] ++ map show [4..9]
 --
+--myWorkspaces =
+--    [ "1"
+--    , "2"
+--    , "3"
+--    , "4"
+--    , "5"
+--    , "6"
+--    , "7"
+--    , "8"
+--    , "9"]
+
 myWorkspaces =
-    [ "1•\62601"
-    , "2•\62057"
-    , "3•\63213"
-    , "4•\64366"
-    , "5•\61820"
-    , "6•\61820"
-    , "7•\61820"
-    , "8•\63942"
-    , "9•\63608"]
+    [ "\62601"
+    , "\62057"
+    , "\63213"
+    , "\64366"
+    , "\61820"
+    , "\61820"
+    , "\61820"
+    , "\63942"
+    , "\63608"]
+
+--myWorkspaces =
+--    [ "1•\62601"
+--    , "2•\62057"
+--    , "3•\63213"
+--    , "4•\64366"
+--    , "5•\61820"
+--    , "6•\61820"
+--    , "7•\61820"
+--    , "8•\63942"
+--    , "9•\63608"]
 
 -- Border colors for unfocused and focused windows, respectively.
 --
-myNormalBorderColor  = "#212B30"
-myFocusedBorderColor = "#5C6F7B"
+myNormalBorderColor  = "#1d1f21"
+myFocusedBorderColor = "#5f819d"
 
 ------------------------------------------------------------------------
 -- Key bindings. Add, modify or remove key bindings here.
@@ -304,15 +326,25 @@ myLayouts = renamed [CutWordsLeft 1] .
     avoidStruts . minimize .  B.boringWindows $
     smartBorders
         ( aTiled
-				||| aGrid
-				||| aThreeCol
         ||| aFullscreen
         )
   where
-    aFullscreen = renamed [Replace "Full"] $ noBorders $ Full
-    aThreeCol = renamed [Replace "ThreeCol"] $ smartSpacingWithEdge 10 $ ThreeCol 1 (3/100) (1/2)
-    aGrid = renamed [Replace "Grid"] $ smartSpacingWithEdge 10 $ Grid
-    aTiled = renamed [Replace "Tile"] $ smartSpacingWithEdge 10 $ Tall 1 (3 / 100) (1 / 2)
+    aFullscreen = renamed [Replace "\63378"] $ noBorders $ Full
+    aTiled = renamed [Replace "\64115"] $ smartSpacingWithEdge 10 $ Tall 1 (3 / 100) (1 / 2)
+
+--myLayouts = renamed [CutWordsLeft 1] .
+--    avoidStruts . minimize .  B.boringWindows $
+--    smartBorders
+--        ( aTiled
+--        ||| aGrid
+--        ||| aThreeCol
+--        ||| aFullscreen
+--        )
+--  where
+--    aFullscreen = renamed [Replace "\63378"] $ noBorders $ Full
+--    aTiled = renamed [Replace "\64115"] $ smartSpacingWithEdge 10 $ Tall 1 (3 / 100) (1 / 2)
+--    aThreeCol = renamed [Replace "\64833"] $ smartSpacingWithEdge 10 $ ThreeCol 1 (3/100) (1/2)
+--    aGrid = renamed [Replace "\64111"] $ smartSpacingWithEdge 10 $ Grid
 
 ------------------------------------------------------------------------
 -- Window rules:
@@ -376,16 +408,29 @@ myManageHook' = composeOne [ isFullscreen -?> doFullFloat ]
 -- It will add EWMH logHook actions to your custom log hook by
 -- combining it with ewmhDesktopsLogHook.
 --
+--myLogHook :: D.Client -> PP
+--myLogHook dbus = def
+--    { ppOutput = dbusOutput dbus
+--    , ppCurrent = wrap ("%{B" ++ bg2 ++ "} ") " %{B-}"
+--    , ppVisible = wrap ("%{B" ++ bg1 ++ "} ") " %{B-}"
+--    , ppUrgent = wrap ("%{F" ++ red ++ "} ") " %{F-}"
+--    , ppHidden = wrap " " " "
+--    , ppWsSep = ""
+--    , ppSep = " : "
+--    , ppTitle = shorten 20
+--    }
+--
 myLogHook :: D.Client -> PP
 myLogHook dbus = def
     { ppOutput = dbusOutput dbus
-    , ppCurrent = wrap ("%{B" ++ bg2 ++ "} ") " %{B-}"
-    , ppVisible = wrap ("%{B" ++ bg1 ++ "} ") " %{B-}"
+    , ppCurrent = wrap ("%{F" ++ aqua ++ "} ") " %{F-}"
+    , ppVisible = wrap ("%{F" ++ fg ++ "} ") " %{F-}"
     , ppUrgent = wrap ("%{F" ++ red ++ "} ") " %{F-}"
     , ppHidden = wrap " " " "
+    --, ppLayout = wrap ("%{F" ++ aqua ++ "} ") " %{F-}"
     , ppWsSep = ""
-    , ppSep = " : "
-    , ppTitle = shorten 20
+    , ppSep = " \63192 "
+    , ppTitle = shorten 40
     }
 
 
@@ -421,13 +466,14 @@ myStartupHook = do
     spawnOnce "gsettings set org.gnome.settings-daemon.plugins.xsettings overrides '[{'Gdk/WindowScalingFactor', <2>}]'"
     spawnOnce "gsettings set org.gnome.desktop.interface scaling-factor 2"
     spawnOnce "/usr/lib/geoclue-2.0/demos/agent"
-    spawnOnce "nitrogen --restore"
+    spawnOnce "nm-applet"
     -- spawnOnce "picom --experimental-backend --config ~/.xmonad/confs/picom.conf"
-    spawnOnce "picom --config ~/.config/awesome/configuration/compton.conf"
+    spawnOnce "picom --experimental-backends --config ~/.xmonad/confs/picom.conf"
     spawnOnce "dunst -conf ~/.xmonad/confs/dunstrc"
-    spawn "~/.xmonad/confs/polybar/launch.sh"
+    -- spawn "~/.xmonad/confs/polybar/launch.sh"
+    spawn "~/.config/polybar/launch.sh"
     spawnOnce "redshift"
-    spawnOnce "mntray"
+    spawnOnce "nitrogen --restore"
     spawnOnce "~/.xmonad/scripts/locker.sh"
 
 
@@ -439,13 +485,14 @@ myStartupHook = do
 
 main :: IO ()
 main = do
-    dbus <- D.connectSession
-    -- Request access to the DBus name
-    D.requestName dbus (D.busName_ "org.xmonad.Log")
-        [D.nameAllowReplacement, D.nameReplaceExisting, D.nameDoNotQueue]
-
-    xmonad . ewmh $ defaults
-        { logHook = dynamicLogWithPP (myLogHook dbus) }
+    xmonad $ ewmh defaults
+    --dbus <- D.connectSession
+    ---- Request access to the DBus name
+    --D.requestName dbus (D.busName_ "org.xmonad.Log")
+    --    [D.nameAllowReplacement, D.nameReplaceExisting, D.nameDoNotQueue]
+    --
+    --xmonad . ewmh $ defaults
+    --    { logHook = dynamicLogWithPP (myLogHook dbus) }
 
 -- A structure containing your configuration settings, overriding
 -- fields in the default config. Any you don't override, will
@@ -471,6 +518,7 @@ defaults = def {
 
       -- hooks, layouts
         layoutHook         = myLayouts,
+        logHook            = ewmhDesktopsLogHook,
         manageHook         = placeHook (smart (0.5, 0.5))
             <+> manageDocks
             <+> myManageHook

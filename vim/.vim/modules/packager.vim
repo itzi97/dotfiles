@@ -17,8 +17,8 @@ if !exists('g:loaded_vim_packager')
 
 endif
 
+let g:loaded_python_provider = 0
 let g:python3_host_prog = '/usr/bin/python3.8'
-
 
 " }}}
 
@@ -94,6 +94,14 @@ function! PackagerInit() abort
         \ 'type': 'opt'
         \})
 
+  " JavaScript
+  call packager#add('pangloss/vim-javascript')
+  call packager#add('leafgarland/typescript-vim')
+  call packager#add('peitalin/vim-jsx-typescript')
+  call packager#add('styled-components/vim-styled-components', {
+        \ 'branch': 'main'
+        \ })
+
   " Markdown, RMarkdown
   call packager#add('vim-pandoc/vim-pandoc')
   call packager#add('vim-pandoc/vim-pandoc-syntax')
@@ -116,7 +124,7 @@ function! PackagerInit() abort
   " {{{ Colors
 
   " Colorscheme + eyecandy
-  call packager#add('morhetz/gruvbox')
+  call packager#add('arcticicestudio/nord-vim')
   call packager#add('kaicataldo/material.vim', { 'branch': 'main' })
   call packager#add('cocopon/iceberg.vim')
 
@@ -165,6 +173,12 @@ function! PackagerInit() abort
   " }}}
 
 endfunction
+
+" set filetypes as typescriptreact
+autocmd BufNewFile,BufRead *.js,*.ts,*.tsx,*.jsx set filetype=typescriptreact
+
+autocmd BufEnter *.{js,jsx,ts,tsx} :syntax sync fromstart
+autocmd BufLeave *.{js,jsx,ts,tsx} :syntax sync clear
 
 " {{{ Commands
 
