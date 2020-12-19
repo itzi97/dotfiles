@@ -51,6 +51,7 @@ import           XMonad.Util.EZConfig           (additionalKeys,
                                                  additionalKeysP)
 import           XMonad.Util.Run                (spawnPipe)
 import           XMonad.Util.SpawnOnce
+import           XMonad.Util.Scratchpad
 
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
@@ -73,6 +74,7 @@ purple    = "#d3869b"
 aqua      = "#8ec07c"
 
 myTerminal      = "kitty"
+scratchPad      = scratchpadSpawnActionTerminal myTerminal
 
 -- Whether focus follows the mouse pointer.
 myFocusFollowsMouse :: Bool
@@ -121,21 +123,12 @@ myModMask       = mod4Mask
 --
 -- > workspaces = ["web", "irc", "code" ] ++ map show [4..9]
 --
-myWorkspaces =
-    [ "1•\62601"
-    , "2•\62057"
-    , "3•\63213"
-    , "4•\64366"
-    , "5•\61820"
-    , "6•\61820"
-    , "7•\61820"
-    , "8•\63942"
-    , "9•\63608"]
+myWorkspaces = [ "1", "2", "3", "4", "5", "6", "7", "8", "9" ]
 
 -- Border colors for unfocused and focused windows, respectively.
 --
-myNormalBorderColor  = "#212B30"
-myFocusedBorderColor = "#5C6F7B"
+myNormalBorderColor  = "#1d1f21"
+myFocusedBorderColor = "#81a2be"
 
 ------------------------------------------------------------------------
 -- Key bindings. Add, modify or remove key bindings here.
@@ -145,11 +138,14 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- launch a terminal
     [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
 
+    -- launch a terminal
+    , ((modm .|. shiftMask, xK_x), scratchPad)
+
     -- launch dmenu
-    , ((modm,               xK_p     ), spawn "~/.config/rofi/scripts/menu.sh")
+    , ((modm,               xK_p     ), spawn "~/.config/rofi/bin/launcher_colorful")
 
     -- launch command runner
-    , ((modm,               xK_r     ), spawn "~/.config/rofi/scripts/run.sh")
+    , ((modm,               xK_r     ), spawn "~/.config/rofi/bin/launcher_text")
 
     -- launch 1password
     , ((modm .|. shiftMask, xK_p     ), spawn "rofi -modi 1pass:rofi-1pass -show 1pass")
@@ -240,9 +236,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((0, xF86XK_MonBrightnessDown)  , spawn "~/.config/dunst/scripts/brightness.sh -d 5 -pyn")
 
       -- Volume Notifications
-    , ((0, xF86XK_AudioLowerVolume)   , spawn "~/.config/dunst/scripts/volume.sh -d 5 -pnyl")
-    , ((0, xF86XK_AudioMute)          , spawn "~/.config/dunst/scripts/volume.sh      -nyml")
-    , ((0, xF86XK_AudioRaiseVolume)   , spawn "~/.config/dunst/scripts/volume.sh -i 5 -pnyl")
+    , ((0, xF86XK_AudioLowerVolume)   , spawn "~/.xmonad/scripts/volume.sh -d 5 -pnyl")
+    , ((0, xF86XK_AudioMute)          , spawn "~/.xmonad/scripts/volume.sh      -nyml")
+    , ((0, xF86XK_AudioRaiseVolume)   , spawn "~/.xmonad/scripts/volume.sh -i 5 -pnyl")
     ]
     ++
 
@@ -317,7 +313,21 @@ myLayouts = renamed [CutWordsLeft 1] .
 -- To match on the WM_NAME, you can use 'title' in the same way that
 -- 'className' and 'resource' are used below.
 --
-myManageHook = composeAll
+-- Define your scratchpad management separately:
+manageScratchPad :: ManageHook
+manageScratchPad = scratchpadManageHook (W.RationalRect l t w h)
+
+  where
+
+    h = 0.1     -- terminal height, 10%
+    w = 1       -- terminal width, 100%
+    t = 1 - h   -- distance from top edge, 90%
+    l = 1 - w   -- distance from left edge, 0%
+
+myManageHook = 
+    placeHook (smart (0.5, 0.5))
+    <+> manageDocks
+    <+> composeAll
     [ className =? "MPlayer"            --> doFloat
     , className =? "Galculator"         --> doFloat
     , className =? "MEGAsync"           --> doFloat
@@ -334,9 +344,12 @@ myManageHook = composeAll
     , className =? "discord"       --> doF(W.shift (myWorkspaces !! 3))
     -- Spotify not working
     , className =? "spotify"       --> doF(W.shift (myWorkspaces !! 7))]
+    <+> manageScratchPad
 
 
-myManageHook' = composeOne [ isFullscreen -?> doFullFloat ]
+
+
+-- myManageHook' = composeOne [ isFullscreen -?> doFullFloat ]
 
 ------------------------------------------------------------------------
 -- Event handling
@@ -364,31 +377,8 @@ myManageHook' = composeOne [ isFullscreen -?> doFullFloat ]
 -- It will add EWMH logHook actions to your custom log hook by
 -- combining it with ewmhDesktopsLogHook.
 --
-myLogHook :: D.Client -> PP
-myLogHook dbus = def
-    { ppOutput = dbusOutput dbus
-    , ppCurrent = wrap ("%{B" ++ bg2 ++ "} ") " %{B-}"
-    , ppVisible = wrap ("%{B" ++ bg1 ++ "} ") " %{B-}"
-    , ppUrgent = wrap ("%{F" ++ red ++ "} ") " %{F-}"
-    , ppHidden = wrap " " " "
-    , ppWsSep = ""
-    , ppSep = " : "
-    , ppTitle = shorten 20
-    }
-
-
--- Emit a DBus signal on log updates
-dbusOutput :: D.Client -> String -> IO ()
-dbusOutput dbus str = do
-    let signal = (D.signal objectPath interfaceName memberName) {
-            D.signalBody = [D.toVariant $ UTF8.decodeString str]
-        }
-    D.emit dbus signal
-  where
-    objectPath = D.objectPath_ "/org/xmonad/Log"
-    interfaceName = D.interfaceName_ "org.xmonad.Log"
-    memberName = D.memberName_ "Update"
-
+--myLogHook :: D.Client -> PP
+--myLogHook dbus = ewmhDesktopsLogHook
 
 ------------------------------------------------------------------------
 -- Startup hook
@@ -410,12 +400,10 @@ dbusOutput dbus str = do
 --
 myStartupHook = do
     spawnOnce "nitrogen --restore"
-    spawnOnce "picom --experimental-backend --config ~/.xmonad/confs/compton.conf"
+    spawnOnce "picom --config ~/.xmonad/confs/picom.conf"
     spawnOnce "dunst"
-    spawn "~/.xmonad/confs/polybar/launch.sh"
-    spawnOnce "redshift-gtk"
-    spawnOnce "piactl connect"
-    spawnOnce "mntray"
+    spawn "~/.config/polybar/launch.sh"
+    spawnOnce "redshift"
     spawnOnce "~/.xmonad/scripts/locker.sh"
 
 ------------------------------------------------------------------------
@@ -426,13 +414,7 @@ myStartupHook = do
 
 main :: IO ()
 main = do
-    dbus <- D.connectSession
-    -- Request access to the DBus name
-    D.requestName dbus (D.busName_ "org.xmonad.Log")
-        [D.nameAllowReplacement, D.nameReplaceExisting, D.nameDoNotQueue]
-
-    xmonad . ewmh $ defaults
-        { logHook = dynamicLogWithPP (myLogHook dbus) }
+    xmonad $ ewmh defaults
 
 -- A structure containing your configuration settings, overriding
 -- fields in the default config. Any you don't override, will
@@ -458,10 +440,8 @@ defaults = def {
 
       -- hooks, layouts
         layoutHook         = myLayouts,
-        manageHook         = placeHook (smart (0.5, 0.5))
-            <+> manageDocks
-            <+> myManageHook
-            <+> manageHook def,
+        logHook            = ewmhDesktopsLogHook,
+        manageHook         = myManageHook,
         handleEventHook    = docksEventHook
             <+> fullscreenEventHook,
         startupHook        = myStartupHook
