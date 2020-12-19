@@ -54,12 +54,6 @@ zplug "zsh-users/zsh-history-substring-search", defer:2
 zplug load
 # }}}
 
-# Source local fzf completion bindings
-if [ $DISTRO_NAME != "NixOS" ]; then
-  source /usr/share/fzf/completion.zsh
-  source /usr/share/fzf/key-bindings.zsh
-fi
-
 # Show system configuration
 #screenfetch
 neofetch

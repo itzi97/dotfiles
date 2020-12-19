@@ -16,7 +16,8 @@ set foldmethod=marker         " Enable folding by markers
 set conceallevel=2            " Prettify code
 
 " Tabs, spaces and company
-set softtabstop=8             " Number of spaces per tab
+set tabstop=2
+set softtabstop=2             " Number of spaces per tab
 set expandtab                 " Use spaces instead of tabsshiftwidth=2 smarttab
 set shiftwidth=2              " Number of auto-indent spaces
 set smarttab
