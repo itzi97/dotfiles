@@ -55,10 +55,8 @@ zplug load
 # }}}
 
 # Source local fzf completion bindings
-if [ $DISTRO_NAME != "NixOS" ]; then
-  source /usr/share/fzf/completion.zsh
-  source /usr/share/fzf/key-bindings.zsh
-fi
+source ~/.fzf/shell/completion.zsh
+source ~/.fzf/shell/key-bindings.zsh
 
 # Show system configuration
 #screenfetch

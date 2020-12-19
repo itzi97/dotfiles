@@ -17,6 +17,9 @@ if !exists('g:loaded_vim_packager')
 
 endif
 
+let g:python3_host_prog = '/usr/bin/python3.8'
+
+
 " }}}
 
 function! PackagerInit() abort
@@ -115,6 +118,7 @@ function! PackagerInit() abort
   " Colorscheme + eyecandy
   call packager#add('morhetz/gruvbox')
   call packager#add('kaicataldo/material.vim', { 'branch': 'main' })
+  call packager#add('cocopon/iceberg.vim')
 
   " Eyecandy
   call packager#add('Yggdroot/indentLine')
