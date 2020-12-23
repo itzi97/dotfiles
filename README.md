@@ -10,6 +10,7 @@ Contains my dotfiles for:
 - [XMonad](https://xmonad.org/)
   - [Polybar](https://polybar.github.io/)
   - [Picom](https://wiki.archlinux.org/index.php/Picom)
+- [Zathura](https://pwmt.org/projects/zathura/)
 
 ## Usage
 
