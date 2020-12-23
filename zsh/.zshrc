@@ -54,6 +54,10 @@ zplug "zsh-users/zsh-history-substring-search", defer:2
 zplug load
 # }}}
 
+# Source local fzf completion bindings
+source ~/.fzf/shell/completion.zsh
+source ~/.fzf/shell/key-bindings.zsh
+
 # Show system configuration
 #screenfetch
 neofetch
