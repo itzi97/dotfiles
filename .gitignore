@@ -7,3 +7,8 @@ xmonad/.xmonad/*.o
 xmonad/.xmonad/*.errors
 xmonad/.xmonad/*.hi
 xmonad/.xmonad/xmonad-x86_64-linux
+
+xmonad-dpi/.xmonad/*.o
+xmonad-dpi/.xmonad/*.errors
+xmonad-dpi/.xmonad/*.hi
+xmonad-dpi/.xmonad/xmonad-x86_64-linux
