@@ -14,6 +14,7 @@ set showbreak=﬌               " Wrap-broken line prefix
 set showmatch                 " Highlight matching brace
 set foldmethod=marker         " Enable folding by markers
 set conceallevel=2            " Prettify code
+set scrolloff=5               " Keep 5 lines above or below cursor at all times
 
 " Tabs, spaces and company
 set tabstop=2

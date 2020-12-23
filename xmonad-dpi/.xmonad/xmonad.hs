@@ -81,7 +81,7 @@ myFocusFollowsMouse = True
 
 -- Width of the window border in pixels.
 --
-myBorderWidth   = 2
+myBorderWidth   = 0
 
 -- modMask lets you specify which modkey you want to use. The default
 -- is mod1Mask ("left alt").  You may also consider using mod3Mask
@@ -122,27 +122,18 @@ myModMask       = mod4Mask
 --
 -- > workspaces = ["web", "irc", "code" ] ++ map show [4..9]
 --
---myWorkspaces =
---    [ "1"
---    , "2"
---    , "3"
---    , "4"
---    , "5"
---    , "6"
---    , "7"
---    , "8"
---    , "9"]
+myWorkspaces = [ "1" , "2" , "3" , "4" , "5" , "6" , "7" , "8" , "9"]
 
-myWorkspaces =
-    [ "\62601"
-    , "\62057"
-    , "\63213"
-    , "\64366"
-    , "\61820"
-    , "\61820"
-    , "\61820"
-    , "\63942"
-    , "\63608"]
+--myWorkspaces =
+--    [ "\62601"
+--    , "\62057"
+--    , "\63213"
+--    , "\64366"
+--    , "\61820"
+--    , "\61820"
+--    , "\61820"
+--    , "\63942"
+--    , "\63608"]
 
 --myWorkspaces =
 --    [ "1•\62601"
@@ -245,8 +236,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_q     ), spawn "xmonad --recompile; xmonad --restart")
 
     -- Screenshot controls
+    -- , ((0, xK_Print),    spawn "scrot '/home/itziar/Pictures/Screenshots/%Y-%m-%d-%H_%M.jpg'")
     , ((0, xK_Print),    spawn "flameshot full -c -p ~/Pictures/Screenshots/")
-    , ((modm, xK_Print), spawn "flameshot gui  -p    ~/Pictures/Screenshots/")
+    , ((modm, xK_Print), spawn "flameshot gui  -p ~/Pictures/Screenshots/")
 
     -- Lock Screen
     , ((modm .|. shiftMask, xK_l     ), spawn "~/.xmonad/scripts/lock.sh")
@@ -467,7 +459,6 @@ myStartupHook = do
     spawnOnce "gsettings set org.gnome.desktop.interface scaling-factor 2"
     spawnOnce "/usr/lib/geoclue-2.0/demos/agent"
     spawnOnce "nm-applet"
-    -- spawnOnce "picom --experimental-backend --config ~/.xmonad/confs/picom.conf"
     spawnOnce "picom --experimental-backends --config ~/.xmonad/confs/picom.conf"
     spawnOnce "dunst -conf ~/.xmonad/confs/dunstrc"
     -- spawn "~/.xmonad/confs/polybar/launch.sh"

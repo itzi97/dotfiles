@@ -1,22 +1,22 @@
 
-xmonad.hs:224:41: warning: [-Wdeprecations]
+xmonad.hs:215:41: warning: [-Wdeprecations]
     In the use of ‘setSpacing’ (imported from XMonad.Layout.Spacing):
     Deprecated: "Use setScreenWindowSpacing instead."
     |
-224 |     , ((modm,               xK_g     ), setSpacing(0))
+215 |     , ((modm,               xK_g     ), setSpacing(0))
     |                                         ^^^^^^^^^^
 
-xmonad.hs:227:41: warning: [-Wdeprecations]
+xmonad.hs:218:41: warning: [-Wdeprecations]
     In the use of ‘setSpacing’ (imported from XMonad.Layout.Spacing):
     Deprecated: "Use setScreenWindowSpacing instead."
     |
-227 |     , ((modm .|. shiftMask, xK_g     ), setSpacing(10))
+218 |     , ((modm .|. shiftMask, xK_g     ), setSpacing(10))
     |                                         ^^^^^^^^^^
 
-xmonad.hs:333:43: warning: [-Wdeprecations]
+xmonad.hs:325:43: warning: [-Wdeprecations]
     In the use of ‘smartSpacingWithEdge’
     (imported from XMonad.Layout.Spacing):
     Deprecated: "Use spacingRaw instead."
     |
-333 |     aTiled = renamed [Replace "\64115"] $ smartSpacingWithEdge 10 $ Tall 1 (3 / 100) (1 / 2)
+325 |     aTiled = renamed [Replace "\64115"] $ smartSpacingWithEdge 10 $ Tall 1 (3 / 100) (1 / 2)
     |                                           ^^^^^^^^^^^^^^^^^^^^

@@ -1,5 +1,0 @@
-
-xmonad.hs:11:5: error: parse error on input ‘,’
-   |
-11 |     , ((modMask, xK_b), sendMessage ToggleStruts)
-   |     ^

@@ -136,7 +136,7 @@ function! PackagerInit() abort
   " }}}
 
   " {{{ Menus & Interfaces
-
+  
   " Fzf
   call packager#add('junegunn/fzf', {
         \ 'do': './install --all && ln -s $(pwd) ~/.fzf'
@@ -149,6 +149,7 @@ function! PackagerInit() abort
 
   " Git
   call packager#add('tpope/vim-fugitive')
+
   if has('nvim') || has('patch-8.0.902')
     call packager#add('mhinz/vim-signify')
   else
