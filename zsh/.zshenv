@@ -18,7 +18,7 @@ if [[ "${resolution}" = "3840" ]]; then
     export QT_AUTO_SCREEN_SCALE_FACTOR=1
     export GDK_SCALE=2
     export GDK_DPI_SCALE=0.5
-    export ELM_SCALE=2
+    #export ELM_SCALE=2
   fi
 
   if [[ "${DESKTOP_SESSION}" = "xfce" ]]; then
@@ -27,12 +27,12 @@ if [[ "${resolution}" = "3840" ]]; then
 fi
 
 # Default programs
-export EDITOR=nvim
-export PDFVIEWER=evince
+export EDITOR="nvim"
+export PDFVIEWER="zathura"
 if [ -n "$DISPLAY" ]; then
-  export BROWSER=firefox
+  export BROWSER="firefox"
 else
-  export BROWSER=links
+  export BROWSER="links"
 fi
 
 # Default Programs
@@ -72,17 +72,17 @@ export PERL_MB_OPT="--install_base \"${HOME}/.local/share/perl5\"";
 export PERL_MM_OPT="INSTALL_BASE=${HOME}/.local/share/perl5";
 
 # Hadoop
-export HADOOP_CONF_DIR="/etc/hadoop"
-export HADOOP_LOG_DIR="/tmp/hadoop/log"
-export HADOOP_WORKERS="/etc/hadoop/workers"
-export HADOOP_PID_DIR="/tmp/hadoop/run"
-
-# Spark
-export SPARK_HOME="/opt/apache-spark"
-export PATH="${PATH}:${SPARK_HOME}/bin"
-
-export PYSPARK_DRIVER_PYTHON=jupyter
-export PYSPARK_DRIVER_PYTHON_OPTS="lab"
+#export HADOOP_CONF_DIR="/etc/hadoop"
+#export HADOOP_LOG_DIR="/tmp/hadoop/log"
+#export HADOOP_WORKERS="/etc/hadoop/workers"
+#export HADOOP_PID_DIR="/tmp/hadoop/run"
+#
+## Spark
+#export SPARK_HOME="/opt/apache-spark"
+#export PATH="${PATH}:${SPARK_HOME}/bin"
+#
+#export PYSPARK_DRIVER_PYTHON=jupyter
+#export PYSPARK_DRIVER_PYTHON_OPTS="lab"
 
 # Source private keys
 source ~/.zsh/private.zsh
