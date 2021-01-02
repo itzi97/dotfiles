@@ -52,6 +52,7 @@ import           XMonad.Util.EZConfig           (additionalKeys,
                                                  additionalKeysP)
 import           XMonad.Util.Run                (spawnPipe)
 import           XMonad.Util.SpawnOnce
+import           XMonad.Util.NamedScratchpad
 
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
@@ -81,7 +82,7 @@ myFocusFollowsMouse = True
 
 -- Width of the window border in pixels.
 --
-myBorderWidth   = 0
+myBorderWidth   = 4
 
 -- modMask lets you specify which modkey you want to use. The default
 -- is mod1Mask ("left alt").  You may also consider using mod3Mask
@@ -164,7 +165,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm,               xK_p     ), spawn "~/.xmonad/confs/rofi/launchers/misc/launcher.sh")
 
     -- launch command runner
-    , ((modm,               xK_r     ), spawn "~/.xmonad/confs/rofi/launchers/text/launcher.sh")
+    --, ((modm,               xK_r     ), spawn "~/.xmonad/confs/rofi/launchers/text/launcher.sh")
+    , ((modm,               xK_r     ), namedScratchpadAction myScratchPads "terminal")
 
     -- launch 1password
     , ((modm .|. shiftMask, xK_p     ), spawn "~/.xmonad/confs/rofi/powermenu/powermenu.sh")
@@ -371,8 +373,7 @@ myManageHook = composeAll
     -- Spotify not working
     , className =? "spotify"       --> doF(W.shift (myWorkspaces !! 7))]
 
-
-myManageHook' = composeOne [ isFullscreen -?> doFullFloat ]
+--myManageHook' = composeOne [ isFullscreen -?> doFullFloat ]
 
 ------------------------------------------------------------------------
 -- Event handling
@@ -438,6 +439,18 @@ dbusOutput dbus str = do
     interfaceName = D.interfaceName_ "org.xmonad.Log"
     memberName = D.memberName_ "Update"
 
+------------------------------------------------------------------------
+-- Scratchpads
+
+myScratchPads :: [NamedScratchpad]
+myScratchPads = [ 
+    NS "terminal" spawnTerm findTerm manageTerm 
+  ]
+  
+  where
+    spawnTerm = myTerminal ++ " --name scratchpad --title scratchpad"
+    findTerm = resource =? "scratchpad"
+    manageTerm = customFloating $ W.RationalRect (3/5) (4/6) (1/5) (1/6) 
 
 ------------------------------------------------------------------------
 -- Startup hook
@@ -510,11 +523,10 @@ defaults = def {
       -- hooks, layouts
         layoutHook         = myLayouts,
         logHook            = ewmhDesktopsLogHook,
-        manageHook         = placeHook (smart (0.5, 0.5))
+        manageHook         = (placeHook (smart (0.5, 0.5))
             <+> manageDocks
-            <+> myManageHook
-            <+> manageHook def,
-        handleEventHook    = docksEventHook
-            <+> fullscreenEventHook,
+            <+> myManageHook)
+            <+> namedScratchpadManageHook myScratchPads,
+        handleEventHook    = docksEventHook <+> fullscreenEventHook,
         startupHook        = myStartupHook
     }
