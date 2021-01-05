@@ -5,4 +5,9 @@ set wrap textwidth=120
 set tabstop=2 shiftwidth=2 noexpandtab
 
 " Turn on spelling and set it to spanish + english
-set spell spelllang=en,es
+setlocal spell
+call SpellMathES()
+
+" Ale options
+let b:ale_warn_about_trailing_blank_lines=1
+let b:ale_warn_about_trailing_whitespace=1

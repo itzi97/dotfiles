@@ -20,14 +20,13 @@ function! SetSpellKeys() abort
   nnoremap <buffer> <leader>d vaWovEa<C-X><C-K>
 endfunction
 
-function! SpellMath() abort
+function! SpellMathES() abort
   setlocal spell
-  setlocal spelllang=es,en,math
+  setlocal spelllang=es,math
   setlocal complete+=kspell
 
   " Add spellfiles
   setlocal spellfile=~/.vim/spell/math.utf-8.add
-  setlocal spellfile+=~/.vim/spell/en.utf-8.add
   setlocal spellfile+=~/.vim/spell/es.utf-8.add
 
   " Add dictionaries
@@ -44,16 +43,15 @@ function! SpellMath() abort
   call SetSpellKeys()
 endfunction
 
-command! SpellMath call SpellMath()
+command! SpellMathES call SpellMathES()
 
-function! SpellComp() abort
+function! SpellCompES() abort
   setlocal spell
-  setlocal spelllang=es,en,compsci
+  setlocal spelllang=es,compsci
   setlocal complete+=kspell
 
   " Add spellfiles
   setlocal spellfile=~/.vim/spell/compsci.utf-8.add
-  setlocal spellfile+=~/.vim/spell/en.utf-8.add
   setlocal spellfile+=~/.vim/spell/es.utf-8.add
 
   " Add dictionaries
@@ -70,11 +68,11 @@ function! SpellComp() abort
   call SetSpellKeys()
 endfunction
 
-command! SpellComp call SpellComp()
+command! SpellCompES call SpellCompES()
 
-function! SpellCompMath() abort
+function! SpellCompMathES() abort
   setlocal spell
-  setlocal spelllang=es,en,compmath
+  setlocal spelllang=es,compmath
   setlocal complete+=kspell
 
   " Add spellfiles
@@ -97,5 +95,5 @@ function! SpellCompMath() abort
 
 endfunction
 
-command! SpellCompMath call SpellCompMath()
+command! SpellCompMathES call SpellCompMathES()
 

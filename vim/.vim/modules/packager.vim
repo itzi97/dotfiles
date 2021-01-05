@@ -136,7 +136,7 @@ function! PackagerInit() abort
   " }}}
 
   " {{{ Menus & Interfaces
-  
+
   " Fzf
   call packager#add('junegunn/fzf', {
         \ 'do': './install --all && ln -s $(pwd) ~/.fzf'
