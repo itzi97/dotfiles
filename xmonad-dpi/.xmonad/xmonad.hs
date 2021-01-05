@@ -46,7 +46,7 @@ import           XMonad.Layout.Minimize
 import           XMonad.Layout.NoBorders
 import           XMonad.Layout.Renamed
 import           XMonad.Layout.Spacing
-import           XMonad.Layout.ThreeColumns
+import           XMonad.Layout.TwoPane (TwoPane(..))
 import qualified XMonad.StackSet                as W
 import           XMonad.Util.EZConfig           (additionalKeys,
                                                  additionalKeysP)
@@ -321,10 +321,12 @@ myLayouts = renamed [CutWordsLeft 1] .
     smartBorders
         ( aTiled
         ||| aFullscreen
+        ||| aTwoPane
         )
   where
     aFullscreen = renamed [Replace "\63378"] $ noBorders $ Full
-    aTiled = renamed [Replace "\64115"] $ smartSpacingWithEdge 10 $ Tall 1 (3 / 100) (1 / 2)
+    aTiled = renamed [Replace "\64115"] $ smartSpacingWithEdge 10 $ Tall 1 (2/100) (1/2)
+    aTwoPane = renamed [Replace "TwoPane"] $ noBorders $ TwoPane (2/100) (1/2)
 
 --myLayouts = renamed [CutWordsLeft 1] .
 --    avoidStruts . minimize .  B.boringWindows $
@@ -448,9 +450,14 @@ myScratchPads = [
   ]
   
   where
-    spawnTerm = myTerminal ++ " --name scratchpad --title scratchpad"
-    findTerm = resource =? "scratchpad"
-    manageTerm = customFloating $ W.RationalRect (3/5) (4/6) (1/5) (1/6) 
+    spawnTerm = myTerminal ++ " --name scratchpad"
+    findTerm = (resource =? "scratchpad")
+    manageTerm = (customFloating $ W.RationalRect l t w h)
+      where
+        h = 0.1    -- terminal height, 10%
+        w = 1      -- terminal width, 100%
+        t = 1 - h  -- distance from top edge, 90%
+        l = 1 - w  -- distance from left edge, 0%
 
 ------------------------------------------------------------------------
 -- Startup hook
@@ -478,6 +485,7 @@ myStartupHook = do
     spawn "~/.config/polybar/launch.sh"
     spawnOnce "redshift"
     spawnOnce "nitrogen --restore"
+    spawnOnce "mpd_discord_richpresence"
     spawnOnce "~/.xmonad/scripts/locker.sh"
 
 
