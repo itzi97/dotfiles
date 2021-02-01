@@ -1,5 +1,5 @@
 # Adjust pdf to width
-adjust-open "width"
+set adjust-open "width"
 
 # Set selection
 set selection-clipboard clipboard

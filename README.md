@@ -22,6 +22,11 @@ stow neovim
 
 For example, if you want to use the stable neovim configuration.
 
+## HiDPI
+
+There are 2 different setups for XMonad, one for HiDPI and another for normal DPI screen. 
+This is done due to having different configurations for each DPI (such as rofi dpi, polybar size, etc. ).
+
 ## External Dependencies
 
 - [zplug/zplug](https://github.com/zplug/zplug): Managing zsh dependencies

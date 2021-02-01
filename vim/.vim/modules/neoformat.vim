@@ -13,10 +13,10 @@ let g:neoformat_run_all_formatters = 1
 let g:neoformat_try_formatprg = 1
 
 " Run on save
-augroup fmt
-  autocmd!
-  autocmd BufWritePre * undojoin | Neoformat
-augroup END
+"augroup fmt
+"  autocmd!
+"  autocmd BufWritePre * undojoin | Neoformat
+"augroup END
 
 let g:neoformat_lua_luaformatter = {
       \ 'exe': 'lua-format',
@@ -28,6 +28,11 @@ let g:neoformat_lua_luaformatter = {
       \ 'no_append': 1,
       \ }
 let g:neoformat_enabled_lua = ['luaformatter']
+
+let g:neoformat_enabled_javascript = ['prettier']
+
+
+
 
 " Disable formatters for pandoc (due to bug with backslash)
 let g:neoformat_enabled_pandoc = []
