@@ -17,8 +17,8 @@ if !exists('g:loaded_vim_packager')
 
 endif
 
-let g:loaded_python_provider = 0
-let g:python3_host_prog = '/usr/bin/python3.8'
+"let g:loaded_python_provider = 0
+"let g:python3_host_prog = '/usr/bin/python3.8'
 
 " }}}
 
@@ -82,6 +82,9 @@ function! PackagerInit() abort
     call packager#add('hugolgst/vimsence', {'type': 'opt'})
   endif
 
+  " Allow database access
+  call packager#add('vim-scripts/dbext.vim')
+
   " }}}
 
   " {{{ Language Support
@@ -118,6 +121,11 @@ function! PackagerInit() abort
 
   " Rust
   call packager#add('rust-lang/rust.vim')
+
+  " PlantUML
+  call packager#add('aklt/plantuml-syntax')
+  call packager#add('tyru/open-browser.vim')
+  call packager#add('weirongxu/plantuml-previewer.vim')
 
   " }}}
 

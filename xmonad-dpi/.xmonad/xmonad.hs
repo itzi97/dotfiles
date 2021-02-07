@@ -482,7 +482,7 @@ myStartupHook = do
     spawnOnce "picom --experimental-backends --config ~/.xmonad/confs/picom.conf"
     spawnOnce "dunst -conf ~/.xmonad/confs/dunstrc"
     -- spawn "~/.xmonad/confs/polybar/launch.sh"
-    spawn "~/.config/polybar/launch.sh"
+    spawn "~/.xmonad/confs/polybar/launch.sh"
     spawnOnce "redshift"
     spawnOnce "nitrogen --restore"
     spawnOnce "mpd_discord_richpresence"
