@@ -1,0 +1,31 @@
+sw_volume: 32
+audio_device_state:1:My Pulse Output
+audio_device_state:1:my_fifo
+state: play
+current: 13
+time: 120.081000
+random: 0
+repeat: 0
+single: 0
+consume: 0
+crossfade: 0
+mixrampdb: 0.000000
+mixrampdelay: -1.000000
+playlist_begin
+0:ACDC/ACDC - Highway to Hell 1979/Highway to Hell.cue/track0001
+1:ACDC/ACDC High Voltage 1976/04 Live Wire.flac
+2:ACDC/ACDC High Voltage 1976/05 T.N.T..flac
+3:ACDC/ACDC High Voltage 1976/06 Can I Sit Next to Your Girl.flac
+4:El Canto Del Loco/2000 - El Canto del Loco/01 Pequeñita.mp3
+5:El Canto Del Loco/2000 - El Canto del Loco/02 Llueve en mí.mp3
+6:El Canto Del Loco/2000 - El Canto del Loco/03 Eres un canalla.mp3
+7:El Canto Del Loco/2000 - El Canto del Loco/04 Pasión.mp3
+8:El Canto Del Loco/2000 - El Canto del Loco/05 Traidora.mp3
+9:El Canto Del Loco/2000 - El Canto del Loco/06 He vuelto a caer.mp3
+10:El Canto Del Loco/2000 - El Canto del Loco/07 Sin mitad.mp3
+11:El Canto Del Loco/2000 - El Canto del Loco/08 No quiero nada.mp3
+12:El Canto Del Loco/2000 - El Canto del Loco/09 El agricultor.mp3
+13:El Canto Del Loco/2000 - El Canto del Loco/10 Y si el miedo.mp3
+14:El Canto Del Loco/2000 - El Canto del Loco/11 Busco la vida.mp3
+15:El Canto Del Loco/2000 - El Canto del Loco/12 Vivir así es morir de amor.mp3
+playlist_end
