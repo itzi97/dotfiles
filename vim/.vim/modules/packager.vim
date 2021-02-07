@@ -135,6 +135,8 @@ function! PackagerInit() abort
   call packager#add('arcticicestudio/nord-vim')
   call packager#add('kaicataldo/material.vim', { 'branch': 'main' })
   call packager#add('cocopon/iceberg.vim')
+  call packager#add('sickill/vim-monokai')
+  call packager#add('morhetz/gruvbox')
 
   " Eyecandy
   call packager#add('Yggdroot/indentLine')
