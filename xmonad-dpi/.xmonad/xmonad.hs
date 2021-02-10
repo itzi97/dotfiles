@@ -82,7 +82,7 @@ myFocusFollowsMouse = True
 
 -- Width of the window border in pixels.
 --
-myBorderWidth   = 4
+myBorderWidth   = 2
 
 -- modMask lets you specify which modkey you want to use. The default
 -- is mod1Mask ("left alt").  You may also consider using mod3Mask
@@ -150,7 +150,7 @@ myWorkspaces = [ "1" , "2" , "3" , "4" , "5" , "6" , "7" , "8" , "9"]
 -- Border colors for unfocused and focused windows, respectively.
 --
 myNormalBorderColor  = "#1d1f21"
-myFocusedBorderColor = "#5f819d"
+myFocusedBorderColor = "#d79921"
 
 ------------------------------------------------------------------------
 -- Key bindings. Add, modify or remove key bindings here.
@@ -161,15 +161,14 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
 
     -- launch dmenu
-    --, ((modm,               xK_p     ), spawn "~/.config/rofi/bin/launcher_colorful")
-    , ((modm,               xK_p     ), spawn "~/.xmonad/confs/rofi/launchers/misc/launcher.sh")
+    , ((modm,               xK_p     ), spawn "~/.config/rofi/bin/launcher_colorful")
 
     -- launch command runner
     --, ((modm,               xK_r     ), spawn "~/.xmonad/confs/rofi/launchers/text/launcher.sh")
     , ((modm,               xK_r     ), namedScratchpadAction myScratchPads "terminal")
 
-    -- launch 1password
-    , ((modm .|. shiftMask, xK_p     ), spawn "~/.xmonad/confs/rofi/powermenu/powermenu.sh")
+    -- launch powermenu
+    , ((modm .|. shiftMask, xK_p     ), spawn "~/.config/rofi/bin/powermenu")
 
     -- close focused window
     , ((modm .|. shiftMask, xK_c     ), kill)
@@ -485,7 +484,7 @@ myStartupHook = do
     spawn "~/.xmonad/confs/polybar/launch.sh"
     spawnOnce "redshift"
     spawnOnce "nitrogen --restore"
-    spawnOnce "mpd_discord_richpresence"
+    spawnOnce "mpd-discord-rpc"
     spawnOnce "~/.xmonad/scripts/locker.sh"
 
 

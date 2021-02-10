@@ -8,6 +8,11 @@ if has('nvim')
   let g:floaterm_winblend=10
 endif
 
+" Set floaterm window's background to none
+hi Floaterm guibg=none
+" Set floating window border line color to none, and background to none
+hi FloatermBorder guibg=none guifg=#d79921
+
 " Keybinds
 let g:floaterm_keymap_new    = '<F7>'
 let g:floaterm_keymap_prev   = '<F8>'
