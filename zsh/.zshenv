@@ -41,6 +41,7 @@ export WORKSPACE="${HOME}/Workspace"
 
 # Add local path
 export PATH="${PATH}:${HOME}/.local/bin"
+export PATH="${PATH}:${HOME}/Applications"
 
 # Add Rust path
 export PATH="${PATH}:${HOME}/.cargo/bin"

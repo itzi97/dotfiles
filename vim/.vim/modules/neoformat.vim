@@ -18,16 +18,16 @@ let g:neoformat_try_formatprg = 1
 "  autocmd BufWritePre * undojoin | Neoformat
 "augroup END
 
-let g:neoformat_lua_luaformatter = {
-      \ 'exe': 'lua-format',
-      \ 'args': ['--config=/home/itziar/.config/nvim/formatters/luaformat.yaml'],
-      \ 'replace': 0,
-      \ 'stdin': 1,
-      \ 'env': ['DEBUG=1'],
-      \ 'valid_exit_codes': [0, 23],
-      \ 'no_append': 1,
-      \ }
-let g:neoformat_enabled_lua = ['luaformatter']
+"let g:neoformat_lua_luaformatter = {
+"      \ 'exe': 'lua-format',
+"      \ 'args': [''],
+"      \ 'replace': 0,
+"      \ 'stdin': 1,
+"      \ 'env': ['DEBUG=1'],
+"      \ 'valid_exit_codes': [0, 23],
+"      \ 'no_append': 1,
+"      \ }
+"let g:neoformat_enabled_lua = ['luaformatter']
 
 let g:neoformat_enabled_javascript = ['prettier']
 
