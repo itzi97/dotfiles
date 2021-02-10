@@ -30,8 +30,8 @@ let g:material_terminal_italics = 1
 " NVCode
 let g:nvcode_termcolors=256
 
-colorscheme gruvbox
-let g:airline_theme = 'gruvbox'
+colorscheme $VIM_COLOR_THEME
+let g:airline_theme = $VIM_AIRLINE_THEME
 
 "" Set colorscheme
 "if has('nvim')

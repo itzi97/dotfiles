@@ -86,3 +86,6 @@ export PERL_MM_OPT="INSTALL_BASE=${HOME}/.local/share/perl5";
 
 # Source private keys
 #source ~/.zsh/private.zsh
+
+# Source xmonad
+source ~/.xmonad/env.zsh
