@@ -41,6 +41,7 @@ export WORKSPACE="${HOME}/Workspace"
 
 # Add local path
 export PATH="${PATH}:${HOME}/.local/bin"
+export PATH="${PATH}:${HOME}/Applications"
 
 # Add Rust path
 export PATH="${PATH}:${HOME}/.cargo/bin"
@@ -85,4 +86,4 @@ export PERL_MM_OPT="INSTALL_BASE=${HOME}/.local/share/perl5";
 #export PYSPARK_DRIVER_PYTHON_OPTS="lab"
 
 # Source private keys
-source ~/.zsh/private.zsh
+#source ~/.zsh/private.zsh
