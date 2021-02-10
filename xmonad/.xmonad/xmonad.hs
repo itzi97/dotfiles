@@ -482,7 +482,8 @@ myStartupHook = do
     spawn "~/.xmonad/confs/polybar/launch.sh"
     spawnOnce "redshift"
     spawnOnce "nitrogen --restore"
-    spawnOnce "mpd_discord_richpresence"
+    spawnOnce "ntfd &"
+    spawnOnce "mpd_discord_richpresence &"
     spawnOnce "~/.xmonad/scripts/locker.sh"
 
 
