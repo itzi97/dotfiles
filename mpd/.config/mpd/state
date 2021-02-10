@@ -1,9 +1,9 @@
-sw_volume: 32
+sw_volume: 48
 audio_device_state:1:My Pulse Output
 audio_device_state:1:my_fifo
 state: play
-current: 13
-time: 120.081000
+current: 12
+time: 21.058000
 random: 0
 repeat: 0
 single: 0
@@ -12,20 +12,851 @@ crossfade: 0
 mixrampdb: 0.000000
 mixrampdelay: -1.000000
 playlist_begin
-0:ACDC/ACDC - Highway to Hell 1979/Highway to Hell.cue/track0001
-1:ACDC/ACDC High Voltage 1976/04 Live Wire.flac
-2:ACDC/ACDC High Voltage 1976/05 T.N.T..flac
-3:ACDC/ACDC High Voltage 1976/06 Can I Sit Next to Your Girl.flac
-4:El Canto Del Loco/2000 - El Canto del Loco/01 Pequeñita.mp3
-5:El Canto Del Loco/2000 - El Canto del Loco/02 Llueve en mí.mp3
-6:El Canto Del Loco/2000 - El Canto del Loco/03 Eres un canalla.mp3
-7:El Canto Del Loco/2000 - El Canto del Loco/04 Pasión.mp3
-8:El Canto Del Loco/2000 - El Canto del Loco/05 Traidora.mp3
-9:El Canto Del Loco/2000 - El Canto del Loco/06 He vuelto a caer.mp3
-10:El Canto Del Loco/2000 - El Canto del Loco/07 Sin mitad.mp3
-11:El Canto Del Loco/2000 - El Canto del Loco/08 No quiero nada.mp3
-12:El Canto Del Loco/2000 - El Canto del Loco/09 El agricultor.mp3
-13:El Canto Del Loco/2000 - El Canto del Loco/10 Y si el miedo.mp3
-14:El Canto Del Loco/2000 - El Canto del Loco/11 Busco la vida.mp3
-15:El Canto Del Loco/2000 - El Canto del Loco/12 Vivir así es morir de amor.mp3
+0:Hatari/2020 Hatari - Neyslutrans/01 Hatari - Engin miskunn.flac
+1:Hatari/2020 Hatari - Neyslutrans/02 Hatari - Spillingardans.flac
+2:Hatari/2020 Hatari - Neyslutrans/03 Hatari - Klámstrákur.flac
+3:Hatari/2020 Hatari - Neyslutrans/05 Hatari - Þræll.flac
+4:Hatari/2020 Hatari - Neyslutrans/07 Hatari - Hatrið mun sigra.flac
+5:Hatari/2020 Hatari - Neyslutrans/08 Hatari - Spectavisti me mori op. 8.flac
+6:Hatari/2020 Hatari - Neyslutrans/09 Hatari - 14 ár.flac
+7:Hatari/2020 Hatari - Neyslutrans/10 Hatari - Ógleði.flac
+8:Hatari/2020 Hatari - Neyslutrans/12 Hatari - Nunquam iterum op. 12.flac
+9:Crush 40/2009 - Super Sonic Songs/02 His World.flac
+10:Crush 40/2009 - Super Sonic Songs/03 Un-gravitify.flac
+11:Crush 40/2009 - Super Sonic Songs/04 All Hail Shadow.flac
+12:Crush 40/2009 - Super Sonic Songs/01 I Am... All of Me.flac
+13:Crush 40/2009 - Super Sonic Songs/05 Never Turn Back.flac
+14:Crush 40/2009 - Super Sonic Songs/06 Revvin' Up.flac
+15:Crush 40/2009 - Super Sonic Songs/07 Into the Wind.flac
+16:Crush 40/2009 - Super Sonic Songs/08 Watch Me Fly....flac
+17:Crush 40/2009 - Super Sonic Songs/09 Fire Woman.flac
+18:Crush 40/2009 - Super Sonic Songs/10 Sonic Heroes.flac
+19:Crush 40/2009 - Super Sonic Songs/11 What I'm Made Of....flac
+20:Crush 40/2009 - Super Sonic Songs/12 Live Life.flac
+21:Crush 40/2009 - Super Sonic Songs/13 Knight of the Wind.flac
+22:Crush 40/2009 - Super Sonic Songs/14 Live & Learn.flac
+23:Crush 40/2009 - Super Sonic Songs/15 Open Your Heart.flac
+24:Crush 40/2009 - Super Sonic Songs/16 Is It You.flac
+song_begin: Powerwolf/2005 - Return In Bloodred/Powerwolf - Return In Bloodred.cue/track0001
+Range: 0-279226
+Genre: Power Metal
+Date: 2005
+AlbumArtist: Powerwolf
+Album: Return In Bloodred
+Track: 01
+Title: Mr. Sinister
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2005 - Return In Bloodred/Powerwolf - Return In Bloodred.cue/track0003
+Range: 519826-792000
+Genre: Power Metal
+Date: 2005
+AlbumArtist: Powerwolf
+Album: Return In Bloodred
+Track: 03
+Title: Kiss Of The Cobra King
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2005 - Return In Bloodred/Powerwolf - Return In Bloodred.cue/track0004
+Range: 792000-1044426
+Genre: Power Metal
+Date: 2005
+AlbumArtist: Powerwolf
+Album: Return In Bloodred
+Track: 04
+Title: Black Mass Hysteria
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2005 - Return In Bloodred/Powerwolf - Return In Bloodred.cue/track0005
+Range: 1044426-1263160
+Genre: Power Metal
+Date: 2005
+AlbumArtist: Powerwolf
+Album: Return In Bloodred
+Track: 05
+Title: Demons And Diamonds
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2005 - Return In Bloodred/Powerwolf - Return In Bloodred.cue/track0006
+Range: 1263160-1581866
+Genre: Power Metal
+Date: 2005
+AlbumArtist: Powerwolf
+Album: Return In Bloodred
+Track: 06
+Title: Montecore
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2005 - Return In Bloodred/Powerwolf - Return In Bloodred.cue/track0007
+Range: 1581866-1800333
+Genre: Power Metal
+Date: 2005
+AlbumArtist: Powerwolf
+Album: Return In Bloodred
+Track: 07
+Title: The Evil Made Me Do It
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2005 - Return In Bloodred/Powerwolf - Return In Bloodred.cue/track0008
+Range: 1800333-2089960
+Genre: Power Metal
+Date: 2005
+AlbumArtist: Powerwolf
+Album: Return In Bloodred
+Track: 08
+Title: Lucifer In Starlight
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2005 - Return In Bloodred/Powerwolf - Return In Bloodred.cue/track0009
+Range: 2089960-
+Genre: Power Metal
+Date: 2005
+AlbumArtist: Powerwolf
+Album: Return In Bloodred
+Track: 09
+Title: Son Of The Morning Star
+Artist: Powerwolf
+song_end
+33:Powerwolf/2005 - Return In Bloodred/01 Mr. Sinister.flac
+34:Powerwolf/2005 - Return In Bloodred/02 We Came to Take Your Souls.flac
+35:Powerwolf/2005 - Return In Bloodred/03 Kiss of the Cobra King.flac
+36:Powerwolf/2005 - Return In Bloodred/04 Black Mass Hysteria.flac
+37:Powerwolf/2005 - Return In Bloodred/05 Demons and Diamonds.flac
+song_begin: Powerwolf/2005 - Return In Bloodred/Powerwolf - Return In Bloodred.cue/track0002
+Range: 279226-519826
+Genre: Power Metal
+Date: 2005
+AlbumArtist: Powerwolf
+Album: Return In Bloodred
+Track: 02
+Title: We Came To Take Your Souls
+Artist: Powerwolf
+song_end
+39:Powerwolf/2005 - Return In Bloodred/06 Montecore.flac
+40:Powerwolf/2005 - Return In Bloodred/07 The Evil Made Me Do It.flac
+41:Powerwolf/2005 - Return In Bloodred/08 Lucifer in Starlight.flac
+42:Powerwolf/2005 - Return In Bloodred/09 Son of the Morning Star.flac
+song_begin: Powerwolf/2007 - Lupus Dei/Powerwolf - Lupus Dei.cue/track0001
+Range: 0-77266
+Genre: Power Metal
+Date: 2007
+AlbumArtist: Powerwolf
+Album: Lupus Dei
+Track: 01
+Title: Lupus Demonae
+song_end
+song_begin: Powerwolf/2007 - Lupus Dei/Powerwolf - Lupus Dei.cue/track0002
+Range: 77266-321160
+Genre: Power Metal
+Date: 2007
+AlbumArtist: Powerwolf
+Album: Lupus Dei
+Track: 02
+Title: We Take It From The Living
+song_end
+song_begin: Powerwolf/2007 - Lupus Dei/Powerwolf - Lupus Dei.cue/track0003
+Range: 321160-581400
+Genre: Power Metal
+Date: 2007
+AlbumArtist: Powerwolf
+Album: Lupus Dei
+Track: 03
+Title: Pray In The Dark
+song_end
+song_begin: Powerwolf/2007 - Lupus Dei/Powerwolf - Lupus Dei.cue/track0004
+Range: 581400-899453
+Genre: Power Metal
+Date: 2007
+AlbumArtist: Powerwolf
+Album: Lupus Dei
+Track: 04
+Title: Saturday Satan
+song_end
+song_begin: Powerwolf/2007 - Lupus Dei/Powerwolf - Lupus Dei.cue/track0005
+Range: 899453-1082413
+Genre: Power Metal
+Date: 2007
+AlbumArtist: Powerwolf
+Album: Lupus Dei
+Track: 05
+Title: In Blood We Trust
+song_end
+song_begin: Powerwolf/2007 - Lupus Dei/Powerwolf - Lupus Dei.cue/track0006
+Range: 1082413-1357493
+Genre: Power Metal
+Date: 2007
+AlbumArtist: Powerwolf
+Album: Lupus Dei
+Track: 06
+Title: Behind The Leathermask
+song_end
+song_begin: Powerwolf/2007 - Lupus Dei/Powerwolf - Lupus Dei.cue/track0007
+Range: 1357493-1546373
+Genre: Power Metal
+Date: 2007
+AlbumArtist: Powerwolf
+Album: Lupus Dei
+Track: 07
+Title: Vampires Don't Die
+song_end
+song_begin: Powerwolf/2007 - Lupus Dei/Powerwolf - Lupus Dei.cue/track0008
+Range: 1546373-1811440
+Genre: Power Metal
+Date: 2007
+AlbumArtist: Powerwolf
+Album: Lupus Dei
+Track: 08
+Title: When The Moon Shines Red
+song_end
+song_begin: Powerwolf/2007 - Lupus Dei/Powerwolf - Lupus Dei.cue/track0009
+Range: 1811440-2007693
+Genre: Power Metal
+Date: 2007
+AlbumArtist: Powerwolf
+Album: Lupus Dei
+Track: 09
+Title: Mother Mary Is A Bird Of Prey
+song_end
+song_begin: Powerwolf/2007 - Lupus Dei/Powerwolf - Lupus Dei.cue/track0010
+Range: 2007693-2240973
+Genre: Power Metal
+Date: 2007
+AlbumArtist: Powerwolf
+Album: Lupus Dei
+Track: 10
+Title: Tiger Of Sabrod
+song_end
+song_begin: Powerwolf/2007 - Lupus Dei/Powerwolf - Lupus Dei.cue/track0011
+Range: 2240973-
+Genre: Power Metal
+Date: 2007
+AlbumArtist: Powerwolf
+Album: Lupus Dei
+Track: 11
+Title: Lupus Dei
+song_end
+54:Powerwolf/2007 - Lupus Dei/01 Lupus Daemonis (Intro).flac
+55:Powerwolf/2007 - Lupus Dei/02 We Take It From the Living.flac
+56:Powerwolf/2007 - Lupus Dei/03 Prayer in the Dark.flac
+57:Powerwolf/2007 - Lupus Dei/04 Saturday Satan.flac
+58:Powerwolf/2007 - Lupus Dei/05 In Blood We Trust.flac
+59:Powerwolf/2007 - Lupus Dei/06 Behind the Leathermask.flac
+60:Powerwolf/2007 - Lupus Dei/07 Vampires Don't Die.flac
+61:Powerwolf/2007 - Lupus Dei/08 When the Moon Shines Red.flac
+62:Powerwolf/2007 - Lupus Dei/09 Mother Mary Is a Bird of Prey.flac
+63:Powerwolf/2007 - Lupus Dei/10 Tiger of Sabrod.flac
+64:Powerwolf/2007 - Lupus Dei/11 Lupus Dei.flac
+song_begin: Powerwolf/2009 - Bible Of The Beast/Powerwolf - Bible Of The Beast.cue/track0001
+Range: 0-73813
+Genre: Power Metal
+Date: 2009
+AlbumArtist: Powerwolf
+Album: Bible Of The Beast
+Track: 01
+Title: Opening: Prelude To Purgatory
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2009 - Bible Of The Beast/Powerwolf - Bible Of The Beast.cue/track0002
+Range: 73813-313626
+Genre: Power Metal
+Date: 2009
+AlbumArtist: Powerwolf
+Album: Bible Of The Beast
+Track: 02
+Title: Raise Your Fist, Evangelist
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2009 - Bible Of The Beast/Powerwolf - Bible Of The Beast.cue/track0003
+Range: 313626-508186
+Genre: Power Metal
+Date: 2009
+AlbumArtist: Powerwolf
+Album: Bible Of The Beast
+Track: 03
+Title: Moscow After Dark
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2009 - Bible Of The Beast/Powerwolf - Bible Of The Beast.cue/track0004
+Range: 508186-822733
+Genre: Power Metal
+Date: 2009
+AlbumArtist: Powerwolf
+Album: Bible Of The Beast
+Track: 04
+Title: Panic In The Pentagram
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2009 - Bible Of The Beast/Powerwolf - Bible Of The Beast.cue/track0005
+Range: 822733-1060400
+Genre: Power Metal
+Date: 2009
+AlbumArtist: Powerwolf
+Album: Bible Of The Beast
+Track: 05
+Title: Catholic In The Morning... Satanist At Night
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2009 - Bible Of The Beast/Powerwolf - Bible Of The Beast.cue/track0006
+Range: 1060400-1276000
+Genre: Power Metal
+Date: 2009
+AlbumArtist: Powerwolf
+Album: Bible Of The Beast
+Track: 06
+Title: Seven Deadly Saints
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2009 - Bible Of The Beast/Powerwolf - Bible Of The Beast.cue/track0007
+Range: 1276000-1510706
+Genre: Power Metal
+Date: 2009
+AlbumArtist: Powerwolf
+Album: Bible Of The Beast
+Track: 07
+Title: Werewolves Of Armenia
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2009 - Bible Of The Beast/Powerwolf - Bible Of The Beast.cue/track0008
+Range: 1510706-1745426
+Genre: Power Metal
+Date: 2009
+AlbumArtist: Powerwolf
+Album: Bible Of The Beast
+Track: 08
+Title: We Take The Church By Storm
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2009 - Bible Of The Beast/Powerwolf - Bible Of The Beast.cue/track0009
+Range: 1745426-1976133
+Genre: Power Metal
+Date: 2009
+AlbumArtist: Powerwolf
+Album: Bible Of The Beast
+Track: 09
+Title: Resurrection By Erection
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2009 - Bible Of The Beast/Powerwolf - Bible Of The Beast.cue/track0010
+Range: 1976133-2228866
+Genre: Power Metal
+Date: 2009
+AlbumArtist: Powerwolf
+Album: Bible Of The Beast
+Track: 10
+Title: Midnight Messiah
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2009 - Bible Of The Beast/Powerwolf - Bible Of The Beast.cue/track0011
+Range: 2228866-2499600
+Genre: Power Metal
+Date: 2009
+AlbumArtist: Powerwolf
+Album: Bible Of The Beast
+Track: 11
+Title: St. Satan?s Day
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2009 - Bible Of The Beast/Powerwolf - Bible Of The Beast.cue/track0012
+Range: 2499600-
+Genre: Power Metal
+Date: 2009
+AlbumArtist: Powerwolf
+Album: Bible Of The Beast
+Track: 12
+Title: Wolves Against The World
+Artist: Powerwolf
+song_end
+77:Powerwolf/2009 - Bible Of The Beast/01 Opening_ Prelude to Purgatory.flac
+78:Powerwolf/2009 - Bible Of The Beast/02 Raise Your Fist, Evangelist.flac
+79:Powerwolf/2009 - Bible Of The Beast/03 Moscow After Dark.flac
+80:Powerwolf/2009 - Bible Of The Beast/04 Panic in the Pentagram.flac
+81:Powerwolf/2009 - Bible Of The Beast/05 Catholic in the Morning... Satanist at Night.flac
+82:Powerwolf/2009 - Bible Of The Beast/06 Seven Deadly Saints.flac
+83:Powerwolf/2009 - Bible Of The Beast/07 Werewolves of Armenia.flac
+84:Powerwolf/2009 - Bible Of The Beast/08 We Take the Church by Storm.flac
+85:Powerwolf/2009 - Bible Of The Beast/09 Resurrection by Erection.flac
+86:Powerwolf/2009 - Bible Of The Beast/10 Midnight Messiah.flac
+87:Powerwolf/2009 - Bible Of The Beast/11 St. Satans Day.flac
+88:Powerwolf/2009 - Bible Of The Beast/12 Wolves Against the World.flac
+song_begin: Powerwolf/2011 - Blood Of The Saints/Powerwolf - Blood Of The Saints.cue/track0001
+Range: 0-48706
+Genre: Power Metal
+Date: 2011
+AlbumArtist: Powerwolf
+Album: Blood Of The Saints
+Track: 01
+Title: Agnus Dei
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2011 - Blood Of The Saints/Powerwolf - Blood Of The Saints.cue/track0002
+Range: 48706-314426
+Genre: Power Metal
+Date: 2011
+AlbumArtist: Powerwolf
+Album: Blood Of The Saints
+Track: 02
+Title: Sanctified With Dynamite
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2011 - Blood Of The Saints/Powerwolf - Blood Of The Saints.cue/track0003
+Range: 314426-536986
+Genre: Power Metal
+Date: 2011
+AlbumArtist: Powerwolf
+Album: Blood Of The Saints
+Track: 03
+Title: We Drink Your Blood  
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2011 - Blood Of The Saints/Powerwolf - Blood Of The Saints.cue/track0004
+Range: 536986-824400
+Genre: Power Metal
+Date: 2011
+AlbumArtist: Powerwolf
+Album: Blood Of The Saints
+Track: 04
+Title: Murder At Midnight
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2011 - Blood Of The Saints/Powerwolf - Blood Of The Saints.cue/track0005
+Range: 824400-1040600
+Genre: Power Metal
+Date: 2011
+AlbumArtist: Powerwolf
+Album: Blood Of The Saints
+Track: 05
+Title: All We Need Is Blood
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2011 - Blood Of The Saints/Powerwolf - Blood Of The Saints.cue/track0006
+Range: 1040600-1245920
+Genre: Power Metal
+Date: 2011
+AlbumArtist: Powerwolf
+Album: Blood Of The Saints
+Track: 06
+Title: Dead Boys Don't Cry
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2011 - Blood Of The Saints/Powerwolf - Blood Of The Saints.cue/track0007
+Range: 1245920-1485413
+Genre: Power Metal
+Date: 2011
+AlbumArtist: Powerwolf
+Album: Blood Of The Saints
+Track: 07
+Title: Son Of A Wolf
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2011 - Blood Of The Saints/Powerwolf - Blood Of The Saints.cue/track0008
+Range: 1485413-1756120
+Genre: Power Metal
+Date: 2011
+AlbumArtist: Powerwolf
+Album: Blood Of The Saints
+Track: 08
+Title: Night Of The Werewolves
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2011 - Blood Of The Saints/Powerwolf - Blood Of The Saints.cue/track0009
+Range: 1756120-1945546
+Genre: Power Metal
+Date: 2011
+AlbumArtist: Powerwolf
+Album: Blood Of The Saints
+Track: 09
+Title: Phantom Of The Funeral
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2011 - Blood Of The Saints/Powerwolf - Blood Of The Saints.cue/track0010
+Range: 1945546-2126200
+Genre: Power Metal
+Date: 2011
+AlbumArtist: Powerwolf
+Album: Blood Of The Saints
+Track: 10
+Title: Die, Die, Crucify
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2011 - Blood Of The Saints/Powerwolf - Blood Of The Saints.cue/track0011
+Range: 2126200-
+Genre: Power Metal
+Date: 2011
+AlbumArtist: Powerwolf
+Album: Blood Of The Saints
+Track: 11
+Title: Ira Sancti (When The Saints Are Going Wild)
+Artist: Powerwolf
+song_end
+100:Powerwolf/2011 - Blood Of The Saints/01 Opening_ Agnus Dei.flac
+101:Powerwolf/2011 - Blood Of The Saints/02 Sanctified With Dynamite.flac
+102:Powerwolf/2011 - Blood Of The Saints/03 We Drink Your Blood.flac
+103:Powerwolf/2011 - Blood Of The Saints/04 Murder at Midnight.flac
+104:Powerwolf/2011 - Blood Of The Saints/05 All We Need Is Blood.flac
+105:Powerwolf/2011 - Blood Of The Saints/06 Dead Boys Don't Cry.flac
+106:Powerwolf/2011 - Blood Of The Saints/07 Son of a Wolf.flac
+107:Powerwolf/2011 - Blood Of The Saints/08 Night of the Werewolves.flac
+108:Powerwolf/2011 - Blood Of The Saints/09 Phantom of the Funeral.flac
+109:Powerwolf/2011 - Blood Of The Saints/10 Die, Die, Crucified.flac
+110:Powerwolf/2011 - Blood Of The Saints/11 Ira Sancti (When the Saints Are Going Wild).flac
+song_begin: Powerwolf/2013 - Preachers Of The Night/Powerwolf - Preachers Of The Night.cue/track0001
+Range: 0-234693
+Genre: Power Metal
+Date: 2013
+AlbumArtist: Powerwolf
+Album: Preachers Of The Night
+Track: 01
+Title: Amen & Attack
+song_end
+song_begin: Powerwolf/2013 - Preachers Of The Night/Powerwolf - Preachers Of The Night.cue/track0002
+Range: 234693-482586
+Genre: Power Metal
+Date: 2013
+AlbumArtist: Powerwolf
+Album: Preachers Of The Night
+Track: 02
+Title: Secrets Of The Sacristy
+song_end
+song_begin: Powerwolf/2013 - Preachers Of The Night/Powerwolf - Preachers Of The Night.cue/track0003
+Range: 482586-707946
+Genre: Power Metal
+Date: 2013
+AlbumArtist: Powerwolf
+Album: Preachers Of The Night
+Track: 03
+Title: Coleus Sanctus
+song_end
+song_begin: Powerwolf/2013 - Preachers Of The Night/Powerwolf - Preachers Of The Night.cue/track0004
+Range: 707946-928866
+Genre: Power Metal
+Date: 2013
+AlbumArtist: Powerwolf
+Album: Preachers Of The Night
+Track: 04
+Title: Sacred & Wild
+song_end
+song_begin: Powerwolf/2013 - Preachers Of The Night/Powerwolf - Preachers Of The Night.cue/track0005
+Range: 928866-1156333
+Genre: Power Metal
+Date: 2013
+AlbumArtist: Powerwolf
+Album: Preachers Of The Night
+Track: 05
+Title: Kreuzfeuer
+song_end
+song_begin: Powerwolf/2013 - Preachers Of The Night/Powerwolf - Preachers Of The Night.cue/track0006
+Range: 1156333-1383373
+Genre: Power Metal
+Date: 2013
+AlbumArtist: Powerwolf
+Album: Preachers Of The Night
+Track: 06
+Title: Cardinal Sin
+song_end
+song_begin: Powerwolf/2013 - Preachers Of The Night/Powerwolf - Preachers Of The Night.cue/track0007
+Range: 1383373-1579293
+Genre: Power Metal
+Date: 2013
+AlbumArtist: Powerwolf
+Album: Preachers Of The Night
+Track: 07
+Title: In The Name Of God (Deus Vult)
+song_end
+song_begin: Powerwolf/2013 - Preachers Of The Night/Powerwolf - Preachers Of The Night.cue/track0008
+Range: 1579293-1804973
+Genre: Power Metal
+Date: 2013
+AlbumArtist: Powerwolf
+Album: Preachers Of The Night
+Track: 08
+Title: Nochnoi Dozor
+song_end
+song_begin: Powerwolf/2013 - Preachers Of The Night/Powerwolf - Preachers Of The Night.cue/track0009
+Range: 1804973-2039586
+Genre: Power Metal
+Date: 2013
+AlbumArtist: Powerwolf
+Album: Preachers Of The Night
+Track: 09
+Title: Lust For Blood
+song_end
+song_begin: Powerwolf/2013 - Preachers Of The Night/Powerwolf - Preachers Of The Night.cue/track0010
+Range: 2039586-2275640
+Genre: Power Metal
+Date: 2013
+AlbumArtist: Powerwolf
+Album: Preachers Of The Night
+Track: 10
+Title: Extatum Et Oratum
+song_end
+song_begin: Powerwolf/2013 - Preachers Of The Night/Powerwolf - Preachers Of The Night.cue/track0011
+Range: 2275640-
+Genre: Power Metal
+Date: 2013
+AlbumArtist: Powerwolf
+Album: Preachers Of The Night
+Track: 11
+Title: Last Of The Living Dead
+song_end
+122:Powerwolf/2013 - Preachers Of The Night/01 Amen & Attack.flac
+123:Powerwolf/2013 - Preachers Of The Night/02 Secrets of the Sacristy.flac
+124:Powerwolf/2013 - Preachers Of The Night/03 Coleus Sanctus.flac
+125:Powerwolf/2013 - Preachers Of The Night/04 Sacred & Wild.flac
+126:Powerwolf/2013 - Preachers Of The Night/05 Kreuzfeuer.flac
+127:Powerwolf/2013 - Preachers Of The Night/06 Cardinal Sin.flac
+128:Powerwolf/2013 - Preachers Of The Night/07 In the Name of God (Deus Vult).flac
+129:Powerwolf/2013 - Preachers Of The Night/08 Nochnoi Dozor.flac
+130:Powerwolf/2013 - Preachers Of The Night/09 Lust for Blood.flac
+131:Powerwolf/2013 - Preachers Of The Night/10 Extatum et Oratum.flac
+132:Powerwolf/2013 - Preachers Of The Night/11 Last of the Living Dead.flac
+song_begin: Powerwolf/2015 - Blessed & Possessed/Disc I/Powerwolf - Blessed & Possessed.cue/track0001
+Range: 0-282280
+Genre: Melodic Power Metal
+Date: 2015
+AlbumArtist: Powerwolf
+Album: Blessed & Possessed
+Track: 01
+Title: Blessed & Possessed
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2015 - Blessed & Possessed/Disc II/Powerwolf - Blessed & Possessed.cue/track0001
+Range: 0-340413
+Genre: Melodic Power Metal
+Date: 2015
+AlbumArtist: Powerwolf
+Album: Blessed & Possessed
+Track: 01
+Title: Touch Of Evil
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2015 - Blessed & Possessed/Disc II/Powerwolf - Blessed & Possessed.cue/track0002
+Range: 340413-625720
+Genre: Melodic Power Metal
+Date: 2015
+AlbumArtist: Powerwolf
+Album: Blessed & Possessed
+Track: 02
+Title: Conquistadores
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2015 - Blessed & Possessed/Disc I/Powerwolf - Blessed & Possessed.cue/track0002
+Range: 282280-511946
+Genre: Melodic Power Metal
+Date: 2015
+AlbumArtist: Powerwolf
+Album: Blessed & Possessed
+Track: 02
+Title: Dead Until Dark
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2015 - Blessed & Possessed/Disc I/Powerwolf - Blessed & Possessed.cue/track0003
+Range: 511946-713333
+Genre: Melodic Power Metal
+Date: 2015
+AlbumArtist: Powerwolf
+Album: Blessed & Possessed
+Track: 03
+Title: Army Of The Night
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2015 - Blessed & Possessed/Disc II/Powerwolf - Blessed & Possessed.cue/track0003
+Range: 625720-985760
+Genre: Melodic Power Metal
+Date: 2015
+AlbumArtist: Powerwolf
+Album: Blessed & Possessed
+Track: 03
+Title: Edge Of Thorns
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2015 - Blessed & Possessed/Disc I/Powerwolf - Blessed & Possessed.cue/track0004
+Range: 713333-952826
+Genre: Melodic Power Metal
+Date: 2015
+AlbumArtist: Powerwolf
+Album: Blessed & Possessed
+Track: 04
+Title: Armata Strigoi
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2015 - Blessed & Possessed/Disc II/Powerwolf - Blessed & Possessed.cue/track0004
+Range: 985760-1280640
+Genre: Melodic Power Metal
+Date: 2015
+AlbumArtist: Powerwolf
+Album: Blessed & Possessed
+Track: 04
+Title: Power And Glory
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2015 - Blessed & Possessed/Disc II/Powerwolf - Blessed & Possessed.cue/track0005
+Range: 1280640-1537040
+Genre: Melodic Power Metal
+Date: 2015
+AlbumArtist: Powerwolf
+Album: Blessed & Possessed
+Track: 05
+Title: Out In The Fields
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2015 - Blessed & Possessed/Disc I/Powerwolf - Blessed & Possessed.cue/track0005
+Range: 952826-1174186
+Genre: Melodic Power Metal
+Date: 2015
+AlbumArtist: Powerwolf
+Album: Blessed & Possessed
+Track: 05
+Title: We Are The Wild
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2015 - Blessed & Possessed/Disc I/Powerwolf - Blessed & Possessed.cue/track0006
+Range: 1174186-1384786
+Genre: Melodic Power Metal
+Date: 2015
+AlbumArtist: Powerwolf
+Album: Blessed & Possessed
+Track: 06
+Title: Higher Than Heaven
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2015 - Blessed & Possessed/Disc II/Powerwolf - Blessed & Possessed.cue/track0006
+Range: 1537040-1788493
+Genre: Melodic Power Metal
+Date: 2015
+AlbumArtist: Powerwolf
+Album: Blessed & Possessed
+Track: 06
+Title: Shot In The Dark
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2015 - Blessed & Possessed/Disc I/Powerwolf - Blessed & Possessed.cue/track0007
+Range: 1384786-1604493
+Genre: Melodic Power Metal
+Date: 2015
+AlbumArtist: Powerwolf
+Album: Blessed & Possessed
+Track: 07
+Title: Christ & Combat
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2015 - Blessed & Possessed/Disc II/Powerwolf - Blessed & Possessed.cue/track0007
+Range: 1788493-2141986
+Genre: Melodic Power Metal
+Date: 2015
+AlbumArtist: Powerwolf
+Album: Blessed & Possessed
+Track: 07
+Title: Gods Of War Arise
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2015 - Blessed & Possessed/Disc I/Powerwolf - Blessed & Possessed.cue/track0008
+Range: 1604493-1807213
+Genre: Melodic Power Metal
+Date: 2015
+AlbumArtist: Powerwolf
+Album: Blessed & Possessed
+Track: 08
+Title: Sanctus Dominus
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2015 - Blessed & Possessed/Disc II/Powerwolf - Blessed & Possessed.cue/track0008
+Range: 2141986-2413053
+Genre: Melodic Power Metal
+Date: 2015
+AlbumArtist: Powerwolf
+Album: Blessed & Possessed
+Track: 08
+Title: The Evil That Men Do
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2015 - Blessed & Possessed/Disc II/Powerwolf - Blessed & Possessed.cue/track0009
+Range: 2413053-2782760
+Genre: Melodic Power Metal
+Date: 2015
+AlbumArtist: Powerwolf
+Album: Blessed & Possessed
+Track: 09
+Title: Headless Cross
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2015 - Blessed & Possessed/Disc I/Powerwolf - Blessed & Possessed.cue/track0009
+Range: 1807213-2084106
+Genre: Melodic Power Metal
+Date: 2015
+AlbumArtist: Powerwolf
+Album: Blessed & Possessed
+Track: 09
+Title: Sacramental Sister
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2015 - Blessed & Possessed/Disc I/Powerwolf - Blessed & Possessed.cue/track0010
+Range: 2084106-2308506
+Genre: Melodic Power Metal
+Date: 2015
+AlbumArtist: Powerwolf
+Album: Blessed & Possessed
+Track: 10
+Title: All You Can Bleed
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2015 - Blessed & Possessed/Disc II/Powerwolf - Blessed & Possessed.cue/track0010
+Range: 2782760-
+Genre: Melodic Power Metal
+Date: 2015
+AlbumArtist: Powerwolf
+Album: Blessed & Possessed
+Track: 10
+Title: Nightcrawler
+Artist: Powerwolf
+song_end
+song_begin: Powerwolf/2015 - Blessed & Possessed/Disc I/Powerwolf - Blessed & Possessed.cue/track0011
+Range: 2308506-
+Genre: Melodic Power Metal
+Date: 2015
+AlbumArtist: Powerwolf
+Album: Blessed & Possessed
+Track: 11
+Title: Let There Be Night
+Artist: Powerwolf
+song_end
+154:Powerwolf/2015 - Blessed & Possessed/Disc I/1-01 Blessed & Possessed.flac
+155:Powerwolf/2015 - Blessed & Possessed/Disc I/1-02 Dead Until Dark.flac
+156:Powerwolf/2015 - Blessed & Possessed/Disc I/1-03 Army of the Night.flac
+157:Powerwolf/2015 - Blessed & Possessed/Disc I/1-05 We Are the Wild.flac
+158:Powerwolf/2015 - Blessed & Possessed/Disc I/1-06 Higher Than Heaven.flac
+159:Powerwolf/2015 - Blessed & Possessed/Disc I/1-07 Christ & Combat.flac
+160:Powerwolf/2015 - Blessed & Possessed/Disc I/1-08 Sanctus Dominus.flac
+161:Powerwolf/2015 - Blessed & Possessed/Disc I/1-09 Sacramental Sister.flac
+162:Powerwolf/2015 - Blessed & Possessed/Disc I/1-10 All You Can Bleed.flac
+163:Powerwolf/2015 - Blessed & Possessed/Disc I/1-11 Let There Be Night.flac
+164:Powerwolf/2015 - Blessed & Possessed/Disc II/2-01 Touch of Evil.flac
+165:Powerwolf/2015 - Blessed & Possessed/Disc II/2-02 Conquistadores.flac
+166:Powerwolf/2015 - Blessed & Possessed/Disc II/2-03 Edge of Thorns.flac
+167:Powerwolf/2015 - Blessed & Possessed/Disc II/2-04 Power and Glory.flac
+168:Powerwolf/2015 - Blessed & Possessed/Disc II/2-05 Out in the Fields.flac
+169:Powerwolf/2015 - Blessed & Possessed/Disc II/2-06 Shot in the Dark.flac
+170:Powerwolf/2015 - Blessed & Possessed/Disc II/2-07 Gods of War Arise.flac
+171:Powerwolf/2015 - Blessed & Possessed/Disc II/2-08 The Evil That Men Do.flac
+172:Powerwolf/2015 - Blessed & Possessed/Disc II/2-09 Headless Cross.flac
+173:Powerwolf/2015 - Blessed & Possessed/Disc II/2-10 Night Crawler.flac
+174:Powerwolf/2018 - The Sacrament Of Sin/01 Fire & Forgive.flac
+175:Powerwolf/2018 - The Sacrament Of Sin/02 Demons Are a Girl's Best Friend.flac
+176:Powerwolf/2018 - The Sacrament Of Sin/03 Killers with the Cross.flac
+177:Powerwolf/2018 - The Sacrament Of Sin/04 Incense & Iron.flac
+178:Powerwolf/2018 - The Sacrament Of Sin/05 Where the Wild Wolves Have Gone.flac
+179:Powerwolf/2018 - The Sacrament Of Sin/06 Stossgebet.flac
+180:Powerwolf/2018 - The Sacrament Of Sin/07 Nightside of Siberia.flac
+181:Powerwolf/2018 - The Sacrament Of Sin/08 The Sacrament of Sin.flac
+182:Powerwolf/2018 - The Sacrament Of Sin/09 Venom of Venus.flac
+183:Powerwolf/2018 - The Sacrament Of Sin/10 Nighttime Rebel.flac
+184:Powerwolf/2018 - The Sacrament Of Sin/11 Fist by Fist (Sacralize or Strike).flac
+185:Hatari/2020 Hatari - Neyslutrans/01 Hatari - Engin miskunn.flac
+186:Hatari/2020 Hatari - Neyslutrans/02 Hatari - Spillingardans.flac
+187:Hatari/2020 Hatari - Neyslutrans/03 Hatari - Klámstrákur.flac
+188:Hatari/2020 Hatari - Neyslutrans/05 Hatari - Þræll.flac
+189:Hatari/2020 Hatari - Neyslutrans/07 Hatari - Hatrið mun sigra.flac
+190:Hatari/2020 Hatari - Neyslutrans/08 Hatari - Spectavisti me mori op. 8.flac
+191:Hatari/2020 Hatari - Neyslutrans/09 Hatari - 14 ár.flac
+192:Hatari/2020 Hatari - Neyslutrans/10 Hatari - Ógleði.flac
+193:Hatari/2020 Hatari - Neyslutrans/12 Hatari - Nunquam iterum op. 12.flac
 playlist_end
