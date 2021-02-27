@@ -1,80 +1,50 @@
--- Show relative numbers
--- local vim = require("vim")
-local function global_settings()
-  -- Define mappings
-  vim.g.mapleader = "ñ"
-  vim.g.maplocalleader = "º"
+-- Map leader
+vim.api.nvim_set_keymap('n', 'ñ', '', {})
+vim.g.mapleader = 'ñ'
+vim.g.maplocalleader = 'º'
 
-  vim.o.number = true
-  vim.o.relativenumber = true
+-- General settings
+vim.o.hidden = true
+vim.o.showmatch = true
+vim.o.conceallevel = 2
+vim.o.scrolloff = 5
 
-  -- Set to wrap at textwidth (80)
-  vim.o.wrap = true
-  vim.o.textwidth = 80
-  vim.o.showbreak = "﬌"
+-- Font
+vim.o.guifont = "Hack Nerd Font 10"
 
-  -- Highlight matching brace
-  vim.o.showmatch = true
+-- Wrap
+vim.o.textwidth = 80
+vim.o.wrap = true
+vim.o.showbreak = "﬌"
 
-  -- Enable folding by markers
-  vim.o.foldmethod = "marker"
+-- Always show sign column
+vim.wo.signcolumn = "yes"
+vim.wo.colorcolumn = tostring(vim.o.textwidth + 1)
+vim.o.signcolumn = vim.wo.signcolumn
+vim.o.colorcolumn = vim.wo.colorcolumn
 
-  -- Prettify code
-  vim.o.conceallevel = 2
+-- Set completion sources
+vim.o.completeopt = "menuone,noselect"
 
-  -- Set tabstop to 8 (to show when tabs are present), use spaces for tabs instead
-  vim.o.tabstop = 8
-  vim.o.softtabstop = 2
-  vim.o.expandtab = true
-  vim.o.shiftwidth = vim.o.softtabstop
+-- Folding
+vim.wo.foldmethod = "marker"
 
-  -- Enable auto and smart indents
-  vim.o.smartindent = true
-  vim.o.autoindent = true
-  vim.o.smarttab = true
-  vim.o.list = true
+-- Set tabsize
+vim.bo.tabstop = 2
+vim.bo.shiftwidth = 2
+vim.bo.expandtab = true
+vim.o.tabstop = vim.bo.tabstop
+vim.o.shiftwidth = vim.bo.shiftwidth
+vim.o.expandtab = vim.bo.expandtab
 
-  -- Prettify code with conceal
-  vim.o.listchars = "tab:»\\ ,trail:·,eol:↵,nbsp:⍽"
-  vim.o.fillchars = "eob:·"
+-- Set list characters
+vim.wo.list = true
+vim.wo.listchars = 'tab:» ,trail:·,eol:↵,nbsp:⍽'
+vim.o.list = vim.wo.list
+vim.o.listchars = vim.wo.listchars
 
-  -- Formatting options
-  -- t: Respect textwidth
-  -- c: Comments respect text width
-  -- n: Respect list indents
-  -- j: Remote comment leader when joining lines
-  vim.o.formatoptions = "tcnj"
-
-  -- Spelling
-  vim.o.spell = false
-  vim.o.spelllang = "en_us,es"
-
-  -- Text edit might fail if this is not set
-  vim.o.hidden = true
-
-  -- Always show sign column
-  -- vim.o.signcolumn = "yes"
-  vim.api.nvim_set_option("signcolumn", "yes")
-
-  -- Give more space for displaying messages
-  vim.o.cmdheight = 2
-
-  -- Having a longer update time leades to noticeable delays and poor user experience
-  vim.o.updatetime = 300
-
-  -- Don't pass messages to |ins-complete-menu|
-  if not vim.o.shortmess then
-    vim.o.shortmess = vim.o.shortmess + "c"
-  else
-    vim.o.shortmess = "c"
-  end
-
-  -- Turn on wildmenu and ignore compiled files
-  vim.o.wildmenu = true
-  vim.o.wildignore = "*.o,*~,*.pyc"
-
-  -- Always display current position
-  vim.o.ruler = true
-end
-
-return {global = global_settings}
+-- Set line number
+vim.wo.number = true
+vim.wo.relativenumber = true
+vim.o.number = vim.wo.number
+vim.o.relativenumber = vim.wo.relativenumber
