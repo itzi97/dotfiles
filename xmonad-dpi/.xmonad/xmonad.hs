@@ -149,8 +149,9 @@ myWorkspaces = [ "1" , "2" , "3" , "4" , "5" , "6" , "7" , "8" , "9"]
 
 -- Border colors for unfocused and focused windows, respectively.
 --
-myNormalBorderColor  = "#1d1f21"
-myFocusedBorderColor = "#d79921"
+
+myNormalBorderColor  = "#0F1419"
+myFocusedBorderColor = "#ff3333"
 
 ------------------------------------------------------------------------
 -- Key bindings. Add, modify or remove key bindings here.
@@ -372,7 +373,7 @@ myManageHook = composeAll
     , className =? "Thunderbird"   --> doF(W.shift (myWorkspaces !! 2))
     , className =? "discord"       --> doF(W.shift (myWorkspaces !! 3))
     -- Spotify not working
-    , className =? "spotify"       --> doF(W.shift (myWorkspaces !! 7))]
+    , className =? "spotify"       --> doF(W.shift (myWorkspaces !! 7)) ]
 
 --myManageHook' = composeOne [ isFullscreen -?> doFullFloat ]
 
