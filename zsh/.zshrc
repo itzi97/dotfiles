@@ -60,7 +60,7 @@ source ~/.fzf/shell/key-bindings.zsh
 
 # Show system configuration
 #screenfetch
-neofetch
+neofetch --ascii_distro blackarch
 
 zle
 
@@ -218,6 +218,8 @@ command_not_found_handler() {
 }
 
 # }}}
+
+if [ -e /home/itziar/.nix-profile/etc/profile.d/nix.sh ]; then . /home/itziar/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh

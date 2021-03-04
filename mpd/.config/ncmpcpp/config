@@ -110,7 +110,8 @@ visualizer_look = ●▮
 #
 ## Alternative subset of 256 colors for terminals that support it.
 ##
-#visualizer_color = 47, 83, 119, 155, 191, 227, 221, 215, 209, 203, 197, 161
+visualizer_color = 47, 83, 119, 155, 191, 227, 221, 215, 209, 203, 197, 161
+#visualizer_color = 196, 202, 203, 208, 214, 160, 161, 124, 88, 52, 9, 1
 #
 ##
 ## Note: The next few visualization options apply to the spectrum visualizer.
