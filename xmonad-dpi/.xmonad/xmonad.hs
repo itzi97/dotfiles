@@ -125,33 +125,11 @@ myModMask       = mod4Mask
 --
 myWorkspaces = [ "1" , "2" , "3" , "4" , "5" , "6" , "7" , "8" , "9"]
 
---myWorkspaces =
---    [ "\62601"
---    , "\62057"
---    , "\63213"
---    , "\64366"
---    , "\61820"
---    , "\61820"
---    , "\61820"
---    , "\63942"
---    , "\63608"]
-
---myWorkspaces =
---    [ "1•\62601"
---    , "2•\62057"
---    , "3•\63213"
---    , "4•\64366"
---    , "5•\61820"
---    , "6•\61820"
---    , "7•\61820"
---    , "8•\63942"
---    , "9•\63608"]
-
 -- Border colors for unfocused and focused windows, respectively.
 --
 
-myNormalBorderColor  = "#0F1419"
-myFocusedBorderColor = "#ff3333"
+myNormalBorderColor  = "#0f111b"
+myFocusedBorderColor = "#7a5ccc"
 
 ------------------------------------------------------------------------
 -- Key bindings. Add, modify or remove key bindings here.
@@ -475,17 +453,14 @@ myScratchPads = [
 --
 --
 myStartupHook = do
-    spawnOnce "gsettings set org.gnome.settings-daemon.plugins.xsettings overrides '[{'Gdk/WindowScalingFactor', <2>}]'"
-    spawnOnce "gsettings set org.gnome.desktop.interface scaling-factor 2"
-    spawnOnce "/usr/lib/geoclue-2.0/demos/agent"
     spawnOnce "nm-applet"
     spawnOnce "picom --experimental-backends --config ~/.xmonad/confs/picom.conf"
     spawnOnce "dunst -conf ~/.xmonad/confs/dunstrc"
     -- spawn "~/.xmonad/confs/polybar/launch.sh"
     spawn "~/.xmonad/confs/polybar/launch.sh"
-    spawnOnce "redshift"
+    -- spawnOnce "redshift"
     spawnOnce "nitrogen --restore"
-    spawnOnce "mpd-discord-rpc"
+    -- spawnOnce "mpd-discord-rpc"
     spawnOnce "~/.xmonad/scripts/locker.sh"
 
 

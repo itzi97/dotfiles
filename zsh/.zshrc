@@ -60,7 +60,7 @@ source ~/.fzf/shell/key-bindings.zsh
 
 # Show system configuration
 #screenfetch
-neofetch --ascii_distro blackarch
+neofetch
 
 zle
 
