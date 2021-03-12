@@ -120,10 +120,10 @@ end
 
 -- {{{ Lua language server
 
-local sumneko_root_path = vim.fn.getenv("HOME").."/.local/bin/sumneko_lua"
+local sumneko_root_path = vim.fn.getenv("HOME").."/.local/share/sumneko-lua/"
 nvim_lsp.sumneko_lua.setup {
 	cmd = { 
-		sumneko_root_path .. "/bin/Linux/lua-language-server", 
+		sumneko_root_path .. "bin/Linux/lua-language-server", 
 		"-E", sumneko_root_path .. "/main.lua"
 	};
 	on_attach = on_attach;

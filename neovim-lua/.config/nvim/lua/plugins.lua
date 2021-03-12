@@ -8,7 +8,8 @@ local fn = vim.fn
 local install_path = fn.stdpath('data') .. '/site/pack/packer/opt/packer.nvim'
 
 if fn.empty(fn.glob(install_path)) > 0 then
-  execute('!git clone https://github.com/wbthomason/packer.nvim ' .. install_path)
+  execute('!git clone https://github.com/wbthomason/packer.nvim ' ..
+              install_path)
   execute 'packadd packer.nvim'
 end
 
@@ -31,12 +32,17 @@ return require('packer').startup(function()
   -- LSP
   use {
     'neovim/nvim-lspconfig',
-    requires = {'onsails/lspkind-nvim', 'glepnir/lspsaga.nvim', 'kosayoda/nvim-lightbulb'}
+    requires = {
+      'onsails/lspkind-nvim', 'glepnir/lspsaga.nvim', 'kosayoda/nvim-lightbulb'
+    }
   }
 
   -- }}}
 
   -- {{{ Languages
+
+  -- Polyglot
+  use {"sheerun/vim-polyglot"}
 
   -- Golang
   use {'fatih/vim-go', run = 'GoUpdateBinaries'}
@@ -80,13 +86,22 @@ return require('packer').startup(function()
   use {"glepnir/dashboard-nvim"}
 
   -- Luatree
-  use {"kyazdani42/nvim-tree.lua", requires = {"kyazdani42/nvim-web-devicons", opt = true}}
+  use {
+    "kyazdani42/nvim-tree.lua",
+    requires = {"kyazdani42/nvim-web-devicons", opt = true}
+  }
 
   -- Lualine
-  use {'hoob3rt/lualine.nvim', requires = {'kyazdani42/nvim-web-devicons', opt = true}}
+  use {
+    'hoob3rt/lualine.nvim',
+    requires = {'kyazdani42/nvim-web-devicons', opt = true}
+  }
 
   -- Telescope
-  use {"nvim-telescope/telescope.nvim", requires = {"nvim-lua/popup.nvim", "nvim-lua/plenary.nvim"}}
+  use {
+    "nvim-telescope/telescope.nvim",
+    requires = {"nvim-lua/popup.nvim", "nvim-lua/plenary.nvim"}
+  }
 
   -- }}}
 
