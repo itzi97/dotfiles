@@ -3,6 +3,7 @@ require 'plugins'
 
 -- Source generic settings
 require 'settings'
+require 'keymappings'
 
 -- Source plugin modules
 require 'modules/colors'
