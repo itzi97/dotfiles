@@ -27,7 +27,8 @@ set autoindent                " Auto indent new lines
 set list
 
 " Prettify
-set listchars=tab:»\ ,trail:·,eol:↵,nbsp:⍽
+"set listchars=tab:»\ ,trail:·,eol:↵,nbsp:⍽
+set listchars=tab:»\ ,trail:·,nbsp:⍽
 
 " Cursor shape (changes depending on insert or normal mode)
 let &t_SI = "\<Esc>[6 q"

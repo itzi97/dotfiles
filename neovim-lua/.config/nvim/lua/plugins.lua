@@ -1,4 +1,5 @@
-vim.cmd("packadd packer.nvim")
+vim.cmd [[ packadd packer.nvim ]]
+vim.cmd [[ autocmd BufWritePost plugins.lua PackerCompile ]]
 
 -- {{{ Ensure packer.nvim
 
@@ -15,25 +16,28 @@ end
 
 -- }}}
 
-return require('packer').startup(function()
+return require'packer'.startup(function()
   local use = require'packer'.use
 
   -- Packer can manage itself as an optional plugin
-  use {'wbthomason/packer.nvim', opt = true}
+  use {"wbthomason/packer.nvim", opt = true}
 
   -- {{{ IDE Like features
 
   -- Completion
-  use {'hrsh7th/nvim-compe'}
+  use "hrsh7th/nvim-compe"
 
   -- Snippets
-  use {"hrsh7th/vim-vsnip", requires = "hrsh7th/vim-vsnip-integ"}
+  use {"SirVer/ultisnips", requires = {"honza/vim-snippets"}}
+  -- use {"norcalli/snippets.nvim"}
 
   -- LSP
   use {
-    'neovim/nvim-lspconfig',
+    "neovim/nvim-lspconfig",
     requires = {
-      'onsails/lspkind-nvim', 'glepnir/lspsaga.nvim', 'kosayoda/nvim-lightbulb'
+      "onsails/lspkind-nvim", "glepnir/lspsaga.nvim",
+      "nvim-lua/lsp_extensions.nvim",
+      {'RishabhRD/nvim-lsputils', requires = 'RishabhRD/popfix'}
     }
   }
 
@@ -42,22 +46,25 @@ return require('packer').startup(function()
   -- {{{ Languages
 
   -- Polyglot
-  use {"sheerun/vim-polyglot"}
+  use "sheerun/vim-polyglot"
 
   -- Golang
-  use {'fatih/vim-go', run = 'GoUpdateBinaries'}
+  use {"fatih/vim-go", run = "GoUpdateBinaries"}
 
   -- Julia
-  use {"JuliaEditorSupport/julia-vim"}
+  use "JuliaEditorSupport/julia-vim"
 
   -- LaTeX
-  use {"lervag/vimtex"}
+  use "lervag/vimtex"
+
+  -- Lua
+  use "euclidianAce/BetterLua.vim"
 
   -- Markdown
-  use {'npxbr/glow.nvim', run = "GlowInstall"}
+  use {"npxbr/glow.nvim", run = "GlowInstall"}
 
   -- Rust
-  use {'rust-lang/rust.vim'}
+  use "rust-lang/rust.vim"
 
   -- }}}
 
@@ -67,40 +74,27 @@ return require('packer').startup(function()
   use {"aurieh/discord.nvim", run = ":UpdateRemotePlugins"}
 
   -- Formatter
-  use {"mhartington/formatter.nvim"}
+  use "mhartington/formatter.nvim"
 
-  -- Delimiters
-  use {"tpope/vim-surround"}
+  -- Delimiters, braces, etc.
+  use "tpope/vim-surround"
+  use "tpope/vim-endwise"
+  use "andymass/vim-matchup"
+  use "rstacruz/vim-closer"
 
   -- Comment bindings
-  use {"preservim/nerdcommenter"}
+  use "preservim/nerdcommenter"
 
   -- Floating terminal
-  use {"voldikss/vim-floaterm"}
+  use "voldikss/vim-floaterm"
 
-  -- }}}
-
-  -- {{{ Menus
-
-  -- Dashboard
-  use {"glepnir/dashboard-nvim"}
-
-  -- Luatree
+  -- Switch
   use {
-    "kyazdani42/nvim-tree.lua",
-    requires = {"kyazdani42/nvim-web-devicons", opt = true}
-  }
-
-  -- Lualine
-  use {
-    'hoob3rt/lualine.nvim',
-    requires = {'kyazdani42/nvim-web-devicons', opt = true}
-  }
-
-  -- Telescope
-  use {
-    "nvim-telescope/telescope.nvim",
-    requires = {"nvim-lua/popup.nvim", "nvim-lua/plenary.nvim"}
+    "AndrewRadev/switch.vim",
+    config = function()
+      vim.api.nvim_set_keymap('n', '-', ':Switch<CR>',
+                              {noremap = true, silent = true})
+    end
   }
 
   -- }}}
@@ -108,17 +102,48 @@ return require('packer').startup(function()
   -- {{{ Aesthetic
 
   -- Colorscheme
-  use {"sainnhe/sonokai"}
+  use "sainnhe/sonokai"
   use {"nvim-treesitter/nvim-treesitter", run = ":TSUpdate"}
 
   -- Indent guidelines
-  use {"glepnir/indent-guides.nvim"}
+  use "glepnir/indent-guides.nvim"
 
   -- Git
   use {
     "lewis6991/gitsigns.nvim",
     requires = "nvim-lua/plenary.nvim",
     config = function() require("gitsigns").setup() end
+  }
+
+  -- }}}
+
+  -- {{{ Menus
+
+  -- Dashboard
+  use "mhinz/vim-startify"
+
+  -- Luatree
+  use {
+    "kyazdani42/nvim-tree.lua",
+    requires = {"kyazdani42/nvim-web-devicons", opt = true}
+  }
+
+  -- Barbar
+  use {
+    "romgrk/barbar.nvim",
+    requires = {"kyazdani42/nvim-web-devicons", opt = true}
+  }
+
+  -- Lualine
+  use {
+    "hoob3rt/lualine.nvim",
+    requires = {"kyazdani42/nvim-web-devicons", opt = true}
+  }
+
+  -- Telescope
+  use {
+    "nvim-telescope/telescope.nvim",
+    requires = {"nvim-lua/popup.nvim", "nvim-lua/plenary.nvim"}
   }
 
   -- }}}
