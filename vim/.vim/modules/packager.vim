@@ -132,13 +132,10 @@ function! PackagerInit() abort
   " {{{ Colors
 
   " Colorscheme + eyecandy
-  call packager#add('arcticicestudio/nord-vim')
-  call packager#add('kaicataldo/material.vim', { 'branch': 'main' })
-  call packager#add('cocopon/iceberg.vim')
-  call packager#add('sickill/vim-monokai')
   call packager#add('morhetz/gruvbox')
   call packager#add('ayu-theme/ayu-vim')
   call packager#add('phanviet/vim-monokai-pro')
+  call packager#add('pineapplegiant/spaceduck', { 'branch': 'main' })
 
   " Eyecandy
   call packager#add('Yggdroot/indentLine')

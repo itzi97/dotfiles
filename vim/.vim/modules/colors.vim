@@ -24,21 +24,14 @@ let g:gruvbox_transparent_bg=1
 let g:gruvbox_guisp_fallback='bg'
 let g:gruvbox_invert_indent_guides=1
 
-" Material
-let g:material_theme_style = 'lighter'
-let g:material_terminal_italics = 1
-
-" NVCode
-let g:nvcode_termcolors=256
-
 " Ayu Theme
 let g:ayucolor="dark"
 
 "colorscheme $VIM_COLOR_THEME
 "let g:airline_theme = $VIM_AIRLINE_THEME
 
-colorscheme ayu
-let g:airline_theme = 'minimalist'
+colorscheme spaceduck
+let g:airline_theme = 'spaceduck'
 
 "" Set colorscheme
 "if has('nvim')
