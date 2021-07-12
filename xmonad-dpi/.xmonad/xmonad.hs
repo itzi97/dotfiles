@@ -82,7 +82,7 @@ myFocusFollowsMouse = True
 
 -- Width of the window border in pixels.
 --
-myBorderWidth   = 2
+myBorderWidth   = 4
 
 -- modMask lets you specify which modkey you want to use. The default
 -- is mod1Mask ("left alt").  You may also consider using mod3Mask
@@ -216,8 +216,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_q     ), spawn "xmonad --recompile; xmonad --restart")
 
     -- Screenshot controls
-    -- , ((0, xK_Print),    spawn "scrot '/home/itziar/Pictures/Screenshots/%Y-%m-%d-%H_%M.jpg'")
-    , ((0, xK_Print),    spawn "flameshot full -c -p ~/Pictures/Screenshots/")
+    , ((0, xK_Print),    spawn "flameshot screen -n 0 -c -p ~/Pictures/Screenshots/")
     , ((modm, xK_Print), spawn "flameshot gui  -p ~/Pictures/Screenshots/")
 
     -- Lock Screen
@@ -460,6 +459,7 @@ myStartupHook = do
     spawn "~/.xmonad/confs/polybar/launch.sh"
     -- spawnOnce "redshift"
     spawnOnce "nitrogen --restore"
+    spawnOnce "conky"
     -- spawnOnce "mpd-discord-rpc"
     spawnOnce "~/.xmonad/scripts/locker.sh"
 

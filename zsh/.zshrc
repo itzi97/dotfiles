@@ -60,7 +60,7 @@ source ~/.fzf/shell/key-bindings.zsh
 
 # Show system configuration
 #screenfetch
-neofetch
+#neofetch
 
 zle
 

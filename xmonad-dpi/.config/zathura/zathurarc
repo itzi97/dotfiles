@@ -6,13 +6,13 @@ set selection-clipboard clipboard
 
 # Background & colors
 #set recolor true
-#set recolor-lightcolor "#0e1419"
+#set recolor-lightcolor "#0f111b"
 ###set recolor-lightcolor rgba(29, 31, 33, 0)
 #set recolor-keephue true
-#set default-bg "#0e1419"
-#set default-bg rgba(29, 31, 33, 0.5)
+#set default-bg "#0f111b"
+#set default-bg rgba(230, 44, 11, 0.5)
 
 # Highlight color
-set highlight-color "#ff3333"
-set highlight-active-color "#fabd2f"
+set highlight-color "#1b1c36"
+set highlight-active-color "#16172d"
 set highlight-transparency 0.5

@@ -60,8 +60,12 @@ return require'packer'.startup(function()
   -- Lua
   use "euclidianAce/BetterLua.vim"
 
+  -- Mathematica
+  use "rsmenon/vim-mathematica"
+
   -- Markdown
   use {"npxbr/glow.nvim", run = "GlowInstall"}
+  use {'vim-pandoc/vim-pandoc', requires = 'vim-pandoc/vim-pandoc-syntax'}
 
   -- Rust
   use "rust-lang/rust.vim"
@@ -120,7 +124,8 @@ return require'packer'.startup(function()
   -- {{{ Menus
 
   -- Dashboard
-  use "mhinz/vim-startify"
+  -- use "mhinz/vim-startify"
+  use "glepnir/dashboard-nvim"
 
   -- Luatree
   use {
