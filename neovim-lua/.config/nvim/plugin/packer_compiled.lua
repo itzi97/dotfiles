@@ -44,8 +44,8 @@ local function save_profiles(threshold)
 end
 
 time([[Luarocks path setup]], true)
-local package_path_str = "/home/itziar/.cache/nvim/packer_hererocks/2.1.0-beta3/share/lua/5.1/?.lua;/home/itziar/.cache/nvim/packer_hererocks/2.1.0-beta3/share/lua/5.1/?/init.lua;/home/itziar/.cache/nvim/packer_hererocks/2.1.0-beta3/lib/luarocks/rocks-5.1/?.lua;/home/itziar/.cache/nvim/packer_hererocks/2.1.0-beta3/lib/luarocks/rocks-5.1/?/init.lua"
-local install_cpath_pattern = "/home/itziar/.cache/nvim/packer_hererocks/2.1.0-beta3/lib/lua/5.1/?.so"
+local package_path_str = "/home/itziar/.cache/nvim/packer_hererocks/2.0.5/share/lua/5.1/?.lua;/home/itziar/.cache/nvim/packer_hererocks/2.0.5/share/lua/5.1/?/init.lua;/home/itziar/.cache/nvim/packer_hererocks/2.0.5/lib/luarocks/rocks-5.1/?.lua;/home/itziar/.cache/nvim/packer_hererocks/2.0.5/lib/luarocks/rocks-5.1/?/init.lua"
+local install_cpath_pattern = "/home/itziar/.cache/nvim/packer_hererocks/2.0.5/lib/lua/5.1/?.so"
 if not string.find(package.path, package_path_str, 1, true) then
   package.path = package.path .. ';' .. package_path_str
 end
@@ -77,6 +77,18 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/barbar.nvim"
   },
+  ["cmp-buffer"] = {
+    loaded = true,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/cmp-buffer"
+  },
+  ["cmp-nvim-lsp"] = {
+    loaded = true,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/cmp-nvim-lsp"
+  },
+  ["cmp-nvim-ultisnips"] = {
+    loaded = true,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/cmp-nvim-ultisnips"
+  },
   ["dashboard-nvim"] = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/dashboard-nvim"
@@ -90,7 +102,7 @@ _G.packer_plugins = {
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/formatter.nvim"
   },
   ["gitsigns.nvim"] = {
-    config = { "\27LJ\2\0026\0\0\2\0\3\0\0066\0\0\0'\1\1\0B\0\2\0029\0\2\0B\0\1\1K\0\1\0\nsetup\rgitsigns\frequire\0" },
+    config = { "\27LJ\1\0026\0\0\2\0\3\0\0064\0\0\0%\1\1\0>\0\2\0027\0\2\0>\0\1\1G\0\1\0\nsetup\rgitsigns\frequire\0" },
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/gitsigns.nvim"
   },
@@ -105,6 +117,10 @@ _G.packer_plugins = {
   ["julia-vim"] = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/julia-vim"
+  },
+  ["lsp-status.nvim"] = {
+    loaded = true,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/lsp-status.nvim"
   },
   ["lsp_extensions.nvim"] = {
     loaded = true,
@@ -126,9 +142,9 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/nerdcommenter"
   },
-  ["nvim-compe"] = {
+  ["nvim-cmp"] = {
     loaded = true,
-    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/nvim-compe"
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/nvim-cmp"
   },
   ["nvim-lspconfig"] = {
     loaded = true,
@@ -176,7 +192,7 @@ _G.packer_plugins = {
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/sonokai"
   },
   ["switch.vim"] = {
-    config = { "\27LJ\2\2g\0\0\5\0\a\0\t6\0\0\0009\0\1\0009\0\2\0'\1\3\0'\2\4\0'\3\5\0005\4\6\0B\0\5\1K\0\1\0\1\0\2\vsilent\2\fnoremap\2\16:Switch<CR>\6-\6n\20nvim_set_keymap\bapi\bvim\0" },
+    config = { "\27LJ\1\2g\0\0\5\0\a\0\t4\0\0\0007\0\1\0007\0\2\0%\1\3\0%\2\4\0%\3\5\0003\4\6\0>\0\5\1G\0\1\0\1\0\2\vsilent\2\fnoremap\2\16:Switch<CR>\6-\6n\20nvim_set_keymap\bapi\bvim\0" },
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/switch.vim"
   },
@@ -208,6 +224,10 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/vim-matchup"
   },
+  ["vim-mathematica"] = {
+    loaded = true,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/vim-mathematica"
+  },
   ["vim-pandoc"] = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/vim-pandoc"
@@ -237,11 +257,11 @@ _G.packer_plugins = {
 time([[Defining packer_plugins]], false)
 -- Config for: gitsigns.nvim
 time([[Config for gitsigns.nvim]], true)
-try_loadstring("\27LJ\2\0026\0\0\2\0\3\0\0066\0\0\0'\1\1\0B\0\2\0029\0\2\0B\0\1\1K\0\1\0\nsetup\rgitsigns\frequire\0", "config", "gitsigns.nvim")
+try_loadstring("\27LJ\1\0026\0\0\2\0\3\0\0064\0\0\0%\1\1\0>\0\2\0027\0\2\0>\0\1\1G\0\1\0\nsetup\rgitsigns\frequire\0", "config", "gitsigns.nvim")
 time([[Config for gitsigns.nvim]], false)
 -- Config for: switch.vim
 time([[Config for switch.vim]], true)
-try_loadstring("\27LJ\2\2g\0\0\5\0\a\0\t6\0\0\0009\0\1\0009\0\2\0'\1\3\0'\2\4\0'\3\5\0005\4\6\0B\0\5\1K\0\1\0\1\0\2\vsilent\2\fnoremap\2\16:Switch<CR>\6-\6n\20nvim_set_keymap\bapi\bvim\0", "config", "switch.vim")
+try_loadstring("\27LJ\1\2g\0\0\5\0\a\0\t4\0\0\0007\0\1\0007\0\2\0%\1\3\0%\2\4\0%\3\5\0003\4\6\0>\0\5\1G\0\1\0\1\0\2\vsilent\2\fnoremap\2\16:Switch<CR>\6-\6n\20nvim_set_keymap\bapi\bvim\0", "config", "switch.vim")
 time([[Config for switch.vim]], false)
 if should_profile then save_profiles() end
 

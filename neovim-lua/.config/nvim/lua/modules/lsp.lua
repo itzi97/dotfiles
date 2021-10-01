@@ -158,7 +158,10 @@ vim.lsp.handlers['workspace/symbol'] =
 
 -- {{{ Language server setup
 
-local capabilities = vim.lsp.protocol.make_client_capabilities()
+-- local capabilities = vim.lsp.protocol.make_client_capabilities()
+local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp
+                                                                     .protocol
+                                                                     .make_client_capabilities())
 capabilities.textDocument.completion.completionItem.snippetSupport = true;
 
 -- Use a loop to conveniently both setup defined servers
@@ -200,6 +203,17 @@ nvim_lsp.sumneko_lua.setup {
     }
   }
 }
+
+-- }}}
+
+-- {{{ C++ servers
+
+nvim_lsp.ccls.setup {
+  capabilities = capabilities,
+  on_attach = on_attach,
+  init_options = {highlight = {lsRanges = true}}
+}
+
 -- }}}
 
 -- }}}

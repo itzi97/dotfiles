@@ -1,41 +1,79 @@
 local map = vim.api.nvim_set_keymap
 
--- {{{ nvim-compe
+-- {{{ nvim-comp
 
-require'compe'.setup {
-  enabled = true,
-  autocomplete = true,
-  debug = false,
-  min_length = 1,
-  preselect = 'enable',
-  throttle_time = 80,
-  source_timeout = 200,
-  incomplete_delay = 400,
-  max_abbr_width = 100,
-  max_kind_width = 100,
-  max_menu_width = 100,
-  documentation = true,
+local has_words_before = function()
+  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+  return col ~= 0 and
+             vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col)
+                 :match('%s') == nil
+end
 
-  source = {
-    -- Common sources
-    buffer = true,
-    calc = true,
-    path = true,
-    tags = true,
-    spell = true,
-    omni = true,
+local cmp = require 'cmp'
+cmp.setup({
+  snippet = {
+    expand = function(args)
+      -- For `vsnip` user.
+      -- vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` user.
 
-    -- Neovim specific
-    nvim_lsp = true,
-    nvim_lua = true,
+      -- For `luasnip` user.
+      -- require('luasnip').lsp_expand(args.body)
 
-    -- External plugins
-    vsnip = false,
-    snippets_nvim = false,
-    ultisnips = true,
-    treesitter = true
-  }
-}
+      -- For `ultisnips` user.
+      vim.fn["UltiSnips#Anon"](args.body)
+    end
+  },
+  formatting = {
+    format = function(entry, vim_item)
+      -- fancy icons and a name of kind
+      vim_item.kind =
+          require("lspkind").presets.default[vim_item.kind] .. " " ..
+              vim_item.kind
+
+      -- set a name for each source
+      vim_item.menu = ({
+        buffer = "[Buffer]",
+        nvim_lsp = "[LSP]",
+        luasnip = "[LuaSnip]",
+        nvim_lua = "[Lua]",
+        latex_symbols = "[Latex]"
+      })[entry.source.name]
+      return vim_item
+    end
+  },
+  mapping = {
+    ['<C-d>'] = cmp.mapping.scroll_docs(-4),
+    ['<C-f>'] = cmp.mapping.scroll_docs(4),
+    -- ['<C-Space>'] = cmp.mapping.complete(),
+    ['<C-e>'] = cmp.mapping.close(),
+    -- ['<CR>'] = cmp.mapping.confirm({select = true}),
+    ['<CR>'] = cmp.mapping.confirm {
+      behavior = cmp.ConfirmBehavior.Insert,
+      select = true
+    },
+
+    ['<Tab>'] = function(fallback)
+      if not cmp.select_next_item() then
+        if vim.bo.buftype ~= 'prompt' and has_words_before() then
+          cmp.complete()
+        else
+          fallback()
+        end
+      end
+    end,
+
+    ['<S-Tab>'] = function(fallback)
+      if not cmp.select_prev_item() then
+        if vim.bo.buftype ~= 'prompt' and has_words_before() then
+          cmp.complete()
+        else
+          fallback()
+        end
+      end
+    end
+  },
+  sources = {{name = 'nvim_lsp'}, {name = 'ultisnips'}, {name = 'buffer'}}
+})
 
 -- }}}
 
@@ -60,19 +98,15 @@ end
 _G.tab_complete = function()
   if vim.fn.pumvisible() == 1 then
     return t "<C-n>"
-    -- elseif vim.fn.call("vsnip#available", {1}) == 1 then
-    -- return t "<Plug>(vsnip-expand-or-jump)"
   elseif check_back_space() then
     return t "<Tab>"
   else
-    return vim.fn['compe#complete']()
+    return cmp.mapping.complete()
   end
 end
 _G.s_tab_complete = function()
   if vim.fn.pumvisible() == 1 then
     return t "<C-p>"
-    -- elseif vim.fn.call("vsnip#jumpable", {-1}) == 1 then
-    -- return t "<Plug>(vsnip-jump-prev)"
   else
     return t "<S-Tab>"
   end
@@ -87,68 +121,9 @@ map("s", "<S-Tab>", "v:lua.s_tab_complete()", {expr = true})
 
 -- {{{ Ultisnips
 
--- map("i", "<C-k>", "vsnip#expandable() ? '<Plug>(vsnip-expand)' : '<C-k>'",
--- {expr = true})
-
 -- Completion shortcuts for Ultisnips
 vim.g.UltiSnipsExpandTrigger = '<c-k>'
 vim.g.UltiSnipsJumpForwardTrigger = '<C-w>'
 vim.g.UltiSnipsJumpBackwardTrigger = '<C-b>'
-
--- }}}
-
--- {{{ Snippets
-
--- local snippets = require 'snippets'
--- local snip_utils = require 'snippets.utils'
-
--- -- Set up mappings
--- local inoremap = function(keys, command)
--- vim.api.nvim_set_keymap('i', keys, command, {noremap = true, expr = true})
--- end
-
--- inoremap('<C-k>', "<cmd>lua return require'snippets'.expand_or_advance(1)<CR>")
--- inoremap('<C-j>', "<cmd>lua return require'snippets'.advance_snippet(-1)<CR>")
-
--- snippets.snippets = {
--- _global = {
--- todo = "TODO(Itziar)",
--- author = "Itziar Morales Rodríguez",
--- copyright = snip_utils.force_comment(
---[[Copyright (C) Itziar Morales Rodríguez ${=os.date("%Y")}
-        --]]
--- ),
-
--- -- System information
--- uname = function() return vim.loop.os_uname().sysname end,
-
--- -- Date
--- date = function() return os.date() end,
-
--- -- TODO: Time
--- epoch = function() return os.time() end,
-
--- -- User note
--- note = [[NOTE(${1=io.popen("id -un"):read"*l"}): ]],
-
--- -- Random color
--- randcolor = function()
--- return string.format("#%06X", math.floor(math.random() * 0xFFFFFF))
--- end
--- },
-
--- lua = {
--- req = [[local ${2:${1|S.v:match"([^.()]+)[()]*$"}} = require '$1']],
--- func = [[function${1|vim.trim(S.v):gsub("^%S"," %0")}(${2|vim.trim(S.v)})$0 end]],
--- ["local"] = [[local ${2:${1|S.v:match"([^.()]+)[()]*$"}} = ${1}]],
--- -- Match the indentation of the current line for newlines.
--- ["for"] = snip_utils.match_indentation [[
--- for ${1:i}, ${2:v} in ipairs(${3:t}) do
--- $0
--- end]]
--- },
-
--- tex = {begin = [[\\begin\{${1}\} \\end\{${1}\}]]}
--- }
 
 -- }}}

@@ -25,19 +25,27 @@ return require'packer'.startup(function()
   -- {{{ IDE Like features
 
   -- Completion
-  use "hrsh7th/nvim-compe"
+  -- use "hrsh7th/nvim-compe"
 
   -- Snippets
   use {"SirVer/ultisnips", requires = {"honza/vim-snippets"}}
-  -- use {"norcalli/snippets.nvim"}
 
   -- LSP
   use {
     "neovim/nvim-lspconfig",
     requires = {
       "onsails/lspkind-nvim", "glepnir/lspsaga.nvim",
-      "nvim-lua/lsp_extensions.nvim",
+      "nvim-lua/lsp_extensions.nvim", "nvim-lua/lsp-status.nvim",
       {'RishabhRD/nvim-lsputils', requires = 'RishabhRD/popfix'}
+    }
+  }
+
+  -- Completion
+  use {
+    "hrsh7th/nvim-cmp",
+    requires = {
+      'hrsh7th/cmp-nvim-lsp', 'hrsh7th/cmp-buffer',
+      'quangnguyen30192/cmp-nvim-ultisnips'
     }
   }
 
@@ -48,6 +56,9 @@ return require'packer'.startup(function()
   -- Polyglot
   use "sheerun/vim-polyglot"
 
+  -- C++
+  use "jackguo380/vim-lsp-cxx-highlight"
+
   -- Golang
   use {"fatih/vim-go", run = "GoUpdateBinaries"}
 
@@ -55,7 +66,7 @@ return require'packer'.startup(function()
   use "JuliaEditorSupport/julia-vim"
 
   -- LaTeX
-  use "lervag/vimtex"
+  use {"lervag/vimtex", commit = "fbe94cd3eaed89d6c1236af486466b1fcc3b82c9"}
 
   -- Lua
   use "euclidianAce/BetterLua.vim"

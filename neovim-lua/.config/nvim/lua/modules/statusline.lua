@@ -1,3 +1,14 @@
+-- Helper functions "nvim-lua/lsp-status.nvim"
+local function getWords() return tostring(vim.fn.wordcount().words) end
+
+-- lsp status
+local lsp_status = require 'lsp-status'
+lsp_status.register_progress()
+local function LspStatus()
+  if #vim.lsp.buf_get_clients() > 0 then return lsp_status.status() end
+  return ''
+end
+
 -- Status line
 require'lualine'.setup {
   options = {
@@ -9,7 +20,7 @@ require'lualine'.setup {
   sections = {
     lualine_a = {{'mode', upper = true}},
     lualine_b = {{'branch', icon = ''}, 'diff'},
-    lualine_c = {{'filename', file_status = true}},
+    lualine_c = {{'filename', file_status = true}, LspStatus},
     lualine_x = {'encoding', 'fileformat', 'filetype'},
     lualine_y = {
       {
@@ -18,7 +29,9 @@ require'lualine'.setup {
         sections = {'error', 'warn', 'info'}
       }
     },
-    lualine_z = {'progress', {'location', icon = ''}}
+    lualine_z = {
+      'progress', {getWords, icon = ''}, {'location', icon = ''}
+    }
   },
   inactive_sections = {
     lualine_a = {},
@@ -28,7 +41,7 @@ require'lualine'.setup {
     lualine_y = {},
     lualine_z = {}
   },
-  extensions = {'fugitive'}
+  extensions = {'fugitive', 'nvim-tree'}
 }
 
 -- Tabline
