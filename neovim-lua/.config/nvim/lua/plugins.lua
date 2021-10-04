@@ -49,7 +49,7 @@ return require'packer'.startup(function()
     requires = {
       'hrsh7th/cmp-nvim-lsp', 'hrsh7th/cmp-buffer', "ray-x/cmp-treesitter",
       'quangnguyen30192/cmp-nvim-ultisnips', "kdheepak/cmp-latex-symbols",
-      "hrsh7th/cmp-path"
+      "hrsh7th/cmp-path", "kristijanhusak/vim-dadbod-completion"
     }
   }
 
@@ -119,6 +119,13 @@ return require'packer'.startup(function()
     end
   }
 
+  -- Databases
+  use {
+    "kristijanhusak/vim-dadbod-ui",
+    -- config = function() vim.g.dbs = {test = "mongodb:///test"} end,
+    requires = "tpope/vim-dadbod"
+  }
+
   -- }}}
 
   -- {{{ Aesthetic
@@ -134,7 +141,7 @@ return require'packer'.startup(function()
   use {
     "lewis6991/gitsigns.nvim",
     requires = "nvim-lua/plenary.nvim",
-    config = function() require("gitsigns").setup() end
+    config = function() require'gitsigns'.setup() end
   }
 
   -- }}}

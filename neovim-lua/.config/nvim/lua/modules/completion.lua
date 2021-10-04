@@ -33,6 +33,7 @@ cmp.setup({
       -- set a name for each source
       vim_item.menu = ({
         buffer = "[Buffer]",
+        -- dadbod = "[DadBod]",
         nvim_lsp = "[LSP]",
         luasnip = "[LuaSnip]",
         ultisnips = "[UltiSnips]",
@@ -76,7 +77,8 @@ cmp.setup({
   },
   sources = {
     {name = 'nvim_lsp'}, {name = 'ultisnips'}, {name = 'buffer'},
-    {name = 'treesitter'}, {name = "latex_symbols"}, {name = "path"}
+    {name = 'treesitter'}, {name = "latex_symbols"}, {name = "path"},
+    {name = 'vim-dadbod-completion'}
   }
 })
 

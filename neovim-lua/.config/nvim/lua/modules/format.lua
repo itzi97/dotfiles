@@ -1,3 +1,13 @@
+-- Prettier
+-- Used for html, css and javascript files.
+local prettier = function()
+  return {
+    exe = "prettier",
+    args = {"--stdin-filepath", vim.api.nvim_buf_get_name(0), "--single-quote"},
+    stdin = true
+  }
+end
+
 require("formatter").setup({
   logging = false,
   filetype = {
@@ -12,22 +22,13 @@ require("formatter").setup({
         }
       end
     },
+    css = {prettier},
     go = {
       -- golang
       function() return {exe = "gofmt", args = {"-s"}, stdin = true} end
     },
-    javascript = {
-      -- prettier
-      function()
-        return {
-          exe = "prettier",
-          args = {
-            "--stdin-filepath", vim.api.nvim_buf_get_name(0), "--single-quote"
-          },
-          stdin = true
-        }
-      end
-    },
+    html = {prettier},
+    javascript = {prettier},
     rust = {
       -- rustfmt
       function()
