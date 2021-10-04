@@ -1,22 +1,34 @@
+-- Prettier
+-- Used for html, css and javascript files.
+local prettier = function()
+  return {
+    exe = "prettier",
+    args = {"--stdin-filepath", vim.api.nvim_buf_get_name(0), "--single-quote"},
+    stdin = true
+  }
+end
+
 require("formatter").setup({
   logging = false,
   filetype = {
+    cpp = {
+      -- clang-format
+      function()
+        return {
+          exe = "clang-format",
+          args = {"--assume-filename", vim.api.nvim_buf_get_name(0)},
+          stdin = true,
+          cwd = vim.fn.expand('%:p:h') -- Run clang-format in cwd of the file.
+        }
+      end
+    },
+    css = {prettier},
     go = {
       -- golang
       function() return {exe = "gofmt", args = {"-s"}, stdin = true} end
     },
-    javascript = {
-      -- prettier
-      function()
-        return {
-          exe = "prettier",
-          args = {
-            "--stdin-filepath", vim.api.nvim_buf_get_name(0), "--single-quote"
-          },
-          stdin = true
-        }
-      end
-    },
+    html = {prettier},
+    javascript = {prettier},
     rust = {
       -- rustfmt
       function()
@@ -50,6 +62,6 @@ require("formatter").setup({
 vim.api.nvim_exec([[
   augroup FormatAutogroup
     autocmd!
-    autocmd BufWritePost *.js,*.rs,*.lua,*.tex,*.go FormatWrite
+    autocmd BufWritePost *.js,*.rs,*.lua,*.tex,*.go,*.cpp,*.h,*.cxx FormatWrite
   augroup END
 ]], true)

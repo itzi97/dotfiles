@@ -9,6 +9,12 @@ local on_attach = function(client, bufnr)
   buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
 
   -- Mappings.
+  -- gD    - Go to declaration
+  -- gd    - Go to definition
+  -- K     - Hover over definition
+  -- gi    - Implementation
+  -- <C-k> - See signature help
+  -- <space>wa - Add workspace folder
   local opts = {noremap = true, silent = true}
   buf_set_keymap('n', 'gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
   buf_set_keymap('n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
@@ -135,6 +141,53 @@ require'lsp_extensions'.inlay_hints {
 }
 -- }}}
 
+-- {{{ Code Actions
+
+vim.cmd [[autocmd CursorHold,CursorHoldI * lua require'nvim-lightbulb'.update_lightbulb()]]
+
+-- Showing defaults
+require'nvim-lightbulb'.update_lightbulb {
+  sign = {
+    enabled = true,
+    -- Priority of the gutter sign
+    priority = 10
+  },
+  float = {
+    enabled = false,
+    -- Text to show in the popup float
+    text = "💡",
+    -- Available keys for window options:
+    -- - height     of floating window
+    -- - width      of floating window
+    -- - wrap_at    character to wrap at for computing height
+    -- - max_width  maximal width of floating window
+    -- - max_height maximal height of floating window
+    -- - pad_left   number of columns to pad contents at left
+    -- - pad_right  number of columns to pad contents at right
+    -- - pad_top    number of lines to pad contents at top
+    -- - pad_bottom number of lines to pad contents at bottom
+    -- - offset_x   x-axis offset of the floating window
+    -- - offset_y   y-axis offset of the floating window
+    -- - anchor     corner of float to place at the cursor (NW, NE, SW, SE)
+    -- - winblend   transparency of the window (0-100)
+    win_opts = {}
+  },
+  virtual_text = {
+    enabled = true,
+    -- Text to show at virtual text
+    text = "💡"
+  },
+  status_text = {
+    enabled = false,
+    -- Text to provide when code actions are available
+    text = "💡",
+    -- Text to provide when no actions are available
+    text_unavailable = ""
+  }
+}
+
+-- }}}
+
 -- {{{ TODO: LSP Utils
 
 vim.lsp.handlers['textDocument/codeAction'] =
@@ -158,7 +211,10 @@ vim.lsp.handlers['workspace/symbol'] =
 
 -- {{{ Language server setup
 
-local capabilities = vim.lsp.protocol.make_client_capabilities()
+-- local capabilities = vim.lsp.protocol.make_client_capabilities()
+local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp
+                                                                     .protocol
+                                                                     .make_client_capabilities())
 capabilities.textDocument.completion.completionItem.snippetSupport = true;
 
 -- Use a loop to conveniently both setup defined servers
@@ -170,11 +226,10 @@ end
 
 -- {{{ Lua language server
 
-local sumneko_root_path = vim.fn.getenv("HOME") .. "/.local/share/sumneko-lua/"
+-- local sumneko_root_path = vim.fn.getenv("HOME") .. "/.local/share/sumneko-lua/"
 nvim_lsp.sumneko_lua.setup {
   cmd = {
-    sumneko_root_path .. "bin/Linux/lua-language-server", "-E",
-    sumneko_root_path .. "/main.lua"
+    "/bin/lua-language-server", "-E", "/usr/share/lua-language-server/main.lua"
   },
   on_attach = on_attach,
   capabilities = capabilities,
@@ -200,6 +255,17 @@ nvim_lsp.sumneko_lua.setup {
     }
   }
 }
+
+-- }}}
+
+-- {{{ C++ servers
+
+nvim_lsp.ccls.setup {
+  capabilities = capabilities,
+  on_attach = on_attach,
+  init_options = {highlight = {lsRanges = true}}
+}
+
 -- }}}
 
 -- }}}

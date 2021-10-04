@@ -1,6 +1,14 @@
 -- {{{ Keymaps
 local map = vim.api.nvim_set_keymap
 
+-- LSP References
+map("n", "<leader>lr",
+    [[<cmd>lua require('telescope.builtin').lsp_references()<CR>]], {})
+
+-- LSP Definitions
+map("n", "<leader>ld",
+    [[<cmd>lua require('telescope.builtin').lsp_definitions()<CR>]], {})
+
 -- Find files
 map("n", "<leader>ff",
     [[<cmd>lua require('telescope.builtin').find_files()<CR>]], {})
@@ -40,8 +48,6 @@ map("n", "<leader>gs",
     [[<cmd>lua require('telescope.builtin').git_status()<CR>]], {})
 
 -- }}}
-
--- 
 
 -- }}}
 

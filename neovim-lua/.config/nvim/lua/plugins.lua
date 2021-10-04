@@ -25,19 +25,31 @@ return require'packer'.startup(function()
   -- {{{ IDE Like features
 
   -- Completion
-  use "hrsh7th/nvim-compe"
+  -- use "hrsh7th/nvim-compe"
 
   -- Snippets
   use {"SirVer/ultisnips", requires = {"honza/vim-snippets"}}
-  -- use {"norcalli/snippets.nvim"}
 
   -- LSP
   use {
     "neovim/nvim-lspconfig",
     requires = {
       "onsails/lspkind-nvim", "glepnir/lspsaga.nvim",
-      "nvim-lua/lsp_extensions.nvim",
-      {'RishabhRD/nvim-lsputils', requires = 'RishabhRD/popfix'}
+      "nvim-lua/lsp_extensions.nvim", "nvim-lua/lsp-status.nvim", {
+        "weilbith/nvim-code-action-menu",
+        use = 'CodeActionMenu',
+        requires = "kosayoda/nvim-lightbulb"
+      }, {'RishabhRD/nvim-lsputils', requires = 'RishabhRD/popfix'}
+    }
+  }
+
+  -- Completion
+  use {
+    "hrsh7th/nvim-cmp",
+    requires = {
+      'hrsh7th/cmp-nvim-lsp', 'hrsh7th/cmp-buffer', "ray-x/cmp-treesitter",
+      'quangnguyen30192/cmp-nvim-ultisnips', "kdheepak/cmp-latex-symbols",
+      "hrsh7th/cmp-path", "kristijanhusak/vim-dadbod-completion"
     }
   }
 
@@ -48,6 +60,9 @@ return require'packer'.startup(function()
   -- Polyglot
   use "sheerun/vim-polyglot"
 
+  -- C++
+  use "jackguo380/vim-lsp-cxx-highlight"
+
   -- Golang
   use {"fatih/vim-go", run = "GoUpdateBinaries"}
 
@@ -55,7 +70,7 @@ return require'packer'.startup(function()
   use "JuliaEditorSupport/julia-vim"
 
   -- LaTeX
-  use "lervag/vimtex"
+  use {"lervag/vimtex", commit = "fbe94cd3eaed89d6c1236af486466b1fcc3b82c9"}
 
   -- Lua
   use "euclidianAce/BetterLua.vim"
@@ -73,6 +88,9 @@ return require'packer'.startup(function()
   -- }}}
 
   -- {{{ Misc
+
+  -- Star wars
+  use {"mattn/vim-starwars"}
 
   -- Discord rich presence
   use {"aurieh/discord.nvim", run = ":UpdateRemotePlugins"}
@@ -101,6 +119,13 @@ return require'packer'.startup(function()
     end
   }
 
+  -- Databases
+  use {
+    "kristijanhusak/vim-dadbod-ui",
+    -- config = function() vim.g.dbs = {test = "mongodb:///test"} end,
+    requires = "tpope/vim-dadbod"
+  }
+
   -- }}}
 
   -- {{{ Aesthetic
@@ -116,7 +141,7 @@ return require'packer'.startup(function()
   use {
     "lewis6991/gitsigns.nvim",
     requires = "nvim-lua/plenary.nvim",
-    config = function() require("gitsigns").setup() end
+    config = function() require'gitsigns'.setup() end
   }
 
   -- }}}
