@@ -91,3 +91,4 @@ export PERL_MM_OPT="INSTALL_BASE=${HOME}/.local/share/perl5";
 # Source xmonad
 source ~/.xmonad/env.zsh
 source "$HOME/.cargo/env"
+. "$HOME/.cargo/env"

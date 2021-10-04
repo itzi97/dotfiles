@@ -319,6 +319,8 @@ notify_volume() {
 		text="${text} ${progress}"
 	fi
 
+	text="Volume ${text}"
+
 	if $opt_use_dunstify; then
 		dunstify -i "$icon" -t $expires -h int:value:"$vol" -h string:synchronous:volume "$text" -r 1000
 	else

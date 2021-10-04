@@ -82,10 +82,13 @@ notify_brightness() {
 	local text="${percent%.*}%"
 	local icon=$(get_brightness_icon "$brightness")
 
+
 	if $opt_show_progress_bar; then
 		local progress=$(get_progress_bar "$percent" 100 5)
 		text="$text $progress"
 	fi
+
+	text="Brightness ${text}"
 
 	if $opt_use_dunstify; then
 		dunstify -i $icon -t $expires -h int:value:"$percent" -h string:synchronous:brightness "$text" -r 3412
