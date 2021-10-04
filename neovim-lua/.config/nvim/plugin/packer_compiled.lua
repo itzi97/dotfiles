@@ -81,6 +81,10 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/cmp-buffer"
   },
+  ["cmp-latex-symbols"] = {
+    loaded = true,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/cmp-latex-symbols"
+  },
   ["cmp-nvim-lsp"] = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/cmp-nvim-lsp"
@@ -88,6 +92,14 @@ _G.packer_plugins = {
   ["cmp-nvim-ultisnips"] = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/cmp-nvim-ultisnips"
+  },
+  ["cmp-path"] = {
+    loaded = true,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/cmp-path"
+  },
+  ["cmp-treesitter"] = {
+    loaded = true,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/cmp-treesitter"
   },
   ["dashboard-nvim"] = {
     loaded = true,
@@ -145,6 +157,14 @@ _G.packer_plugins = {
   ["nvim-cmp"] = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/nvim-cmp"
+  },
+  ["nvim-code-action-menu"] = {
+    loaded = true,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/nvim-code-action-menu"
+  },
+  ["nvim-lightbulb"] = {
+    loaded = true,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/nvim-lightbulb"
   },
   ["nvim-lspconfig"] = {
     loaded = true,
@@ -220,6 +240,10 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/vim-go"
   },
+  ["vim-lsp-cxx-highlight"] = {
+    loaded = true,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/vim-lsp-cxx-highlight"
+  },
   ["vim-matchup"] = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/vim-matchup"
@@ -243,6 +267,10 @@ _G.packer_plugins = {
   ["vim-snippets"] = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/vim-snippets"
+  },
+  ["vim-starwars"] = {
+    loaded = true,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/vim-starwars"
   },
   ["vim-surround"] = {
     loaded = true,

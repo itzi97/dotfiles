@@ -35,8 +35,11 @@ return require'packer'.startup(function()
     "neovim/nvim-lspconfig",
     requires = {
       "onsails/lspkind-nvim", "glepnir/lspsaga.nvim",
-      "nvim-lua/lsp_extensions.nvim", "nvim-lua/lsp-status.nvim",
-      {'RishabhRD/nvim-lsputils', requires = 'RishabhRD/popfix'}
+      "nvim-lua/lsp_extensions.nvim", "nvim-lua/lsp-status.nvim", {
+        "weilbith/nvim-code-action-menu",
+        use = 'CodeActionMenu',
+        requires = "kosayoda/nvim-lightbulb"
+      }, {'RishabhRD/nvim-lsputils', requires = 'RishabhRD/popfix'}
     }
   }
 
@@ -44,8 +47,9 @@ return require'packer'.startup(function()
   use {
     "hrsh7th/nvim-cmp",
     requires = {
-      'hrsh7th/cmp-nvim-lsp', 'hrsh7th/cmp-buffer',
-      'quangnguyen30192/cmp-nvim-ultisnips'
+      'hrsh7th/cmp-nvim-lsp', 'hrsh7th/cmp-buffer', "ray-x/cmp-treesitter",
+      'quangnguyen30192/cmp-nvim-ultisnips', "kdheepak/cmp-latex-symbols",
+      "hrsh7th/cmp-path"
     }
   }
 
@@ -84,6 +88,9 @@ return require'packer'.startup(function()
   -- }}}
 
   -- {{{ Misc
+
+  -- Star wars
+  use {"mattn/vim-starwars"}
 
   -- Discord rich presence
   use {"aurieh/discord.nvim", run = ":UpdateRemotePlugins"}

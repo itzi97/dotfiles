@@ -35,7 +35,9 @@ cmp.setup({
         buffer = "[Buffer]",
         nvim_lsp = "[LSP]",
         luasnip = "[LuaSnip]",
+        ultisnips = "[UltiSnips]",
         nvim_lua = "[Lua]",
+        treesitter = "[Treesitter]",
         latex_symbols = "[Latex]"
       })[entry.source.name]
       return vim_item
@@ -72,7 +74,10 @@ cmp.setup({
       end
     end
   },
-  sources = {{name = 'nvim_lsp'}, {name = 'ultisnips'}, {name = 'buffer'}}
+  sources = {
+    {name = 'nvim_lsp'}, {name = 'ultisnips'}, {name = 'buffer'},
+    {name = 'treesitter'}, {name = "latex_symbols"}, {name = "path"}
+  }
 })
 
 -- }}}
