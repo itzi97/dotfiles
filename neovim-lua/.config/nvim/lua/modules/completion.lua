@@ -78,7 +78,7 @@ cmp.setup({
   sources = {
     {name = 'nvim_lsp'}, {name = 'ultisnips'}, {name = 'buffer'},
     {name = 'treesitter'}, {name = "latex_symbols"}, {name = "path"},
-    {name = 'vim-dadbod-completion'}
+    {name = 'vim-dadbod-completion'}, {name = "neorg"}
   }
 })
 

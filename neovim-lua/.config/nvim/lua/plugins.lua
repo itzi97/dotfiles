@@ -35,7 +35,8 @@ return require'packer'.startup(function()
     "neovim/nvim-lspconfig",
     requires = {
       "onsails/lspkind-nvim", "glepnir/lspsaga.nvim",
-      "nvim-lua/lsp_extensions.nvim", "nvim-lua/lsp-status.nvim", {
+      "nvim-lua/lsp_extensions.nvim", "nvim-lua/lsp-status.nvim",
+      "folke/lsp-colors.nvim", {
         "weilbith/nvim-code-action-menu",
         use = 'CodeActionMenu',
         requires = "kosayoda/nvim-lightbulb"
@@ -47,10 +48,17 @@ return require'packer'.startup(function()
   use {
     "hrsh7th/nvim-cmp",
     requires = {
-      'hrsh7th/cmp-nvim-lsp', 'hrsh7th/cmp-buffer', "ray-x/cmp-treesitter",
-      'quangnguyen30192/cmp-nvim-ultisnips', "kdheepak/cmp-latex-symbols",
-      "hrsh7th/cmp-path", "kristijanhusak/vim-dadbod-completion"
+      'hrsh7th/cmp-nvim-lsp', 'hrsh7th/cmp-buffer', 'ray-x/cmp-treesitter',
+      'quangnguyen30192/cmp-nvim-ultisnips', 'kdheepak/cmp-latex-symbols',
+      'hrsh7th/cmp-path', 'kristijanhusak/vim-dadbod-completion'
     }
+  }
+
+  -- Further diagnostics
+  use {
+    "folke/trouble.nvim",
+    requires = "kyazdani42/nvim-web-devicons",
+    config = function() require("trouble").setup {} end
   }
 
   -- }}}
@@ -81,6 +89,9 @@ return require'packer'.startup(function()
   -- Markdown
   use {"npxbr/glow.nvim", run = "GlowInstall"}
   use {'vim-pandoc/vim-pandoc', requires = 'vim-pandoc/vim-pandoc-syntax'}
+
+  -- R
+  use {'jalvesaq/Nvim-R', branch = 'stable'}
 
   -- Rust
   use "rust-lang/rust.vim"
@@ -118,6 +129,15 @@ return require'packer'.startup(function()
                               {noremap = true, silent = true})
     end
   }
+
+  -- Which key
+  use {
+    "folke/which-key.nvim",
+    config = function() require("which-key").setup {} end
+  }
+
+  -- ORG Mode Vim
+  use {"nvim-neorg/neorg", ft = "norg", requires = "nvim-lua/plenary.nvim"}
 
   -- Databases
   use {
