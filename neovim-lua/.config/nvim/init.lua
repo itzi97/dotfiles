@@ -1,3 +1,6 @@
+-- Load impatient first
+require 'impatient'
+
 -- Source plugins
 require 'plugins'
 

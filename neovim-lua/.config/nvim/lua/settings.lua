@@ -50,7 +50,7 @@ vim.o.autoindent = true
 
 -- Set list characters
 vim.wo.list = true
-vim.wo.listchars = 'tab:» ,trail:·,eol:↵,nbsp:⍽'
+vim.wo.listchars = 'tab:» ,trail:·,eol:↴,nbsp:⍽'
 vim.o.list = vim.wo.list
 vim.o.listchars = vim.wo.listchars
 

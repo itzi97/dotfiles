@@ -40,7 +40,7 @@ return require'packer'.startup(function()
         "weilbith/nvim-code-action-menu",
         use = 'CodeActionMenu',
         requires = "kosayoda/nvim-lightbulb"
-      }, {'RishabhRD/nvim-lsputils', requires = 'RishabhRD/popfix'}
+      } -- {'RishabhRD/nvim-lsputils', requires = 'RishabhRD/popfix'}
     }
   }
 
@@ -49,7 +49,7 @@ return require'packer'.startup(function()
     "hrsh7th/nvim-cmp",
     requires = {
       'hrsh7th/cmp-nvim-lsp', 'hrsh7th/cmp-buffer', 'ray-x/cmp-treesitter',
-      'quangnguyen30192/cmp-nvim-ultisnips', 'kdheepak/cmp-latex-symbols',
+      'quangnguyen30192/cmp-nvim-ultisnips', -- 'kdheepak/cmp-latex-symbols',
       'hrsh7th/cmp-path', 'kristijanhusak/vim-dadbod-completion'
     }
   }
@@ -146,6 +146,9 @@ return require'packer'.startup(function()
     requires = "tpope/vim-dadbod"
   }
 
+  -- Speed up neovim
+  use "lewis6991/impatient.nvim"
+
   -- }}}
 
   -- {{{ Aesthetic
@@ -155,7 +158,30 @@ return require'packer'.startup(function()
   use {"nvim-treesitter/nvim-treesitter", run = ":TSUpdate"}
 
   -- Indent guidelines
-  use "glepnir/indent-guides.nvim"
+  -- use "glepnir/indent-guides.nvim"
+  use {
+    "lukas-reineke/indent-blankline.nvim",
+    config = function()
+      require'indent_blankline'.setup {
+        show_end_of_line = true,
+        space_char_blankline = " ",
+        show_current_context = true
+      }
+    end
+  }
+
+  -- Todo comments
+  use {
+    "folke/todo-comments.nvim",
+    requires = "nvim-lua/plenary.nvim",
+    config = function() require("todo-comments").setup {} end
+  }
+
+  -- Zen Mode
+  use {
+    "folke/zen-mode.nvim",
+    config = function() require'zen-mode'.setup {} end
+  }
 
   -- Git
   use {
@@ -169,7 +195,6 @@ return require'packer'.startup(function()
   -- {{{ Menus
 
   -- Dashboard
-  -- use "mhinz/vim-startify"
   use "glepnir/dashboard-nvim"
 
   -- Luatree
@@ -195,6 +220,9 @@ return require'packer'.startup(function()
     "nvim-telescope/telescope.nvim",
     requires = {"nvim-lua/popup.nvim", "nvim-lua/plenary.nvim"}
   }
+
+  -- Better quickfix
+  use 'kevinhwang91/nvim-bqf'
 
   -- }}}
 end)
