@@ -237,13 +237,13 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_f     ), spawn "nautilus")
 
     -- Brightness Commands
-    , ((0, xF86XK_MonBrightnessUp)    , spawn "~/.xmonad/scripts/brightness.sh -i 5 -pyn")
-    , ((0, xF86XK_MonBrightnessDown)  , spawn "~/.xmonad/scripts/brightness.sh -d 5 -pyn")
+    , ((0, xF86XK_MonBrightnessUp)    , spawn "~/.xmonad/scripts/brightness.sh -i 5 -yn")
+    , ((0, xF86XK_MonBrightnessDown)  , spawn "~/.xmonad/scripts/brightness.sh -d 5 -yn")
 
       -- Volume Notifications
-    , ((0, xF86XK_AudioLowerVolume)   , spawn "~/.xmonad/scripts/volume.sh -d 5 -pnyl")
-    , ((0, xF86XK_AudioMute)          , spawn "~/.xmonad/scripts/volume.sh      -nyml")
-    , ((0, xF86XK_AudioRaiseVolume)   , spawn "~/.xmonad/scripts/volume.sh -i 5 -pnyl")
+    , ((0, xF86XK_AudioLowerVolume)   , spawn "~/.xmonad/scripts/volume.sh -d 5 -nyl ")
+    , ((0, xF86XK_AudioMute)          , spawn "~/.xmonad/scripts/volume.sh      -nyml ")
+    , ((0, xF86XK_AudioRaiseVolume)   , spawn "~/.xmonad/scripts/volume.sh -i 5 -nyl ")
     ]
     ++
 
@@ -459,7 +459,7 @@ myStartupHook = do
     spawn "~/.xmonad/confs/polybar/launch.sh"
     -- spawnOnce "redshift"
     spawnOnce "nitrogen --restore"
-    spawnOnce "conky"
+    --spawnOnce "conky"
     -- spawnOnce "mpd-discord-rpc"
     spawnOnce "~/.xmonad/scripts/locker.sh"
 

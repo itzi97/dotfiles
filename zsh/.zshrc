@@ -11,6 +11,7 @@ DISTRO_NAME=$(lsb_release -i | awk 'NF>1{print $NF}' -)
 
 # {{{ Plugins
 source ~/.zplug/init.zsh
+#source /usr/share/zsh/scripts/zplug/init.zsh
 
 # Let zplug manage itself
 zplug 'zplug/zplug', hook-build:'zplug --self-manage'
@@ -74,6 +75,8 @@ setopt appendhistory                   # Immediately append history instead of o
 setopt histignorealldups               # If a new command is a duplicate, remove the older one
 setopt autocd                          # if only directory path is entered, cd there.
 
+#unsetopt rc_expand_param # For zplug
+
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'       # Case insensitive tab completion
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"         # Colored completion (different colors for dirs/files/etc)
 zstyle ':completion:*' rehash true                              # automatically find new executables in path
@@ -116,12 +119,21 @@ colors
 
 # }}}
 
-# {{{ Spaceship theme
-#export SPACESHIP_USER_SHOW=always
-#export SPACESHIP_HOST_SHOW=always
+# {{{ Theme
+
+autoload -U promptinit; promptinit
+prompt spaceship
+
+# Spaceship
+export SPACESHIP_USER_SHOW=always
+export SPACESHIP_HOST_SHOW=always
 eval spaceship_vi_mode_enable
 #export SPACESHIP_PROMPT_SEPARATE_LINE=false
 export SPACESHIP_TIME_SHOW=true
+
+#autoload -U promptinit; promptinit
+#prompt spaceship
+
 
 # }}}
 
@@ -193,7 +205,7 @@ alias lat="exa --icons --long --all"  # Tree with extended details with all
 
 # If distro is based on arch linux
 
-command_not_found_handler() {
+function command_not_found_handler() {
   if [ $DISTRO_NAME != "Arch" ]; then
     return 127
   fi
@@ -204,7 +216,7 @@ command_not_found_handler() {
     printf '\r%s may be found in the following packages:\n' "$cmd"
     local res=() repo package version file
     for file in "$files[@]"; do
-      res=("${(0)file}")
+      res=( "${(0)file}" )
       repo="$res[1]"
       package="$res[2]"
       version="$res[3]"
@@ -219,11 +231,28 @@ command_not_found_handler() {
 
 # }}}
 
-# if [ -e /home/itziar/.nix-profile/etc/profile.d/nix.sh ]; then . /home/itziar/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
-. /home/itziar/.nix-profile/etc/profile.d/nix.sh;
+if [ -e /home/itziar/.nix-profile/etc/profile.d/nix.sh ]; then 
+  . /home/itziar/.nix-profile/etc/profile.d/nix.sh; 
+fi # added by Nix installer
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+#[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 # Source fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+#__conda_setup="$('/home/itziar/.local/share/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+#if [ $? -eq 0 ]; then
+    #eval "$__conda_setup"
+#else
+    #if [ -f "/home/itziar/.local/share/anaconda3/etc/profile.d/conda.sh" ]; then
+        #. "/home/itziar/.local/share/anaconda3/etc/profile.d/conda.sh"
+    #else
+        #export PATH="/home/itziar/.local/share/anaconda3/bin:$PATH"
+    #fi
+#fi
+#unset __conda_setup
+# <<< conda initialize <<<
+

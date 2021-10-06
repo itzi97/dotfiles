@@ -73,6 +73,10 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/BetterLua.vim"
   },
+  ["Nvim-R"] = {
+    loaded = true,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/Nvim-R"
+  },
   ["barbar.nvim"] = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/barbar.nvim"
@@ -80,10 +84,6 @@ _G.packer_plugins = {
   ["cmp-buffer"] = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/cmp-buffer"
-  },
-  ["cmp-latex-symbols"] = {
-    loaded = true,
-    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/cmp-latex-symbols"
   },
   ["cmp-nvim-lsp"] = {
     loaded = true,
@@ -122,13 +122,18 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/glow.nvim"
   },
-  ["indent-guides.nvim"] = {
+  ["indent-blankline.nvim"] = {
+    config = { "\27LJ\1\2„\1\0\0\2\0\4\0\a4\0\0\0%\1\1\0>\0\2\0027\0\2\0003\1\3\0>\0\2\1G\0\1\0\1\0\3\25space_char_blankline\6 \21show_end_of_line\2\25show_current_context\2\nsetup\21indent_blankline\frequire\0" },
     loaded = true,
-    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/indent-guides.nvim"
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/indent-blankline.nvim"
   },
   ["julia-vim"] = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/julia-vim"
+  },
+  ["lsp-colors.nvim"] = {
+    loaded = true,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/lsp-colors.nvim"
   },
   ["lsp-status.nvim"] = {
     loaded = true,
@@ -150,9 +155,18 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/lualine.nvim"
   },
+  neorg = {
+    loaded = false,
+    needs_bufread = true,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/opt/neorg"
+  },
   nerdcommenter = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/nerdcommenter"
+  },
+  ["nvim-bqf"] = {
+    loaded = true,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/nvim-bqf"
   },
   ["nvim-cmp"] = {
     loaded = true,
@@ -169,10 +183,6 @@ _G.packer_plugins = {
   ["nvim-lspconfig"] = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/nvim-lspconfig"
-  },
-  ["nvim-lsputils"] = {
-    loaded = true,
-    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/nvim-lsputils"
   },
   ["nvim-tree.lua"] = {
     loaded = true,
@@ -195,10 +205,6 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/plenary.nvim"
   },
-  popfix = {
-    loaded = true,
-    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/popfix"
-  },
   ["popup.nvim"] = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/popup.nvim"
@@ -219,6 +225,16 @@ _G.packer_plugins = {
   ["telescope.nvim"] = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/telescope.nvim"
+  },
+  ["todo-comments.nvim"] = {
+    config = { "\27LJ\1\2?\0\0\2\0\3\0\a4\0\0\0%\1\1\0>\0\2\0027\0\2\0002\1\0\0>\0\2\1G\0\1\0\nsetup\18todo-comments\frequire\0" },
+    loaded = true,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/todo-comments.nvim"
+  },
+  ["trouble.nvim"] = {
+    config = { "\27LJ\1\0029\0\0\2\0\3\0\a4\0\0\0%\1\1\0>\0\2\0027\0\2\0002\1\0\0>\0\2\1G\0\1\0\nsetup\ftrouble\frequire\0" },
+    loaded = true,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/trouble.nvim"
   },
   ultisnips = {
     loaded = true,
@@ -291,18 +307,60 @@ _G.packer_plugins = {
   vimtex = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/vimtex"
+  },
+  ["which-key.nvim"] = {
+    config = { "\27LJ\1\2;\0\0\2\0\3\0\a4\0\0\0%\1\1\0>\0\2\0027\0\2\0002\1\0\0>\0\2\1G\0\1\0\nsetup\14which-key\frequire\0" },
+    loaded = true,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/which-key.nvim"
+  },
+  ["zen-mode.nvim"] = {
+    config = { "\27LJ\1\2:\0\0\2\0\3\0\a4\0\0\0%\1\1\0>\0\2\0027\0\2\0002\1\0\0>\0\2\1G\0\1\0\nsetup\rzen-mode\frequire\0" },
+    loaded = true,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/zen-mode.nvim"
   }
 }
 
 time([[Defining packer_plugins]], false)
+-- Config for: trouble.nvim
+time([[Config for trouble.nvim]], true)
+try_loadstring("\27LJ\1\0029\0\0\2\0\3\0\a4\0\0\0%\1\1\0>\0\2\0027\0\2\0002\1\0\0>\0\2\1G\0\1\0\nsetup\ftrouble\frequire\0", "config", "trouble.nvim")
+time([[Config for trouble.nvim]], false)
 -- Config for: gitsigns.nvim
 time([[Config for gitsigns.nvim]], true)
 try_loadstring("\27LJ\1\0026\0\0\2\0\3\0\0064\0\0\0%\1\1\0>\0\2\0027\0\2\0>\0\1\1G\0\1\0\nsetup\rgitsigns\frequire\0", "config", "gitsigns.nvim")
 time([[Config for gitsigns.nvim]], false)
+-- Config for: which-key.nvim
+time([[Config for which-key.nvim]], true)
+try_loadstring("\27LJ\1\2;\0\0\2\0\3\0\a4\0\0\0%\1\1\0>\0\2\0027\0\2\0002\1\0\0>\0\2\1G\0\1\0\nsetup\14which-key\frequire\0", "config", "which-key.nvim")
+time([[Config for which-key.nvim]], false)
 -- Config for: switch.vim
 time([[Config for switch.vim]], true)
 try_loadstring("\27LJ\1\2g\0\0\5\0\a\0\t4\0\0\0007\0\1\0007\0\2\0%\1\3\0%\2\4\0%\3\5\0003\4\6\0>\0\5\1G\0\1\0\1\0\2\vsilent\2\fnoremap\2\16:Switch<CR>\6-\6n\20nvim_set_keymap\bapi\bvim\0", "config", "switch.vim")
 time([[Config for switch.vim]], false)
+-- Config for: indent-blankline.nvim
+time([[Config for indent-blankline.nvim]], true)
+try_loadstring("\27LJ\1\2„\1\0\0\2\0\4\0\a4\0\0\0%\1\1\0>\0\2\0027\0\2\0003\1\3\0>\0\2\1G\0\1\0\1\0\3\25space_char_blankline\6 \21show_end_of_line\2\25show_current_context\2\nsetup\21indent_blankline\frequire\0", "config", "indent-blankline.nvim")
+time([[Config for indent-blankline.nvim]], false)
+-- Config for: zen-mode.nvim
+time([[Config for zen-mode.nvim]], true)
+try_loadstring("\27LJ\1\2:\0\0\2\0\3\0\a4\0\0\0%\1\1\0>\0\2\0027\0\2\0002\1\0\0>\0\2\1G\0\1\0\nsetup\rzen-mode\frequire\0", "config", "zen-mode.nvim")
+time([[Config for zen-mode.nvim]], false)
+-- Config for: todo-comments.nvim
+time([[Config for todo-comments.nvim]], true)
+try_loadstring("\27LJ\1\2?\0\0\2\0\3\0\a4\0\0\0%\1\1\0>\0\2\0027\0\2\0002\1\0\0>\0\2\1G\0\1\0\nsetup\18todo-comments\frequire\0", "config", "todo-comments.nvim")
+time([[Config for todo-comments.nvim]], false)
+vim.cmd [[augroup packer_load_aucmds]]
+vim.cmd [[au!]]
+  -- Filetype lazy-loads
+time([[Defining lazy-load filetype autocommands]], true)
+vim.cmd [[au FileType norg ++once lua require("packer.load")({'neorg'}, { ft = "norg" }, _G.packer_plugins)]]
+time([[Defining lazy-load filetype autocommands]], false)
+vim.cmd("augroup END")
+vim.cmd [[augroup filetypedetect]]
+time([[Sourcing ftdetect script at: /home/itziar/.local/share/nvim/site/pack/packer/opt/neorg/ftdetect/norg.vim]], true)
+vim.cmd [[source /home/itziar/.local/share/nvim/site/pack/packer/opt/neorg/ftdetect/norg.vim]]
+time([[Sourcing ftdetect script at: /home/itziar/.local/share/nvim/site/pack/packer/opt/neorg/ftdetect/norg.vim]], false)
+vim.cmd("augroup END")
 if should_profile then save_profiles() end
 
 end)

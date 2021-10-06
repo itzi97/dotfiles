@@ -1,3 +1,6 @@
+-- Load impatient first
+require 'impatient'
+
 -- Source plugins
 require 'plugins'
 
@@ -15,6 +18,7 @@ require 'modules/dashboard'
 require 'modules/tree'
 require 'modules/vimtex'
 require 'modules/format'
+require 'modules/norg'
 require 'modules/treesitter'
 require 'modules/statusline'
 require 'modules/git'
