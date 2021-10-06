@@ -1,4 +1,4 @@
---
+-
 -- xmonad example config file for xmonad-0.9
 --
 -- A template showing all available configuration hooks,
@@ -161,7 +161,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
 
     -- launch dmenu
-    , ((modm,               xK_p     ), spawn "~/.config/rofi/bin/launcher_colorful")
+    , ((modm,               xK_p     ), spawn "~/.config/rofi/launchers/colorful/launcher.sh")
+    --, ((modm,               xK_p     ), spawn "~/.config/rofi/bin/launcher_colorful")
     --, ((modm,               xK_p     ), spawn "~/.xmonad/confs/rofi/launchers/misc/launcher.sh")
 
     -- launch command runner
@@ -169,7 +170,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm,               xK_r     ), namedScratchpadAction myScratchPads "terminal")
 
     -- launch 1password
-    , ((modm .|. shiftMask, xK_p     ), spawn "~/.xmonad/confs/rofi/powermenu/powermenu.sh")
+    , ((modm .|. shiftMask, xK_p     ), spawn "~/.config/rofi/powermenu/powermenu.sh")
 
     -- close focused window
     , ((modm .|. shiftMask, xK_c     ), kill)
@@ -264,9 +265,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((0, xF86XK_MonBrightnessDown)  , spawn "~/.xmonad/scripts/brightness.sh -d 5 -pyn")
 
       -- Volume Notifications
-    , ((0, xF86XK_AudioLowerVolume)   , spawn "~/.xmonad/scripts/volume.sh -d 5 -pnyl")
+    , ((0, xF86XK_AudioLowerVolume)   , spawn "~/.xmonad/scripts/volume.sh -d 5 -nyl")
     , ((0, xF86XK_AudioMute)          , spawn "~/.xmonad/scripts/volume.sh      -nyml")
-    , ((0, xF86XK_AudioRaiseVolume)   , spawn "~/.xmonad/scripts/volume.sh -i 5 -pnyl")
+    , ((0, xF86XK_AudioRaiseVolume)   , spawn "~/.xmonad/scripts/volume.sh -i 5 -nyl")
     ]
     ++
 

@@ -2,7 +2,7 @@
 ### Display ###
 
 # Which monitor should the notifications be displayed on.
-#monitor = eDP-1
+monitor = 1
 
 # Display notification on focused monitor.  Possible modes are:
 #   mouse: follow mouse pointer
@@ -15,7 +15,7 @@
 #
 # If this option is set to mouse or keyboard, the monitor option
 # will be ignored.
-follow = mouse
+follow = none
 
 # The geometry of the window:
 #   [{width}]x{height}[+/-{x}+/-{y}]
@@ -61,7 +61,7 @@ horizontal_padding = 4
 
 # Defines width in pixels of frame around the notification window.
 # Set to 0 to disable.
-frame_width = 1
+frame_width = 2
 
 # Defines color of the frame around the notification window.
 frame_color = "#aaaaaa"
@@ -172,7 +172,7 @@ icon_position = left
 min_icon_size = 0
 
 # Scale larger icons down to this size, set to 0 to disable
-max_icon_size = 48
+max_icon_size = 32
 
 # Paths to default icons.
 icon_path = /usr/share/icons/Qogir-dark/scalable/apps/:/usr/share/icons/Qogir-dark/scalable/status/:/usr/share/icons/Qogir-dark/scalable/devices/:/usr/share/icons/Papirus/48x48/status/:/usr/share/icons/Papirus/48x48/devices/:/usr/share/icons/Papirus/48x48/apps
@@ -222,7 +222,7 @@ verbosity = info
 # corners.
 # The radius will be automatically lowered if it exceeds half of the
 # notification height to avoid clipping text and/or icons.
-corner_radius = 12
+corner_radius = 0
 
 # Ignore the dbus closeNotification message.
 # Useful to enforce the timeout set by dunst configuration. Without this
@@ -292,17 +292,17 @@ context = ctrl+shift+period
 [urgency_low]
 # IMPORTANT: colors have to be defined in quotation marks.
 # Otherwise the "#" and following would be interpreted as a comment.
-background = "#1d1f21"
-foreground = "#c5c8c6"
-frame_color = "#1d1f21"
+background = "#161821"
+foreground = "#c6c8d1"
+frame_color = "#00BCD4"
 timeout = 5
 # Icon for notifications with low urgency, uncomment to enable
 #icon = /path/to/icon
 
 [urgency_normal]
-background = "#1d1f21"
-foreground = "#c5c8c6"
-frame_color = "#1d1f21"
+background = "#161821"
+foreground = "#c6c8d1"
+frame_color = "#00BCD4"
 timeout = 10
 # Icon for notifications with normal urgency, uncomment to enable
 #icon = /path/to/icon
