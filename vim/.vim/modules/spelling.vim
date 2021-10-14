@@ -96,4 +96,3 @@ function! SpellCompMathES() abort
 endfunction
 
 command! SpellCompMathES call SpellCompMathES()
-
