@@ -2,11 +2,11 @@
 local map = vim.api.nvim_set_keymap
 
 -- LSP References
-map("n", "<leader>lr",
+map("n", "<leader>tr",
     [[<cmd>lua require('telescope.builtin').lsp_references()<CR>]], {})
 
 -- LSP Definitions
-map("n", "<leader>ld",
+map("n", "<leader>td",
     [[<cmd>lua require('telescope.builtin').lsp_definitions()<CR>]], {})
 
 -- Find files
@@ -68,5 +68,7 @@ require('telescope').setup {
     set_env = {['COLORTERM'] = 'truecolor'} -- default = nil,
   }
 }
+
+require('telescope').extensions.dap.configurations()
 
 -- }}}

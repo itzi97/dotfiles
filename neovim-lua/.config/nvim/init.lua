@@ -8,17 +8,22 @@ require 'plugins'
 require 'settings'
 require 'keymappings'
 
--- Source plugin modules
-require 'modules/colors'
-require 'modules/terminal'
+-- LSP Functionality
+require 'modules/debugger'
 require 'modules/lsp'
 require 'modules/completion'
+require 'modules/vimtex'
+require 'modules/format'
+
+-- UI
+require 'modules/terminal'
 require 'modules/telescope'
 require 'modules/dashboard'
 require 'modules/tree'
-require 'modules/vimtex'
-require 'modules/format'
 require 'modules/norg'
+
+-- Aesthetic
+require 'modules/colors'
 require 'modules/treesitter'
 require 'modules/statusline'
 require 'modules/git'

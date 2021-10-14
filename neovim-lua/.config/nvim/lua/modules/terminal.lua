@@ -1,19 +1,34 @@
 -- Position + size
-vim.g.floaterm_width = 0.85
-vim.g.floaterm_height = 0.85
-vim.g.floaterm_position = "center"
+require'FTerm'.setup({
+  -- Command to run inside the terminal. It could be a `string` or `table`
+  cmd = os.getenv('SHELL'),
 
--- Transparency
-vim.api.nvim_exec([[
-  highlight Floaterm guibg=NONE
-  highlight FloatermBorder guibg=NONE guifg=#d79921
-]], false)
+  -- Neovim's native window border. See `:h nvim_open_win` for more configuration options.
+  border = 'double',
 
-vim.g.floaterm_winblend = 10
+  -- Close the terminal as soon as shell/command exits.
+  -- Disabling this will mimic the native terminal behaviour.
+  auto_close = false,
 
--- Keybinds
-vim.g.floaterm_keymap_new = '<F7>'
-vim.g.floaterm_keymap_prev = '<F8>'
-vim.g.floaterm_keymap_next = '<F9>'
-vim.g.floaterm_keymap_toggle = '<F12>'
-vim.g.floaterm_keymap_kill = '<F11>'
+  -- Highlight group for the terminal. See `:h winhl`
+  hl = 'Normal',
+
+  -- Transparency of the floating window. See `:h winblend`
+  blend = 10,
+
+  -- Object containing the terminal window dimensions.
+  -- The value for each field should be between `0` and `1`
+  dimensions = {
+    height = 0.8, -- Height of the terminal window
+    width = 0.8, -- Width of the terminal window
+    x = 0.5, -- X axis of the terminal window
+    y = 0.5 -- Y axis of the terminal window
+  }
+})
+
+-- Example keybindings
+local map = vim.api.nvim_set_keymap
+local opts = {noremap = true, silent = true}
+
+map('n', '<F12>', '<CMD>lua require("FTerm").toggle()<CR>', opts)
+map('t', '<F12>', '<C-\\><C-n><CMD>lua require("FTerm").toggle()<CR>', opts)

@@ -110,16 +110,20 @@ return require'packer'.startup(function()
   use "mhartington/formatter.nvim"
 
   -- Delimiters, braces, etc.
-  use "tpope/vim-surround"
+  use {
+    "blackCauldron7/surround.nvim",
+    config = function() require"surround".setup {mappings_style = "sandwich"} end
+  }
   use "tpope/vim-endwise"
-  use "andymass/vim-matchup"
   use "rstacruz/vim-closer"
 
   -- Comment bindings
   use "preservim/nerdcommenter"
 
+  -- TODO: Other terminal pluign, toggleterm.nvim
   -- Floating terminal
-  use "voldikss/vim-floaterm"
+  -- use "voldikss/vim-floaterm"
+  use "numtostr/FTerm.nvim"
 
   -- Switch
   use {
@@ -149,12 +153,22 @@ return require'packer'.startup(function()
   -- Speed up neovim
   use "lewis6991/impatient.nvim"
 
+  -- Debugger
+  use {
+    'mfussenegger/nvim-dap',
+    requires = {
+      "mfussenegger/nvim-dap-python", 'jbyuki/one-small-step-for-vimkind',
+      'theHamsta/nvim-dap-virtual-text', "rcarriga/nvim-dap-ui"
+    }
+  }
+
   -- }}}
 
   -- {{{ Aesthetic
 
   -- Colorscheme
-  use "sainnhe/sonokai"
+  -- use "sainnhe/sonokai"
+  use 'marko-cerovac/material.nvim'
   use {"nvim-treesitter/nvim-treesitter", run = ":TSUpdate"}
 
   -- Indent guidelines
@@ -165,7 +179,10 @@ return require'packer'.startup(function()
       require'indent_blankline'.setup {
         show_end_of_line = true,
         space_char_blankline = " ",
-        show_current_context = true
+        show_current_context = true,
+        use_treesitter = true,
+        buftype_exclude = {"terminal"},
+        filetype_exclude = {"dashboard", "help"}
       }
     end
   }
@@ -189,6 +206,15 @@ return require'packer'.startup(function()
     requires = "nvim-lua/plenary.nvim",
     config = function() require'gitsigns'.setup() end
   }
+
+  -- Scroll
+  use {
+    'karb94/neoscroll.nvim',
+    config = function() require('neoscroll').setup() end
+  }
+
+  -- Highlighting
+  use 'yamatsum/nvim-cursorline'
 
   -- }}}
 
@@ -218,7 +244,10 @@ return require'packer'.startup(function()
   -- Telescope
   use {
     "nvim-telescope/telescope.nvim",
-    requires = {"nvim-lua/popup.nvim", "nvim-lua/plenary.nvim"}
+    requires = {
+      "nvim-lua/popup.nvim", "nvim-lua/plenary.nvim",
+      "nvim-telescope/telescope-dap.nvim"
+    }
   }
 
   -- Better quickfix

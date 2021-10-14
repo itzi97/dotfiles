@@ -12,7 +12,7 @@ end
 -- Status line
 require'lualine'.setup {
   options = {
-    theme = 'ayu_dark',
+    theme = 'material-nvim',
     section_separators = {'', ''},
     component_separators = {'|', '|'},
     icons_enabled = true
