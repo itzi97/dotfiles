@@ -153,7 +153,7 @@ require'nvim-lightbulb'.update_lightbulb {
     priority = 10
   },
   float = {
-    enabled = false,
+    enabled = true,
     -- Text to show in the popup float
     text = "💡",
     -- Available keys for window options:
@@ -178,7 +178,7 @@ require'nvim-lightbulb'.update_lightbulb {
     text = "💡"
   },
   status_text = {
-    enabled = false,
+    enabled = true,
     -- Text to provide when code actions are available
     text = "💡",
     -- Text to provide when no actions are available

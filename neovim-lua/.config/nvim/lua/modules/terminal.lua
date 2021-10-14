@@ -1,34 +1,45 @@
--- Position + size
-require'FTerm'.setup({
-  -- Command to run inside the terminal. It could be a `string` or `table`
-  cmd = os.getenv('SHELL'),
-
-  -- Neovim's native window border. See `:h nvim_open_win` for more configuration options.
-  border = 'double',
-
-  -- Close the terminal as soon as shell/command exits.
-  -- Disabling this will mimic the native terminal behaviour.
-  auto_close = false,
-
-  -- Highlight group for the terminal. See `:h winhl`
-  hl = 'Normal',
-
-  -- Transparency of the floating window. See `:h winblend`
-  blend = 10,
-
-  -- Object containing the terminal window dimensions.
-  -- The value for each field should be between `0` and `1`
-  dimensions = {
-    height = 0.8, -- Height of the terminal window
-    width = 0.8, -- Width of the terminal window
-    x = 0.5, -- X axis of the terminal window
-    y = 0.5 -- Y axis of the terminal window
+require("toggleterm").setup {
+  -- size can be a number or function which is passed the current terminal
+  size = 20,
+  open_mapping = [[<F12>]],
+  hide_numbers = true, -- hide the number column in toggleterm buffers
+  shade_filetypes = {},
+  shade_terminals = true,
+  shading_factor = '1', -- the degree by which to darken to terminal colour, default: 1 for dark backgrounds, 3 for light
+  start_in_insert = true,
+  insert_mappings = true, -- whether or not the open mapping applies in insert mode
+  persist_size = true,
+  direction = 'float',
+  close_on_exit = false, -- close the terminal window when the process exits
+  shell = vim.o.shell, -- change the default shell
+  -- This field is only relevant if direction is set to 'float'
+  float_opts = {
+    -- The border key is *almost* the same as 'nvim_open_win'
+    -- see :h nvim_open_win for details on borders however
+    -- the 'curved' border is a custom border type
+    -- not natively supported but implemented in this plugin.
+    border = 'curved',
+    width = math.floor(0.85 * vim.o.columns),
+    height = math.floor(0.85 * vim.o.lines),
+    winblend = 10,
+    highlights = {border = "Normal", background = "Normal"}
   }
-})
+}
 
--- Example keybindings
-local map = vim.api.nvim_set_keymap
+-- Custom terminals
+
+local Terminal = require('toggleterm.terminal').Terminal
+local lazygit = Terminal:new{
+  cmd = 'lazygit',
+  hidden = true,
+  close_on_exit = true
+}
+local ranger = Terminal:new{cmd = 'ranger', hidden = true, close_on_exit = true}
+
+function _lazygit_toggle() lazygit:toggle() end
+
+function _ranger_toggle() ranger:toggle() end
+
 local opts = {noremap = true, silent = true}
-
-map('n', '<F12>', '<CMD>lua require("FTerm").toggle()<CR>', opts)
-map('t', '<F12>', '<C-\\><C-n><CMD>lua require("FTerm").toggle()<CR>', opts)
+vim.api.nvim_set_keymap("n", "<F10>", "<cmd>lua _lazygit_toggle()<CR>", opts)
+vim.api.nvim_set_keymap("n", "<F11>", "<cmd>lua _ranger_toggle()<CR>", opts)

@@ -14,6 +14,7 @@ require 'modules/lsp'
 require 'modules/completion'
 require 'modules/vimtex'
 require 'modules/format'
+require 'modules/spelling'
 
 -- UI
 require 'modules/terminal'

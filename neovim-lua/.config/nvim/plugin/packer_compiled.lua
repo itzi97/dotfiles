@@ -73,10 +73,6 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/BetterLua.vim"
   },
-  ["FTerm.nvim"] = {
-    loaded = true,
-    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/FTerm.nvim"
-  },
   ["Nvim-R"] = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/Nvim-R"
@@ -193,6 +189,11 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/nvim-code-action-menu"
   },
+  ["nvim-colorizer.lua"] = {
+    config = { "\27LJ\1\0027\0\0\2\0\3\0\0064\0\0\0%\1\1\0>\0\2\0027\0\2\0>\0\1\1G\0\1\0\nsetup\14colorizer\frequire\0" },
+    loaded = true,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/nvim-colorizer.lua"
+  },
   ["nvim-cursorline"] = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/nvim-cursorline"
@@ -220,6 +221,11 @@ _G.packer_plugins = {
   ["nvim-lspconfig"] = {
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/nvim-lspconfig"
+  },
+  ["nvim-neoclip.lua"] = {
+    config = { '\27LJ\1\2_\0\0\3\0\6\0\t4\0\0\0%\1\1\0>\0\2\0027\0\2\0003\1\4\0003\2\3\0:\2\5\1>\0\2\1G\0\1\0\21default_register\1\0\0\1\4\0\0\6"\6+\6*\nsetup\fneoclip\frequire\0' },
+    loaded = true,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/nvim-neoclip.lua"
   },
   ["nvim-tree.lua"] = {
     loaded = true,
@@ -276,6 +282,10 @@ _G.packer_plugins = {
     config = { "\27LJ\1\2?\0\0\2\0\3\0\a4\0\0\0%\1\1\0>\0\2\0027\0\2\0002\1\0\0>\0\2\1G\0\1\0\nsetup\18todo-comments\frequire\0" },
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/todo-comments.nvim"
+  },
+  ["toggleterm.nvim"] = {
+    loaded = true,
+    path = "/home/itziar/.local/share/nvim/site/pack/packer/start/toggleterm.nvim"
   },
   ["trouble.nvim"] = {
     config = { "\27LJ\1\0029\0\0\2\0\3\0\a4\0\0\0%\1\1\0>\0\2\0027\0\2\0002\1\0\0>\0\2\1G\0\1\0\nsetup\ftrouble\frequire\0" },
@@ -343,7 +353,6 @@ _G.packer_plugins = {
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/vimtex"
   },
   ["which-key.nvim"] = {
-    config = { "\27LJ\1\2;\0\0\2\0\3\0\a4\0\0\0%\1\1\0>\0\2\0027\0\2\0002\1\0\0>\0\2\1G\0\1\0\nsetup\14which-key\frequire\0" },
     loaded = true,
     path = "/home/itziar/.local/share/nvim/site/pack/packer/start/which-key.nvim"
   },
@@ -359,10 +368,10 @@ time([[Defining packer_plugins]], false)
 time([[Config for surround.nvim]], true)
 try_loadstring("\27LJ\1\2U\0\0\2\0\4\0\a4\0\0\0%\1\1\0>\0\2\0027\0\2\0003\1\3\0>\0\2\1G\0\1\0\1\0\1\19mappings_style\rsandwich\nsetup\rsurround\frequire\0", "config", "surround.nvim")
 time([[Config for surround.nvim]], false)
--- Config for: which-key.nvim
-time([[Config for which-key.nvim]], true)
-try_loadstring("\27LJ\1\2;\0\0\2\0\3\0\a4\0\0\0%\1\1\0>\0\2\0027\0\2\0002\1\0\0>\0\2\1G\0\1\0\nsetup\14which-key\frequire\0", "config", "which-key.nvim")
-time([[Config for which-key.nvim]], false)
+-- Config for: nvim-colorizer.lua
+time([[Config for nvim-colorizer.lua]], true)
+try_loadstring("\27LJ\1\0027\0\0\2\0\3\0\0064\0\0\0%\1\1\0>\0\2\0027\0\2\0>\0\1\1G\0\1\0\nsetup\14colorizer\frequire\0", "config", "nvim-colorizer.lua")
+time([[Config for nvim-colorizer.lua]], false)
 -- Config for: neoscroll.nvim
 time([[Config for neoscroll.nvim]], true)
 try_loadstring("\27LJ\1\0027\0\0\2\0\3\0\0064\0\0\0%\1\1\0>\0\2\0027\0\2\0>\0\1\1G\0\1\0\nsetup\14neoscroll\frequire\0", "config", "neoscroll.nvim")
@@ -391,6 +400,10 @@ time([[Config for switch.vim]], false)
 time([[Config for zen-mode.nvim]], true)
 try_loadstring("\27LJ\1\2:\0\0\2\0\3\0\a4\0\0\0%\1\1\0>\0\2\0027\0\2\0002\1\0\0>\0\2\1G\0\1\0\nsetup\rzen-mode\frequire\0", "config", "zen-mode.nvim")
 time([[Config for zen-mode.nvim]], false)
+-- Config for: nvim-neoclip.lua
+time([[Config for nvim-neoclip.lua]], true)
+try_loadstring('\27LJ\1\2_\0\0\3\0\6\0\t4\0\0\0%\1\1\0>\0\2\0027\0\2\0003\1\4\0003\2\3\0:\2\5\1>\0\2\1G\0\1\0\21default_register\1\0\0\1\4\0\0\6"\6+\6*\nsetup\fneoclip\frequire\0', "config", "nvim-neoclip.lua")
+time([[Config for nvim-neoclip.lua]], false)
 vim.cmd [[augroup packer_load_aucmds]]
 vim.cmd [[au!]]
   -- Filetype lazy-loads

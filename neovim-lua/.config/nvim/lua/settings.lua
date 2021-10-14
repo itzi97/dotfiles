@@ -1,64 +1,54 @@
--- TODO: Must have
-vim.o.filetype = 'on'
--- vim.o.plugin = 'on'
--- vim.o.indent = 'on'
+vim.opt.filetype = 'on'
 
 -- General settings
-vim.o.hidden = true
-vim.o.showmatch = true
-vim.o.showmode = false
-vim.o.conceallevel = 2
-vim.o.scrolloff = 5
-vim.o.ruler = true
-vim.o.modeline = true
+vim.opt.hidden = true
+vim.opt.showmatch = true
+vim.opt.showmode = false
+vim.opt.conceallevel = 2
+vim.opt.scrolloff = 5
+vim.opt.ruler = true
+vim.opt.modeline = true
 
 -- Font
-vim.o.guifont = "FiraCode Nerd Font 10"
+vim.opt.guifont = "FiraCode Nerd Font 10"
 
 -- Wrap
-vim.o.textwidth = 80
-vim.o.wrap = true
-vim.o.whichwrap = vim.o.whichwrap .. "<,>,[,],h,l"
-vim.o.showbreak = "﬌"
+vim.opt.textwidth = 80
+vim.opt.wrap = true
+vim.opt.whichwrap = vim.o.whichwrap .. "<,>,[,],h,l"
+vim.opt.showbreak = "﬌"
 
 -- Always show sign column
-vim.wo.signcolumn = "yes"
-vim.wo.colorcolumn = tostring(vim.o.textwidth + 1)
-vim.o.signcolumn = vim.wo.signcolumn
-vim.o.colorcolumn = vim.wo.colorcolumn
+vim.opt.signcolumn = "yes"
+vim.opt.colorcolumn = tostring(vim.o.textwidth + 1)
 
 -- Set completion sources
-vim.o.completeopt = "menuone,noselect"
+vim.opt.completeopt = "menuone,noselect"
 
 -- Folding
-vim.wo.foldmethod = "marker"
+vim.opt.foldmethod = "marker"
 
 -- Splitting
 
 -- Set tabsize
-vim.bo.tabstop = 2
-vim.bo.shiftwidth = 2
-vim.bo.expandtab = true
-vim.o.tabstop = vim.bo.tabstop
-vim.o.shiftwidth = vim.bo.shiftwidth
-vim.o.expandtab = vim.bo.expandtab
+vim.opt.tabstop = 2
+vim.opt.shiftwidth = 2
+vim.opt.expandtab = true
 
 -- Indent
-vim.o.smarttab = true
-vim.o.smartindent = true
-vim.o.autoindent = true
+vim.opt.smarttab = true
+vim.opt.smartindent = true
+vim.opt.autoindent = true
 
 -- Set list characters
-vim.wo.list = true
-vim.wo.listchars = 'tab:» ,trail:·,eol:↴,nbsp:⍽'
-vim.o.list = vim.wo.list
-vim.o.listchars = vim.wo.listchars
+-- vim.wo.list = true
+vim.opt.list = true
+vim.opt.listchars:append("tab:» ,")
+vim.opt.listchars:append("trail:·,")
+vim.opt.listchars:append("nbsp:⍽,")
+vim.opt.listchars:append("space:⋅")
+vim.opt.listchars:append("eol:↴")
 
 -- Set line number
-vim.wo.number = true
-vim.wo.relativenumber = true
-vim.o.number = vim.wo.number
-vim.o.relativenumber = vim.wo.relativenumber
-
--- Clipboard
-vim.o.clipboard = "unnamedplus"
+vim.opt.number = true
+vim.opt.relativenumber = true

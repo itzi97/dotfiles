@@ -35,7 +35,7 @@ require('material').setup({
     "NvimTree", -- File managertree.nvim
     "dashboard", -- Init dashboard
     "packer", -- Darker packer background
-    -- "terminal", -- Darker flaoterm background
+    "terminal", -- Darker flaoterm background
     "qf" -- Darker qf list background
   },
 

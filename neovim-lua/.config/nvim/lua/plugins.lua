@@ -103,6 +103,13 @@ return require'packer'.startup(function()
   -- Star wars
   use {"mattn/vim-starwars"}
 
+  -- Spelling
+  use {
+    'lewis6991/spellsitter.nvim',
+    requires = {'nvim-treesitter/nvim-treesitter'},
+    config = function() require'spellsitter'.setup() end
+  }
+
   -- Discord rich presence
   use {"aurieh/discord.nvim", run = ":UpdateRemotePlugins"}
 
@@ -120,10 +127,8 @@ return require'packer'.startup(function()
   -- Comment bindings
   use "preservim/nerdcommenter"
 
-  -- TODO: Other terminal pluign, toggleterm.nvim
   -- Floating terminal
-  -- use "voldikss/vim-floaterm"
-  use "numtostr/FTerm.nvim"
+  use "akinsho/toggleterm.nvim"
 
   -- Switch
   use {
@@ -135,22 +140,15 @@ return require'packer'.startup(function()
   }
 
   -- Which key
-  use {
-    "folke/which-key.nvim",
-    config = function() require("which-key").setup {} end
-  }
+  use "folke/which-key.nvim"
 
   -- ORG Mode Vim
   use {"nvim-neorg/neorg", ft = "norg", requires = "nvim-lua/plenary.nvim"}
 
   -- Databases
-  use {
-    "kristijanhusak/vim-dadbod-ui",
-    -- config = function() vim.g.dbs = {test = "mongodb:///test"} end,
-    requires = "tpope/vim-dadbod"
-  }
+  use {"kristijanhusak/vim-dadbod-ui", requires = "tpope/vim-dadbod"}
 
-  -- Speed up neovim
+  -- Speed up Neovim
   use "lewis6991/impatient.nvim"
 
   -- Debugger
@@ -162,17 +160,26 @@ return require'packer'.startup(function()
     }
   }
 
+  -- Clip register
+  use {
+    "AckslD/nvim-neoclip.lua",
+    config = function()
+      require('neoclip').setup({default_register = {'"', '+', '*'}})
+    end
+  }
+
   -- }}}
 
   -- {{{ Aesthetic
 
-  -- Colorscheme
+  -- Color scheme
   -- use "sainnhe/sonokai"
   use 'marko-cerovac/material.nvim'
+
+  -- Better highlighting and colors
   use {"nvim-treesitter/nvim-treesitter", run = ":TSUpdate"}
 
-  -- Indent guidelines
-  -- use "glepnir/indent-guides.nvim"
+  -- Indent guides
   use {
     "lukas-reineke/indent-blankline.nvim",
     config = function()
@@ -191,7 +198,7 @@ return require'packer'.startup(function()
   use {
     "folke/todo-comments.nvim",
     requires = "nvim-lua/plenary.nvim",
-    config = function() require("todo-comments").setup {} end
+    config = function() require'todo-comments'.setup {} end
   }
 
   -- Zen Mode
@@ -210,11 +217,17 @@ return require'packer'.startup(function()
   -- Scroll
   use {
     'karb94/neoscroll.nvim',
-    config = function() require('neoscroll').setup() end
+    config = function() require'neoscroll'.setup() end
   }
 
   -- Highlighting
   use 'yamatsum/nvim-cursorline'
+
+  -- Colorizer
+  use {
+    "norcalli/nvim-colorizer.lua",
+    config = function() require'colorizer'.setup() end
+  }
 
   -- }}}
 
