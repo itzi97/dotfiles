@@ -107,7 +107,9 @@ return require'packer'.startup(function()
   use {
     'lewis6991/spellsitter.nvim',
     requires = {'nvim-treesitter/nvim-treesitter'},
-    config = function() require'spellsitter'.setup() end
+    config = function()
+      require'spellsitter'.setup {captures = {"comment", "text"}}
+    end
   }
 
   -- Discord rich presence
@@ -143,7 +145,11 @@ return require'packer'.startup(function()
   use "folke/which-key.nvim"
 
   -- ORG Mode Vim
-  use {"nvim-neorg/neorg", ft = "norg", requires = "nvim-lua/plenary.nvim"}
+  use {
+    "nvim-neorg/neorg",
+    ft = "norg",
+    requires = {"nvim-lua/plenary.nvim", opt = true}
+  }
 
   -- Databases
   use {"kristijanhusak/vim-dadbod-ui", requires = "tpope/vim-dadbod"}
@@ -210,8 +216,8 @@ return require'packer'.startup(function()
   -- Git
   use {
     "lewis6991/gitsigns.nvim",
-    requires = "nvim-lua/plenary.nvim",
-    config = function() require'gitsigns'.setup() end
+    config = function() require'gitsigns'.setup() end,
+    requires = {"nvim-lua/plenary.nvim", opt = true}
   }
 
   -- Scroll
