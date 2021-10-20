@@ -60,6 +60,7 @@ local dpi = require("beautiful.xresources").apply_dpi
 local xrandr = require 'confs/xrandr'
 
 -- {{{ Error handling
+
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
 if awesome.startup_errors then
@@ -129,15 +130,91 @@ end
 
 -- {{{ Wibar
 
+-- Declarative object management
+local bling = require("modules.bling")
+
+bling.widget.tag_preview.enable {
+  show_client_content = true,
+  x = 0,
+  y = 0,
+  scale = 0.25,
+  honor_padding = false,
+  honor_workarea = false,
+  placement_fn = function(c)
+    awful.placement.bottom_left(c, {margins = {bottom = 40, left = 30}})
+  end
+}
+
+bling.widget.task_preview.enable {
+  x = dpi(20),
+  y = dpi(20),
+  height = dpi(200),
+  width = dpi(200),
+  placement_fn = function(c)
+    awful.placement.bottom(c, {margins = {bottom = dpi(40)}})
+  end
+}
+
 -- {{{ Declaring different widgets
 
--- Text clock
-local mytextclock = wibox.widget.textclock()
-mytextclock.format = " %a %b %d  %H:%M:%S"
-local mycal = lain.widget.cal {attach_to = {mytextclock}}
+-- {{{ Clock
+local clock = wibox.widget.textclock()
+clock.format = " %a %b %d  %H:%M:%S"
+
+local clock_container = {
+  clock,
+  left = dpi(2),
+  right = dpi(2),
+  bg = beautiful.bg_systray,
+  widget = wibox.container.margin
+}
+
+local final_clock = wibox.widget {
+  {
+    clock_container,
+    top = dpi(4),
+    bottom = dpi(4),
+    left = dpi(2),
+    right = dpi(2),
+    layout = wibox.container.margin
+  },
+  bg = beautiful.bg_systray,
+  shape = gears.shape.rounded_rect,
+  widget = wibox.container.background
+}
+
+local mycal = lain.widget.cal {attach_to = {clock}}
+
+-- }}}
+
+-- {{{ Volume
 
 -- Add volume widget
 local volume = lain.widget.pulsebar()
+
+local volume_container = {
+  volume.widget,
+  left = dpi(2),
+  right = dpi(2),
+  bg = beautiful.bg_systray,
+  widget = wibox.container.margin
+}
+
+local final_volume = {
+  {
+    volume_container,
+    top = dpi(4),
+    bottom = dpi(4),
+    left = dpi(2),
+    right = dpi(2),
+    layout = wibox.container.margin
+  },
+  bg = beautiful.bg_systray,
+  shape = gears.shape.rounded_rect,
+  widget = wibox.container.background
+}
+
+-- }}}
 
 -- Add weather widget
 local myweather = lain.widget.weather {
@@ -153,8 +230,34 @@ local myweather = lain.widget.weather {
   end
 }
 
--- Add systray widget
-local mysystray = wibox.widget.systray {forced_height = dpi(16)}
+-- }}}
+
+-- {{{ Systray
+
+local mysystray = wibox.widget.systray()
+mysystray:set_base_size(beautiful.systray_icon_size)
+
+local systray_container = {
+  mysystray,
+  left = dpi(2),
+  right = dpi(2),
+  bg = beautiful.bg_systray,
+  widget = wibox.container.margin
+}
+
+local final_systray = wibox.widget {
+  {
+    systray_container,
+    top = dpi(4),
+    bottom = dpi(4),
+    left = dpi(2),
+    right = dpi(2),
+    layout = wibox.container.margin
+  },
+  bg = beautiful.bg_systray,
+  shape = gears.shape.rounded_rect,
+  widget = wibox.container.background
+}
 
 -- }}}
 
@@ -231,7 +334,7 @@ awful.screen.connect_for_each_screen(function(s)
       -- shape = gears.shape.powerline,
       spacing = dpi(2),
       squares_resize = true,
-      font = "Hack Nerd Font Mono 12",
+      font = "Hack Nerd Font Mono 14",
       disable_icon = true
     },
     buttons = taglist_buttons
@@ -248,7 +351,8 @@ awful.screen.connect_for_each_screen(function(s)
           forced_width = dpi(2),
           forced_height = dpi(16),
           thickness = 1,
-          color = '#777777',
+          color = beautiful.border_normal,
+          border_color = beautiful.border_normal,
           widget = wibox.widget.separator
         },
         valign = 'center',
@@ -280,25 +384,37 @@ awful.screen.connect_for_each_screen(function(s)
     }
   }
   -- Create the wibox
-  s.mywibox = awful.wibar({position = "top", screen = s, height = dpi(26)})
+  s.mywibox = awful.wibar({
+    position = "top",
+    screen = s,
+    height = dpi(28),
+    opacity = 0.9
+  })
 
   -- Add widgets to the wibox
   s.mywibox:setup{
     layout = wibox.layout.align.horizontal,
+    expand = "none",
     { -- Left widgets
       layout = wibox.layout.fixed.horizontal,
       mylauncher,
-      s.mytaglist,
-      s.mypromptbox
+      s.mypromptbox,
+      wibox.layout.margin(s.mytaglist, dpi(0), dpi(0), dpi(0), dpi(0))
     },
-    s.mytasklist, -- Middle widget
+    {
+      layout = wibox.layout.fixed.horizontal,
+      {
+        wibox.layout.margin(s.mytasklist, dpi(0), dpi(0), dpi(0), dpi(0)),
+        widget = wibox.container.background
+      }
+    },
     { -- Right widgets
       layout = wibox.layout.fixed.horizontal,
-      mysystray,
+      final_systray,
       myweather.icon,
       myweather.widget,
-      volume.widget,
-      mytextclock,
+      final_volume,
+      final_clock,
       s.mylayoutbox
     }
   }
@@ -449,7 +565,14 @@ end, {description = "(un)maximize vertically", group = "client"}),
                               awful.key({modkey, "Shift"}, "m", function(c)
   c.maximized_horizontal = not c.maximized_horizontal
   c:raise()
-end, {description = "(un)maximize horizontally", group = "client"}))
+end, {description = "(un)maximize horizontally", group = "client"}),
+                              awful.key({}, "XF86AudioRaiseVolume", function()
+  awful.util.spawn("amixer set Master 5%+")
+end), awful.key({}, "XF86AudioLowerVolume",
+                function() awful.util.spawn("amixer set Master 5%-") end),
+                              awful.key({}, "XF86AudioMute", function()
+  awful.util.spawn("amixer sset Master toggle")
+end))
 
 -- Bind all key numbers to tags.
 -- Be careful: we use keycodes to make it work on any keyboard layout.
