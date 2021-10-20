@@ -9,4 +9,6 @@ function run {
 
 run picom --experimental-backends --config ~/.config/awesome/confs/picom.conf
 run nitrogen --restore
+run nm-applet
 run megasync
+run piactl

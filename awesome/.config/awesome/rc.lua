@@ -5,9 +5,42 @@ pcall(require, "luarocks.loader")
 -- Standard awesome library
 local gears = require("gears")
 local awful = require("awful")
+
+-- {{{ Variable definitions
+
+-- This is used later as the default terminal and editor to run.
+local terminal = "kitty"
+local editor = os.getenv("EDITOR") or "vim"
+local editor_cmd = terminal .. " -e " .. editor
+
+-- Default modkey.
+-- Usually, Mod4 is the key with a logo between Control and Alt.
+-- If you do not like this or do not have such a key,
+-- I suggest you to remap Mod4 to another key using xmodmap or other tools.
+-- However, you can use another modifier like Mod1, but it may interact with others.
+local modkey = "Mod4"
+
+-- Table of layouts to cover with awful.layout.inc, order matters.
+awful.layout.layouts = {
+  awful.layout.suit.tile, awful.layout.suit.floating,
+  -- awful.layout.suit.tile.left,
+  -- awful.layout.suit.tile.bottom,
+  -- awful.layout.suit.tile.top,
+  -- awful.layout.suit.fair, -- awful.layout.suit.fair.horizontal,
+  awful.layout.suit.spiral, -- awful.layout.suit.spiral.dwindle,
+  awful.layout.suit.max, awful.layout.suit.max.fullscreen,
+  awful.layout.suit.magnifier
+  -- awful.layout.suit.corner.nw,
+  -- awful.layout.suit.corner.ne,
+  -- awful.layout.suit.corner.sw,
+  -- awful.layout.suit.corner.se,
+}
+-- }}}
+
 require("awful.autofocus")
 -- Widget and layout library
 local wibox = require("wibox")
+local lain = require 'lain'
 -- Theme handling library
 local beautiful = require("beautiful")
 -- Notification library
@@ -18,7 +51,13 @@ local hotkeys_popup = require("awful.hotkeys_popup")
 -- when client with a matching name is opened:
 require("awful.hotkeys_popup.keys")
 
+-- Quake terminal
+local quake = lain.util.quake {app = terminal}
+
 local dpi = require("beautiful.xresources").apply_dpi
+
+-- Multiple monitors
+local xrandr = require 'confs/xrandr'
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -49,37 +88,6 @@ do
 end
 -- }}}
 
--- {{{ Variable definitions
-
--- This is used later as the default terminal and editor to run.
-terminal = "kitty"
-editor = os.getenv("EDITOR") or "vim"
-editor_cmd = terminal .. " -e " .. editor
-
--- Default modkey.
--- Usually, Mod4 is the key with a logo between Control and Alt.
--- If you do not like this or do not have such a key,
--- I suggest you to remap Mod4 to another key using xmodmap or other tools.
--- However, you can use another modifier like Mod1, but it may interact with others.
-modkey = "Mod4"
-
--- Table of layouts to cover with awful.layout.inc, order matters.
-awful.layout.layouts = {
-  awful.layout.suit.tile, awful.layout.suit.floating,
-  -- awful.layout.suit.tile.left,
-  -- awful.layout.suit.tile.bottom,
-  -- awful.layout.suit.tile.top,
-  -- awful.layout.suit.fair, -- awful.layout.suit.fair.horizontal,
-  awful.layout.suit.spiral, -- awful.layout.suit.spiral.dwindle,
-  awful.layout.suit.max, awful.layout.suit.max.fullscreen,
-  awful.layout.suit.magnifier
-  -- awful.layout.suit.corner.nw,
-  -- awful.layout.suit.corner.ne,
-  -- awful.layout.suit.corner.sw,
-  -- awful.layout.suit.corner.se,
-}
--- }}}
-
 -- {{{ Menu
 -- Create a launcher widget and a main menu
 myawesomemenu = {
@@ -107,10 +115,7 @@ mylauncher = awful.widget.launcher({
 menubar.utils.terminal = terminal -- Set the terminal for applications that require it
 -- }}}
 
--- Keyboard map indicator and switcher
-mykeyboardlayout = awful.widget.keyboardlayout()
-
--- {{{ Themeing
+-- {{{ Themes
 -- beautiful.init(gears.filesystem.get_configuration_dir() .. "/themes/default/theme.lua")
 local theme_path = string.format("%s/.config/awesome/themes/%s/theme.lua",
                                  os.getenv("HOME"), "zenburn")
@@ -123,8 +128,35 @@ end
 -- }}}
 
 -- {{{ Wibar
--- Create a textclock widget
-mytextclock = wibox.widget.textclock()
+
+-- {{{ Declaring different widgets
+
+-- Text clock
+local mytextclock = wibox.widget.textclock()
+mytextclock.format = " %a %b %d  %H:%M:%S"
+local mycal = lain.widget.cal {attach_to = {mytextclock}}
+
+-- Add volume widget
+local volume = lain.widget.pulsebar()
+
+-- Add weather widget
+local myweather = lain.widget.weather {
+  APPID = "bc24131df39ad1aeb37e222811bf3aaf",
+  city_id = 3112989,
+  weather_na_markup = "Loading weather...",
+  notification_text_fun = function(wn)
+    local day = os.date("%a %d", wn["dt"])
+    local temp = math.floor(wn["main"]["temp"])
+    local desc = wn["weather"][1]["description"]
+
+    return string.format("<b>%s</b>: %s, %dºC", day, desc, temp)
+  end
+}
+
+-- Add systray widget
+local mysystray = wibox.widget.systray {forced_height = dpi(16)}
+
+-- }}}
 
 -- Create a wibox for each screen and add it
 local taglist_buttons = gears.table.join(
@@ -169,6 +201,9 @@ screen.connect_signal("property::geometry", set_wallpaper)
 awful.screen.connect_for_each_screen(function(s)
   -- Wallpaper
   set_wallpaper(s)
+
+  -- Quake application
+  s.quake = lain.util.quake {app = terminal, argname = "--name %s", border = 0}
 
   -- Each screen has its own tag table.
   awful.tag({"", "", "", "ﭮ", "", "", "", "", ""}, s,
@@ -238,7 +273,7 @@ awful.screen.connect_for_each_screen(function(s)
         widget = wibox.container.margin
       },
       nil,
-      create_callback = function(self, c, index, objects) -- luacheck: no unused args
+      create_callback = function(self, c, index, objects)
         self:get_children_by_id('clienticon')[1].client = c
       end,
       layout = wibox.layout.align.vertical
@@ -259,8 +294,10 @@ awful.screen.connect_for_each_screen(function(s)
     s.mytasklist, -- Middle widget
     { -- Right widgets
       layout = wibox.layout.fixed.horizontal,
-      mykeyboardlayout,
-      wibox.widget.systray(),
+      mysystray,
+      myweather.icon,
+      myweather.widget,
+      volume.widget,
       mytextclock,
       s.mylayoutbox
     }
@@ -280,17 +317,19 @@ globalkeys = gears.table.join(awful.key({modkey}, "s", hotkeys_popup.show_help,
                                         {
   description = "show help",
   group = "awesome"
-}), awful.key({modkey}, "Left", awful.tag.viewprev,
-              {description = "view previous", group = "tag"}),
-                              awful.key({modkey}, "Right", awful.tag.viewnext, {
-  description = "view next",
+}), awful.key({modkey}, "m", function() xrandr.xrandr() end,
+              {description = "Switc monitor layout"}),
+                              awful.key({modkey}, "Left", awful.tag.viewprev, {
+  description = "view previous",
   group = "tag"
-}), awful.key({modkey}, "Escape", awful.tag.history.restore,
-              {description = "go back", group = "tag"}),
-
-                              awful.key({modkey}, "j", function()
-  awful.client.focus.byidx(1)
-end, {description = "focus next by index", group = "client"}),
+}), awful.key({modkey}, "Right", awful.tag.viewnext,
+              {description = "view next", group = "tag"}),
+                              awful.key({modkey}, "Escape",
+                                        awful.tag.history.restore, {
+  description = "go back",
+  group = "tag"
+}), awful.key({modkey}, "j", function() awful.client.focus.byidx(1) end,
+              {description = "focus next by index", group = "client"}),
                               awful.key({modkey}, "k", function()
   awful.client.focus.byidx(-1)
 end, {description = "focus previous by index", group = "client"}),
@@ -359,9 +398,8 @@ end, {description = "decrease the number of columns", group = "layout"}),
     c:emit_signal("request::activate", "key.unminimize", {raise = true})
   end
 end, {description = "restore minimized", group = "client"}), -- Prompt
-awful.key({modkey}, "r",
-          function() awful.screen.focused().mypromptbox:run() end,
-          {description = "run prompt", group = "launcher"}),
+awful.key({modkey}, "r", function() awful.screen.focused().quake:toggle() end,
+          {description = "quake terminal", group = "launcher"}),
 
                               awful.key({modkey}, "x", function()
   awful.prompt.run {
@@ -371,8 +409,9 @@ awful.key({modkey}, "r",
     history_path = awful.util.get_cache_dir() .. "/history_eval"
   }
 end, {description = "lua execute prompt", group = "awesome"}), -- Menubar
-awful.key({modkey}, "p", function() menubar.show() end,
-          {description = "show the menubar", group = "launcher"}))
+awful.key({modkey}, "p", function()
+  awful.spawn.with_shell("sh ~/.config/rofi/launchers/colorful/launcher.sh")
+end, {description = "run rofi", group = "launcher"}))
 
 clientkeys = gears.table.join(awful.key({modkey}, "f", function(c)
   c.fullscreen = not c.fullscreen
