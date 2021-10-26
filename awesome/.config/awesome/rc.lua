@@ -54,10 +54,17 @@ require("awful.hotkeys_popup.keys")
 -- Quake terminal
 local quake = lain.util.quake {app = terminal}
 
+-- Get dpi
 local dpi = require("beautiful.xresources").apply_dpi
 
 -- Multiple monitors
 local xrandr = require 'confs/xrandr'
+
+-- A couple global variables
+local client = client
+local root = root
+local screen = screen
+local awesome = awesome
 
 -- {{{ Error handling
 
@@ -91,7 +98,7 @@ end
 
 -- {{{ Menu
 -- Create a launcher widget and a main menu
-myawesomemenu = {
+local myawesomemenu = {
   {
     "hotkeys",
     function() hotkeys_popup.show_help(nil, awful.screen.focused()) end
@@ -100,14 +107,14 @@ myawesomemenu = {
   {"restart", awesome.restart}, {"quit", function() awesome.quit() end}
 }
 
-mymainmenu = awful.menu({
+local mymainmenu = awful.menu({
   items = {
     {"awesome", myawesomemenu, beautiful.awesome_icon},
     {"open terminal", terminal}
   }
 })
 
-mylauncher = awful.widget.launcher({
+local mylauncher = awful.widget.launcher({
   image = beautiful.awesome_icon,
   menu = mymainmenu
 })
@@ -326,12 +333,13 @@ awful.screen.connect_for_each_screen(function(s)
                                          function() awful.layout.inc(1) end),
                             awful.button({}, 5,
                                          function() awful.layout.inc(-1) end)))
-  -- Create a taglist widget
+  -- {{{ Tag list
+
+  -- Tag list widget, lists workspaces
   s.mytaglist = awful.widget.taglist {
     screen = s,
     filter = awful.widget.taglist.filter.all,
     style = {
-      -- shape = gears.shape.powerline,
       spacing = dpi(2),
       squares_resize = true,
       font = "Hack Nerd Font Mono 14",
@@ -339,8 +347,10 @@ awful.screen.connect_for_each_screen(function(s)
     },
     buttons = taglist_buttons
   }
+  -- }}}
 
-  -- Create a tasklist widget
+  -- {{{ Task list
+  -- Task list widget, current programs
   s.mytasklist = awful.widget.tasklist {
     screen = s,
     filter = awful.widget.tasklist.filter.currenttags,
@@ -351,8 +361,8 @@ awful.screen.connect_for_each_screen(function(s)
           forced_width = dpi(2),
           forced_height = dpi(16),
           thickness = 1,
-          color = beautiful.border_normal,
-          border_color = beautiful.border_normal,
+          color = beautiful.bg_normal,
+          border_color = beautiful.bg_normal,
           widget = wibox.widget.separator
         },
         valign = 'center',
@@ -383,12 +393,16 @@ awful.screen.connect_for_each_screen(function(s)
       layout = wibox.layout.align.vertical
     }
   }
+  -- }}}
+
   -- Create the wibox
   s.mywibox = awful.wibar({
     position = "top",
     screen = s,
     height = dpi(28),
     opacity = 0.9
+    -- border_width = dpi(2),
+    -- border_color = beautiful.border_focus
   })
 
   -- Add widgets to the wibox
@@ -483,10 +497,10 @@ awful.key({modkey}, "Return", function() awful.spawn(terminal) end,
               {description = "quit awesome", group = "awesome"}),
 
                               awful.key({modkey}, "l", function()
-  awful.tag.incmwfact(0.05)
+  awful.tag.incmwfact(0.01)
 end, {description = "increase master width factor", group = "layout"}),
                               awful.key({modkey}, "h", function()
-  awful.tag.incmwfact(-0.05)
+  awful.tag.incmwfact(-0.01)
 end, {description = "decrease master width factor", group = "layout"}),
                               awful.key({modkey, "Shift"}, "h", function()
   awful.tag.incnmaster(1, nil, true)
@@ -736,6 +750,20 @@ client.connect_signal("focus",
                       function(c) c.border_color = beautiful.border_focus end)
 client.connect_signal("unfocus",
                       function(c) c.border_color = beautiful.border_normal end)
+
+screen.connect_signal("arrange", function(s)
+  local max = s.selected_tag.layout.name == "max"
+  local only_one = #s.tiled_clients == 1
+  -- use tiled_clients so that other floating windows don't affect the count
+  -- but iterate over clients instead of tiled_clients as tiled_clients doesn't include maximized windows
+  for _, c in pairs(s.clients) do
+    if (max or only_one) and not c.floating or c.maximized then
+      c.border_width = 0
+    else
+      c.border_width = beautiful.border_width
+    end
+  end
+end)
 -- }}}
 
 -- {{{ Autostart

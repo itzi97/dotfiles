@@ -19,7 +19,7 @@ ncmpcpp_directory = ~/.config/ncmpcpp
 ## MPD clients (eg. ncmpc) also use that location.
 ##
 #
-#lyrics_directory = ~/.lyrics
+lyrics_directory = ~/.lyrics
 #
 ##### connection settings #####
 #
@@ -98,7 +98,7 @@ visualizer_in_stereo = yes
 #
 ## Available values: spectrum, wave, wave_filled, ellipse.
 ##
-visualizer_type = spectrum
+visualizer_type = ellipse
 #
 visualizer_fps = 60
 #
@@ -110,8 +110,9 @@ visualizer_look = ●▮
 #
 ## Alternative subset of 256 colors for terminals that support it.
 ##
-visualizer_color = 47, 83, 119, 155, 191, 227, 221, 215, 209, 203, 197, 161
+#visualizer_color = 47, 83, 119, 155, 191, 227, 221, 215, 209, 203, 197, 161
 #visualizer_color = 196, 202, 203, 208, 214, 160, 161, 124, 88, 52, 9, 1
+visualizer_color = 53, 55, 56, 57, 60, 61, 62, 63, 105, 99, 104, 103
 #
 ##
 ## Note: The next few visualization options apply to the spectrum visualizer.
@@ -122,7 +123,7 @@ visualizer_color = 47, 83, 119, 155, 191, 227, 221, 215, 209, 203, 197, 161
 ## and visualizer_in_stereo set, artifacts may be visible on the bottom half of
 ## the visualization.
 #
-visualizer_spectrum_smooth_look = no
+visualizer_spectrum_smooth_look = yes
 #
 ## A value between 1 and 5 inclusive. Specifying a larger value makes the
 ## visualizer look at a larger slice of time, which results in less jumpy
@@ -232,7 +233,8 @@ visualizer_spectrum_hz_max = 20000
 ## Note: colors can be nested.
 ##
 #
-#song_list_format = {%a - }{%t}|{$8%f$9}$R{$3%l$9}
+# song_list_format = {%a - }{%t}|{$8%f$9}$R{$3%l$9}
+song_list_format = "{$8(%l)$9 }{%a - }{%t}|{$8%f$9}"
 #
 #song_status_format = {{%a{ "%b"{ (%y)}} - }{%t}}|{%f}
 #
@@ -527,7 +529,7 @@ media_library_primary_tag = album_artist
 #
 #search_engine_default_search_mode = 1
 #
-#external_editor = nano
+external_editor = nvim
 #
 ## Note: set to yes if external editor is a console application.
 ##

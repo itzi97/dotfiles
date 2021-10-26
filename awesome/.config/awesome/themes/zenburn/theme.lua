@@ -18,7 +18,7 @@ theme.fg_normal = "#c6c8d1"
 theme.fg_focus = "#161821"
 theme.fg_urgent = "#FF5250"
 theme.bg_normal = "#161821"
-theme.bg_focus = "#00BCD4"
+theme.bg_focus = "#7a5ccc"
 theme.bg_urgent = theme.bg_normal
 theme.bg_systray = theme.bg_normal
 -- }}}
@@ -28,8 +28,8 @@ theme.bg_systray = theme.bg_normal
 theme.useless_gap = dpi(4)
 theme.border_width = dpi(2)
 theme.border_normal = theme.bg_normal
-theme.border_focus = theme.bg_focus
-theme.border_marked = theme.bg_urgent
+theme.border_focus = "#7a5ccc"
+theme.border_marked = "#FF5250"
 
 -- }}}
 
@@ -48,7 +48,8 @@ theme.titlebar_bg_normal = theme.bg_normal
 -- tooltip_[font|opacity|fg_color|bg_color|border_width|border_color]
 -- Example:
 -- theme.taglist_bg_focus = "#CC9393"
-theme.gap_single_client = true
+theme.gap_single_client = false
+
 -- }}}
 
 -- {{{ Widgets
