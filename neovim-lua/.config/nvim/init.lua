@@ -1,5 +1,5 @@
 -- Load impatient first
-require 'impatient'
+-- require 'impatient'
 
 -- Source plugins
 require 'plugins'

@@ -52,6 +52,10 @@ require("formatter").setup({
         }
       end
     },
+    python = {
+      -- yapf
+      function() return {exe = "yapf", stdin = true} end
+    },
     tex = {
       -- latexindent
       function() return {exe = "latexindent", args = {""}, stdin = true} end
@@ -62,6 +66,6 @@ require("formatter").setup({
 vim.api.nvim_exec([[
   augroup FormatAutogroup
     autocmd!
-    autocmd BufWritePost *.js,*.rs,*.lua,*.tex,*.go,*.cpp,*.h,*.cxx FormatWrite
+    autocmd BufWritePost *.js,*.rs,*.lua,*.tex,*.go,*.cpp,*.h,*.cxx,*.py FormatWrite
   augroup END
 ]], true)

@@ -104,13 +104,13 @@ return require'packer'.startup(function()
   use {"mattn/vim-starwars"}
 
   -- Spelling
-  use {
-    'lewis6991/spellsitter.nvim',
-    requires = {'nvim-treesitter/nvim-treesitter'},
-    config = function()
-      require'spellsitter'.setup {captures = {"comment", "text"}}
-    end
-  }
+  --use {
+    --'lewis6991/spellsitter.nvim',
+    --requires = {'nvim-treesitter/nvim-treesitter'},
+    --config = function()
+      --require'spellsitter'.setup {captures = {"comment", "text"}}
+    --end
+  --}
 
   -- Discord rich presence
   use {"aurieh/discord.nvim", run = ":UpdateRemotePlugins"}
