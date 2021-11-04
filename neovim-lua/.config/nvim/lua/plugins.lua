@@ -50,7 +50,8 @@ return require'packer'.startup(function()
     requires = {
       'hrsh7th/cmp-nvim-lsp', 'hrsh7th/cmp-buffer', 'ray-x/cmp-treesitter',
       'quangnguyen30192/cmp-nvim-ultisnips', -- 'kdheepak/cmp-latex-symbols',
-      'hrsh7th/cmp-path', 'kristijanhusak/vim-dadbod-completion'
+      'hrsh7th/cmp-path', 'kristijanhusak/vim-dadbod-completion',
+      {'tzachar/cmp-tabnine', run='./install.sh', requires = 'hrsh7th/nvim-cmp'}
     }
   }
 

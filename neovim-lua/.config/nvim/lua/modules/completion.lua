@@ -38,6 +38,7 @@ cmp.setup({
         luasnip = "[LuaSnip]",
         ultisnips = "[UltiSnips]",
         nvim_lua = "[Lua]",
+        cmp_tabnine = "[Tabnine]",
         treesitter = "[Treesitter]",
         latex_symbols = "[Latex]"
       })[entry.source.name]
@@ -77,7 +78,7 @@ cmp.setup({
   },
   sources = {
     {name = 'nvim_lsp'}, {name = 'ultisnips'}, {name = 'buffer'},
-    {name = 'treesitter'}, -- {name = "latex_symbols"}, 
+    {name = 'treesitter'}, { name = 'cmp_tabnine' }, -- {name = "latex_symbols"}, 
     {name = "path"}, {name = 'vim-dadbod-completion'}, {name = "neorg"}
   }
 })
