@@ -122,12 +122,12 @@ colors
 # {{{ Theme
 
 autoload -U promptinit; promptinit
-prompt spaceship
+# prompt spaceship
 
 # Spaceship
 export SPACESHIP_USER_SHOW=always
 export SPACESHIP_HOST_SHOW=always
-eval spaceship_vi_mode_enable
+# eval spaceship_vi_mode_enable
 #export SPACESHIP_PROMPT_SEPARATE_LINE=false
 export SPACESHIP_TIME_SHOW=true
 
@@ -231,8 +231,8 @@ function command_not_found_handler() {
 
 # }}}
 
-if [ -e /home/itziar/.nix-profile/etc/profile.d/nix.sh ]; then 
-  . /home/itziar/.nix-profile/etc/profile.d/nix.sh; 
+if [ -e /home/itziar/.nix-profile/etc/profile.d/nix.sh ]; then
+  . /home/itziar/.nix-profile/etc/profile.d/nix.sh;
 fi # added by Nix installer
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.

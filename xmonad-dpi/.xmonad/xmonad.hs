@@ -126,12 +126,12 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) =
     -- launch a terminal
   [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
     -- launch dmenu
-  , ((modm, xK_p), spawn "~/.config/rofi/bin/launcher_colorful")
+  , ((modm, xK_p), spawn "~/.config/rofi/launchers/type-6/launcher.sh" )
     -- launch command runner
     --, ((modm,               xK_r     ), spawn "~/.xmonad/confs/rofi/launchers/text/launcher.sh")
   , ((modm, xK_r), namedScratchpadAction myScratchPads "terminal")
     -- launch powermenu
-  , ((modm .|. shiftMask, xK_p), spawn "~/.config/rofi/bin/powermenu")
+  , ((modm .|. shiftMask, xK_p), spawn "~/.config/rofi/powermenu/type-6/powermenu.sh")
     -- close focused window
   , ((modm .|. shiftMask, xK_c), kill)
      -- Rotate through the available layout algorithms
