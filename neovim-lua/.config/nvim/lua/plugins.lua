@@ -1,277 +1,101 @@
-vim.cmd [[ packadd packer.nvim ]]
-vim.cmd [[ autocmd BufWritePost plugins.lua PackerCompile ]]
+-- This file can be loaded by calling 'lua require('plugins')' from your init.vim
 
--- {{{ Ensure packer.nvim
+-- Only required if you have packer configured as `opt`
+vim.cmd([[packadd packer.nvim]])
 
-local execute = vim.api.nvim_command
-local fn = vim.fn
+return require("packer").startup(function(use) -- Packer can manage itself
+	use("wbthomason/packer.nvim")
 
-local install_path = fn.stdpath('data') .. '/site/pack/packer/opt/packer.nvim'
+	-- {{{ LSP Capabilities
 
-if fn.empty(fn.glob(install_path)) > 0 then
-  execute('!git clone https://github.com/wbthomason/packer.nvim ' ..
-              install_path)
-  execute 'packadd packer.nvim'
-end
+	-- Treesitter support
+	use({ "nvim-treesitter/nvim-treesitter", run = ":TSUpdate" })
 
--- }}}
+	-- Autoformatting
+	use({ "mhartington/formatter.nvim" })
 
-return require'packer'.startup(function()
-  local use = require'packer'.use
+	use({
+		"VonHeikemen/lsp-zero.nvim",
+		branch = "v1.x",
+		requires = {
+			-- LSP Support
+			{ "neovim/nvim-lspconfig" }, -- Required
+			{ "williamboman/mason.nvim" }, -- Optional
+			{ "williamboman/mason-lspconfig.nvim" }, -- Optional
 
-  -- Packer can manage itself as an optional plugin
-  use {"wbthomason/packer.nvim", opt = true}
+			-- Autocompletion
+			{ "hrsh7th/nvim-cmp" }, -- Required
+			{ "hrsh7th/cmp-nvim-lsp" }, -- Required
+			{ "hrsh7th/cmp-buffer" }, -- Optional
+			{ "hrsh7th/cmp-path" }, -- Optional
+			{ "saadparwaiz1/cmp_luasnip" }, -- Optional
+			{ "hrsh7th/cmp-nvim-lua" }, -- Optional
 
-  -- {{{ IDE Like features
+			-- Snippets
+			{ "L3MON4D3/LuaSnip" }, -- Required
+			{ "rafamadriz/friendly-snippets" }, -- Optional
+		},
+	})
 
-  -- Completion
-  -- use "hrsh7th/nvim-compe"
+	-- }}}
 
-  -- Snippets
-  use {"SirVer/ultisnips", requires = {"honza/vim-snippets"}}
+	-- {{{ Languages
 
-  -- LSP
-  use {
-    "neovim/nvim-lspconfig",
-    requires = {
-      "onsails/lspkind-nvim", "glepnir/lspsaga.nvim",
-      "nvim-lua/lsp_extensions.nvim", "nvim-lua/lsp-status.nvim",
-      "folke/lsp-colors.nvim", {
-        "weilbith/nvim-code-action-menu",
-        use = 'CodeActionMenu',
-        requires = "kosayoda/nvim-lightbulb"
-      } -- {'RishabhRD/nvim-lsputils', requires = 'RishabhRD/popfix'}
-    }
-  }
+	-- LaTeX
+	use("lervag/vimtex")
 
-  -- Completion
-  use {
-    "hrsh7th/nvim-cmp",
-    requires = {
-      'hrsh7th/cmp-nvim-lsp', 'hrsh7th/cmp-buffer', 'ray-x/cmp-treesitter',
-      'quangnguyen30192/cmp-nvim-ultisnips', -- 'kdheepak/cmp-latex-symbols',
-      'hrsh7th/cmp-path', 'kristijanhusak/vim-dadbod-completion',
-      {'tzachar/cmp-tabnine', run='./install.sh', requires = 'hrsh7th/nvim-cmp'}
-    }
-  }
+	-- }}}
 
-  -- Further diagnostics
-  use {
-    "folke/trouble.nvim",
-    requires = "kyazdani42/nvim-web-devicons",
-    config = function() require("trouble").setup {} end
-  }
+	-- {{{ Utils
+	use({
+		"folke/which-key.nvim",
+		config = function()
+			vim.o.timeout = true
+			vim.o.timeoutlen = 300
+			require("which-key").setup({
+				-- your configuration comes here
+				-- or leave it empty to use the default settings
+				-- refer to the configuration section below
+			})
+		end,
+	})
 
-  -- }}}
+	use({
+		"numToStr/Comment.nvim",
+		config = function()
+			require("Comment").setup()
+		end,
+	})
+	-- }}}
 
-  -- {{{ Languages
+	-- {{{ Menus and UI
 
-  -- Polyglot
-  use "sheerun/vim-polyglot"
+	use({
+		"tanvirtin/vgit.nvim",
+		requires = {
+			"nvim-lua/plenary.nvim",
+		},
+	})
 
-  -- C++
-  use "jackguo380/vim-lsp-cxx-highlight"
+	-- Tree
+	use({
+		"nvim-tree/nvim-tree.lua",
+		requires = {
+			"nvim-tree/nvim-web-devicons",
+			opt = true,
+		},
+	})
 
-  -- Golang
-  use {"fatih/vim-go", run = "GoUpdateBinaries"}
+	use({
+		"nvim-lualine/lualine.nvim",
+		requires = { "kyazdani42/nvim-web-devicons", opt = true },
+	})
 
-  -- Julia
-  use "JuliaEditorSupport/julia-vim"
+	-- Indent Lines
+	use("lukas-reineke/indent-blankline.nvim")
 
-  -- LaTeX
-  use {"lervag/vimtex", commit = "fbe94cd3eaed89d6c1236af486466b1fcc3b82c9"}
+	-- Theme
+	use({ "catppuccin/nvim", as = "catppuccin" })
 
-  -- Lua
-  use "euclidianAce/BetterLua.vim"
-
-  -- Mathematica
-  use "rsmenon/vim-mathematica"
-
-  -- Markdown
-  use {"npxbr/glow.nvim", run = "GlowInstall"}
-  use {'vim-pandoc/vim-pandoc', requires = 'vim-pandoc/vim-pandoc-syntax'}
-
-  -- R
-  use {'jalvesaq/Nvim-R', branch = 'stable'}
-
-  -- Rust
-  use "rust-lang/rust.vim"
-
-  -- }}}
-
-  -- {{{ Misc
-
-  -- Star wars
-  use {"mattn/vim-starwars"}
-
-  -- Spelling
-  --use {
-    --'lewis6991/spellsitter.nvim',
-    --requires = {'nvim-treesitter/nvim-treesitter'},
-    --config = function()
-      --require'spellsitter'.setup {captures = {"comment", "text"}}
-    --end
-  --}
-
-  -- Discord rich presence
-  use {"aurieh/discord.nvim", run = ":UpdateRemotePlugins"}
-
-  -- Formatter
-  use "mhartington/formatter.nvim"
-
-  -- Delimiters, braces, etc.
-  use {
-    "blackCauldron7/surround.nvim",
-    config = function() require"surround".setup {mappings_style = "sandwich"} end
-  }
-  use "tpope/vim-endwise"
-  use "rstacruz/vim-closer"
-
-  -- Comment bindings
-  use "preservim/nerdcommenter"
-
-  -- Floating terminal
-  use "akinsho/toggleterm.nvim"
-
-  -- Switch
-  use {
-    "AndrewRadev/switch.vim",
-    config = function()
-      vim.api.nvim_set_keymap('n', '-', ':Switch<CR>',
-                              {noremap = true, silent = true})
-    end
-  }
-
-  -- Which key
-  use "folke/which-key.nvim"
-
-  -- ORG Mode Vim
-  use {
-    "nvim-neorg/neorg",
-    ft = "norg",
-    requires = {"nvim-lua/plenary.nvim", opt = true}
-  }
-
-  -- Databases
-  use {"kristijanhusak/vim-dadbod-ui", requires = "tpope/vim-dadbod"}
-
-  -- Speed up Neovim
-  use "lewis6991/impatient.nvim"
-
-  -- Debugger
-  use {
-    'mfussenegger/nvim-dap',
-    requires = {
-      "mfussenegger/nvim-dap-python", 'jbyuki/one-small-step-for-vimkind',
-      'theHamsta/nvim-dap-virtual-text', "rcarriga/nvim-dap-ui"
-    }
-  }
-
-  -- Clip register
-  use {
-    "AckslD/nvim-neoclip.lua",
-    config = function()
-      require('neoclip').setup({default_register = {'"', '+', '*'}})
-    end
-  }
-
-  -- }}}
-
-  -- {{{ Aesthetic
-
-  -- Color scheme
-  -- use "sainnhe/sonokai"
-  use 'marko-cerovac/material.nvim'
-
-  -- Better highlighting and colors
-  use {"nvim-treesitter/nvim-treesitter", run = ":TSUpdate"}
-
-  -- Indent guides
-  use {
-    "lukas-reineke/indent-blankline.nvim",
-    config = function()
-      require'indent_blankline'.setup {
-        show_end_of_line = true,
-        space_char_blankline = " ",
-        show_current_context = true,
-        use_treesitter = true,
-        buftype_exclude = {"terminal"},
-        filetype_exclude = {"dashboard", "help"}
-      }
-    end
-  }
-
-  -- Todo comments
-  use {
-    "folke/todo-comments.nvim",
-    requires = "nvim-lua/plenary.nvim",
-    config = function() require'todo-comments'.setup {} end
-  }
-
-  -- Zen Mode
-  use {
-    "folke/zen-mode.nvim",
-    config = function() require'zen-mode'.setup {} end
-  }
-
-  -- Git
-  use {
-    "lewis6991/gitsigns.nvim",
-    config = function() require'gitsigns'.setup() end,
-    requires = {"nvim-lua/plenary.nvim", opt = true}
-  }
-
-  -- Scroll
-  use {
-    'karb94/neoscroll.nvim',
-    config = function() require'neoscroll'.setup() end
-  }
-
-  -- Highlighting
-  use 'yamatsum/nvim-cursorline'
-
-  -- Colorizer
-  use {
-    "norcalli/nvim-colorizer.lua",
-    config = function() require'colorizer'.setup() end
-  }
-
-  -- }}}
-
-  -- {{{ Menus
-
-  -- Dashboard
-  use "glepnir/dashboard-nvim"
-
-  -- Luatree
-  use {
-    "kyazdani42/nvim-tree.lua",
-    requires = {"kyazdani42/nvim-web-devicons", opt = true}
-  }
-
-  -- Barbar
-  use {
-    "romgrk/barbar.nvim",
-    requires = {"kyazdani42/nvim-web-devicons", opt = true}
-  }
-
-  -- Lualine
-  use {
-    "hoob3rt/lualine.nvim",
-    requires = {"kyazdani42/nvim-web-devicons", opt = true}
-  }
-
-  -- Telescope
-  use {
-    "nvim-telescope/telescope.nvim",
-    requires = {
-      "nvim-lua/popup.nvim", "nvim-lua/plenary.nvim",
-      "nvim-telescope/telescope-dap.nvim"
-    }
-  }
-
-  -- Better quickfix
-  use 'kevinhwang91/nvim-bqf'
-
-  -- }}}
+	-- }}}
 end)

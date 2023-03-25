@@ -1,30 +1,15 @@
--- Load impatient first
--- require 'impatient'
+require("plugins")
+require("settings")
+require("keymappings")
 
--- Source plugins
-require 'plugins'
+-- Menus and colors
+require("modules/ascetics")
+require("modules/menus")
+require("modules/statusline")
 
--- Source generic settings
-require 'settings'
-require 'keymappings'
+-- Languages
+require("modules/latex")
 
--- LSP Functionality
-require 'modules/debugger'
-require 'modules/lsp'
-require 'modules/completion'
-require 'modules/vimtex'
-require 'modules/format'
-require 'modules/spelling'
-
--- UI
-require 'modules/terminal'
-require 'modules/telescope'
-require 'modules/dashboard'
-require 'modules/tree'
-require 'modules/norg'
-
--- Aesthetic
-require 'modules/colors'
-require 'modules/treesitter'
-require 'modules/statusline'
-require 'modules/git'
+-- My editor is super cool
+require("modules/lsp")
+require("modules/formatting")
