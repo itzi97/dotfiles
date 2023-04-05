@@ -1,4 +1,4 @@
--
+
 -- xmonad example config file for xmonad-0.9
 --
 -- A template showing all available configuration hooks,
@@ -161,7 +161,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
 
     -- launch dmenu
-    , ((modm,               xK_p     ), spawn "~/.config/rofi/launchers/colorful/launcher.sh")
+    , ((modm,               xK_p     ), spawn "~/.config/rofi/launchers/type-7/launcher.sh")
     --, ((modm,               xK_p     ), spawn "~/.config/rofi/bin/launcher_colorful")
     --, ((modm,               xK_p     ), spawn "~/.xmonad/confs/rofi/launchers/misc/launcher.sh")
 
@@ -170,7 +170,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm,               xK_r     ), namedScratchpadAction myScratchPads "terminal")
 
     -- launch 1password
-    , ((modm .|. shiftMask, xK_p     ), spawn "~/.config/rofi/powermenu/powermenu.sh")
+    , ((modm .|. shiftMask, xK_p     ), spawn "~/.config/rofi/powermenu/type-5/powermenu.sh")
 
     -- close focused window
     , ((modm .|. shiftMask, xK_c     ), kill)
@@ -215,10 +215,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm,               xK_t     ), withFocused $ windows . W.sink)
 
     -- Increase window spacing
-    , ((modm,               xK_g     ), setSpacing(0))
+    , ((modm,               xK_g     ), setScreenWindowSpacing(0))
 
     -- Decrease window spacing
-    , ((modm .|. shiftMask, xK_g     ), setSpacing(10))
+    , ((modm .|. shiftMask, xK_g     ), setScreenWindowSpacing(10))
 
     -- Increment the number of windows in the master area
     , ((modm              , xK_comma ), sendMessage (IncMasterN 1))
@@ -258,7 +258,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_s     ), spawn "spotify")
 
     -- File Manager
-    , ((modm .|. shiftMask, xK_f     ), spawn "nautilus")
+    , ((modm .|. shiftMask, xK_f     ), spawn "dolphin")
 
     -- Brightness Commands
     , ((0, xF86XK_MonBrightnessUp)    , spawn "~/.xmonad/scripts/brightness.sh -i 5 -pyn")
@@ -446,10 +446,10 @@ dbusOutput dbus str = do
 -- Scratchpads
 
 myScratchPads :: [NamedScratchpad]
-myScratchPads = [ 
-    NS "terminal" spawnTerm findTerm manageTerm 
+myScratchPads = [
+    NS "terminal" spawnTerm findTerm manageTerm
   ]
-  
+
   where
     spawnTerm = myTerminal ++ " --name scratchpad"
     findTerm = (resource =? "scratchpad")
@@ -478,13 +478,11 @@ myScratchPads = [
 myStartupHook = do
     spawnOnce "/usr/lib/geoclue-2.0/demos/agent"
     spawnOnce "nm-applet"
-    spawnOnce "picom --experimental-backends --config ~/.xmonad/confs/picom.conf"
+    spawnOnce "picom --config ~/.xmonad/confs/picom.conf"
     spawnOnce "dunst -conf ~/.xmonad/confs/dunstrc"
     spawn "~/.xmonad/confs/polybar/launch.sh"
     spawnOnce "redshift"
     spawnOnce "nitrogen --restore"
-    spawnOnce "ntfd &"
-    spawnOnce "mpd_discord_richpresence &"
     spawnOnce "~/.xmonad/scripts/locker.sh"
 
 
@@ -529,11 +527,12 @@ defaults = def {
 
       -- hooks, layouts
         layoutHook         = myLayouts,
-        logHook            = ewmhDesktopsLogHook,
+        --logHook            = ewmhDesktopsLogHook,
         manageHook         = (placeHook (smart (0.5, 0.5))
             <+> manageDocks
             <+> myManageHook)
             <+> namedScratchpadManageHook myScratchPads,
         handleEventHook    = docksEventHook <+> fullscreenEventHook,
+        --handleEventHook    = ewmhFullscreen,
         startupHook        = myStartupHook
     }
