@@ -1,0 +1,24 @@
+# Repositories to enable BEFORE the package pass, on CachyOS / Arch.
+#
+# Same contract as repos.fedora.txt: one idempotent shell command per line,
+# run in order, as root, stamped by content hash.
+#
+# Arch needs far less of this than Fedora does — most of what requires a COPR
+# or RPM Fusion on Fedora is simply in extra/multilib here, and the AUR covers
+# the rest via packages/aur.txt. This file exists mainly so the mechanism is
+# symmetrical and the desktop doesn't grow a "just run this by hand" step.
+
+# --- multilib ---------------------------------------------------------------
+# Required by steam (32-bit libraries). CachyOS enables multilib by default,
+# so this is a guarded no-op there — but it is the one thing that would make a
+# gaming bundle silently install nothing on a plain Arch install.
+#
+# Idempotent: only uncomments the block if it is still commented.
+grep -q '^\[multilib\]' /etc/pacman.conf || sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' /etc/pacman.conf
+
+# Refresh after any repo change, or the next -S sees stale databases.
+pacman -Sy --noconfirm
+
+# --- Flathub ----------------------------------------------------------------
+# Source for everything in packages/flatpak.txt.
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo

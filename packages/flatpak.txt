@@ -1,0 +1,39 @@
+# Flatpaks — Tier 2 under ADR-0012 (GUI applications).
+#
+# One application ID per line. Blank lines and # comments ignored, same
+# contract as the other package lists.
+#
+# Until bootstrap.sh grows Flatpak support, install these by hand with:
+#   flatpak install --noninteractive flathub $(sed -e 's/#.*//' -e '/^$/d' packages/flatpak.txt)
+#
+# NOTE: flathub itself must be enabled first. On Fedora the KDE spin ships
+# `fedora-flathub-remote`; elsewhere:
+#   flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+# Same "enable the source before installing from it" problem as the COPRs —
+# see 06-backlog/open-questions.md §12.
+
+# APPLICATIONS ONLY. Do not list runtimes, platforms or extensions here —
+# org.freedesktop.Platform, the Mesa/GL drivers, the nvidia-<version> shim,
+# the VAAPI extensions, codecs, the SDK and the Breeze GTK theme are all
+# pulled in automatically as dependencies. Declaring them would pin versions
+# that flatpak is supposed to resolve, and they'd drift out of date the moment
+# an app needed something newer.
+#
+# To clear runtimes nothing depends on any more:  flatpak uninstall --unused
+
+md.obsidian.Obsidian      # notes — personal, uni and work vaults. See caveat below
+org.signal.Signal         # primary messenger
+com.spotify.Client        # named exception under principle #5
+it.mijorus.gearlever      # manages the AppImages in ~/AppImages
+me.proton.Mail            # community-packaged, ADR-0016 Tier B — see the ADR
+com.jetbrains.IntelliJ-IDEA-Community   # work
+
+# --- caveat: Obsidian holds a WORK vault -------------------------------
+# 03-conventions/filesystem-layout.md excludes Documents/06_Work from
+# Nextcloud precisely so employer material never reaches Hetzner. If the work
+# vault lives inside that directory it is correctly not synced — and therefore
+# also not backed up anywhere. If it lives outside it, employer material is
+# syncing to a rented server, which the convention forbids.
+#
+# Both are problems. Neither is visible from this file. Worth checking where
+# that vault actually is.

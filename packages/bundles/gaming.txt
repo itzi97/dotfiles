@@ -1,0 +1,38 @@
+# Bundle: gaming
+#
+# Opt-in per machine via machines/<profile>.bundles. NOT in common.txt,
+# because the server must never get this and a future work machine shouldn't
+# either — that distinction is the entire reason bundles exist.
+#
+# Enabled on: desktop (its purpose), ThinkPad (ADR-0015 — occasional here, and
+# the main machine for it during the Canada period).
+#
+# Names identical on Arch and Fedora unless noted. Anything that differs goes
+# in the distro list with a comment, same rule as common.txt.
+#
+# DEPENDS ON packages/repos.<distro>.txt: steam needs RPM Fusion nonfree on
+# Fedora and multilib on Arch. Without the repo pass this bundle installs
+# lutris and quietly skips steam.
+
+steam
+lutris
+
+# gamemode: temporarily applies performance governor / IO priority while a
+# game runs. Matters more on the ThinkPad than the desktop — it is the
+# difference between a laptop thermal-throttling and not.
+gamemode
+
+# mangohud: in-game FPS/temp/frametime overlay. Diagnostic rather than
+# decorative — on hybrid graphics it is how you confirm a game is actually
+# using the dGPU via prime-run rather than silently falling back to Intel.
+mangohud
+
+# --- deliberately NOT here --------------------------------------------------
+# discord         -> it's a messenger that happens to be used for gaming;
+#                    lives with the other comms apps (ADR-0003 exception)
+# Ankama Launcher -> AppImage under Gear Lever, not a package (ADR-0015)
+# NVIDIA driver   -> hardware, not gaming. Belongs to the machine that has the
+#                    card, and akmod-nvidia is already installed on the
+#                    ThinkPad host
+# protonup-qt     -> add if/when Proton-GE is actually needed; "solves a
+#                    problem I don't have yet" is a rejection heuristic

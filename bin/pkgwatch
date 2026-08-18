@@ -116,26 +116,31 @@ while IFS='|' read -r name url pkg; do
     tolower($0) ~ /^content-length:/ {gsub(/\r/,""); sub(/^[^:]*: */,""); c=$0}
     END{gsub(/ /,"_",m); print (e==""?"-":e), (m==""?"-":m), (c==""?"-":c)}')"
 
-  # ETag is deliberately the LAST resort, not part of the normal signature.
+  # LAST-MODIFIED IS DELIBERATELY EXCLUDED. It is the unstable header here.
   #
-  # Proton serve these through a CDN with multipart-upload ETags
-  # ("9c80aa83…-4"), and those vary between edge nodes for the same object.
-  # The first version included the ETag and reported "upstream build changed"
-  # for Proton Authenticator minutes after baselining it — on a file whose
-  # Last-Modified was two months old (2026-08-18).
+  # Measured against Proton's CDN, three HEAD requests seconds apart
+  # (2026-08-18):
   #
-  # A watcher that cries wolf gets ignored, and this one exists precisely
-  # because nothing else is watching a password manager for staleness.
-  # Last-Modified + Content-Length are stable across edges and change when the
-  # artefact actually changes.
-  if [[ "$lastmod" != "-" || "$clen" != "-" ]]; then
-    sig="lm:${lastmod}|len:${clen}"
-  elif [[ "$etag" != "-" ]]; then
-    sig="etag:${etag}"
-    warn "  $name: no Last-Modified/Content-Length, falling back to ETag —"
-    warn "  expect occasional false positives if this is behind a CDN"
+  #   content-length: 119732157            <- identical
+  #   etag: "a5f7de2f…-23"                 <- identical
+  #   last-modified: 08:52:23 / :25 / :23  <- VARIES
+  #
+  # Multi-origin storage, replicas a couple of seconds apart in mtime. So the
+  # signature is ETag + Content-Length; both are stable across requests and
+  # both change when the artefact actually changes.
+  #
+  # Worth recording that the first attempt at this got it backwards — it
+  # assumed the multipart ETag was the flaky one and kept Last-Modified. Both
+  # versions "looked reasonable"; only the three-request comparison settled it.
+  # Measure the headers before trusting them.
+  if [[ "$etag" != "-" || "$clen" != "-" ]]; then
+    sig="etag:${etag}|len:${clen}"
+  elif [[ "$lastmod" != "-" ]]; then
+    sig="lm:${lastmod}"
+    warn "  $name: only Last-Modified available — expect occasional false"
+    warn "  positives if this host serves from multiple origins"
   else
-    bad "$name — no Last-Modified, Content-Length or ETag to compare"
+    bad "$name — no ETag, Content-Length or Last-Modified to compare"
     failed+=("$name"); continue
   fi
 

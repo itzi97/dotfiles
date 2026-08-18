@@ -1,0 +1,41 @@
+# Repositories to enable BEFORE the package pass, on Fedora.
+#
+# One shell command per line, run in order, as root. Blank lines and #
+# comments ignored. bootstrap.sh stamps this file by content hash, so these
+# run once and then never again until the file changes.
+#
+# WHY THIS FILE EXISTS
+# --------------------
+# Package lists silently under-deliver without it. `dnf install steam` with
+# --skip-unavailable on a machine lacking RPM Fusion doesn't fail — it prints
+# a line nobody reads and carries on. The list looks complete, the machine
+# isn't, and you find out weeks later. Four separate things hit this on
+# 2026-08-18 (starship, lame, typst, flathub), which is what finally justified
+# building it. See 06-backlog/open-questions.md §12.
+#
+# RULES
+# -----
+# - Every command must be IDEMPOTENT. These re-run whenever the file changes,
+#   so `enable` must tolerate already-enabled.
+# - Keep them boring. This runs as root before anything else on a fresh
+#   machine; it is the worst possible place for something clever.
+# - A repo added here should have a matching package in a package list, and a
+#   comment saying which. A repo enabled for nothing is attack surface.
+
+# --- RPM Fusion -------------------------------------------------------------
+# free:    lame (abcde/CD ripping, ADR-0009), ffmpeg, codecs
+# nonfree: steam, discord, the NVIDIA driver stack (ADR-0015)
+# --nogpgcheck is NOT used: these RPMs are signed and the check should pass.
+dnf install -y --skip-broken https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
+dnf install -y --skip-broken https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+
+# --- COPR: starship ---------------------------------------------------------
+# Fedora dropped starship from its own repos around F37. Provides: starship
+# (packages/common.txt) — the prompt shared by fish and bash, ADR-0010.
+dnf copr enable -y atim/starship
+
+# --- Flathub ----------------------------------------------------------------
+# Everything in packages/flatpak.txt comes from here. The Fedora KDE spin
+# ships fedora-flathub-remote, but a fresh install elsewhere won't have it,
+# and --if-not-exists makes this a no-op when it's already configured.
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
