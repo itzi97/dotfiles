@@ -1,0 +1,91 @@
+# ~/.dotfiles/config/zathura/zathurarc
+# Linked to ~/.config/zathura/zathurarc by install.conf.yaml.
+#
+# zathura is the PDF viewer for the whole system (xdg-mime default) and the
+# backend vimtex drives. Keyboard-first, which is principle #9 — it uses vim
+# keys natively, so there is no new vocabulary to learn.
+
+# --- SyncTeX ---------------------------------------------------------------
+# Forward search (nvim -> page) is handled by vimtex calling zathura.
+# Inverse search (ctrl-click in the PDF -> jump to the source line) needs
+# zathura to know how to call the editor back, which is this line.
+#
+# --headless because zathura shouldn't spawn a visible nvim; VimtexInverseSearch
+# finds the already-running instance holding that file and moves its cursor.
+set synctex true
+set synctex-editor-command "nvim --headless -c \"VimtexInverseSearch %{line} '%{input}'\""
+
+# --- chrome ----------------------------------------------------------------
+# Hide the statusbar, the always-visible command line and both scrollbars, so
+# the window is nothing but the page. The information they carried (page
+# number, filename) is in the window title, and the command line still appears
+# when you actually press `:` or `/`.
+#
+# guioptions letters:  c command line   s statusbar   h/v scrollbars
+set guioptions ""
+
+# --- behaviour -------------------------------------------------------------
+# Yank (y) puts text on the real clipboard rather than the primary selection,
+# so it pastes into other applications with ctrl-v.
+set selection-clipboard clipboard
+
+# Fit page width on open. Better default than "fit whole page" on a laptop
+# screen, where whole-page renders body text too small to read.
+set adjust-open width
+
+# Remember position, zoom and rotation per document between sessions. The
+# reason you can close a 300-page PDF and come back to the right page.
+set database sqlite
+
+# Don't scroll past the end of the page into the next one mid-view; page down
+# should land on a page boundary.
+set scroll-page-aware true
+set smooth-scroll true
+
+# Reload automatically when latexmk rewrites the PDF. Without this, continuous
+# compilation renders a stale page until you press r.
+set incremental-search true
+set window-title-basename true
+set statusbar-basename true
+
+# --- fonts -----------------------------------------------------------------
+# JetBrains Mono is installed by packages/common.txt, so this is safe to
+# reference here — see the "if it's part of the setup it goes in a package
+# list" rule in 03-conventions/dotfiles.md.
+set font "JetBrains Mono 10"
+
+# --- gruvbox dark ----------------------------------------------------------
+# Matches the neovim colourscheme (lua/plugins/ui.lua). Same palette, so
+# switching between editor and viewer doesn't change the light level.
+set default-bg              "#282828"
+set default-fg              "#ebdbb2"
+
+set statusbar-bg            "#3c3836"
+set statusbar-fg            "#ebdbb2"
+
+set inputbar-bg             "#282828"
+set inputbar-fg             "#ebdbb2"
+
+set notification-bg         "#282828"
+set notification-fg         "#ebdbb2"
+set notification-error-bg   "#282828"
+set notification-error-fg   "#fb4934"
+set notification-warning-bg "#282828"
+set notification-warning-fg "#fabd2f"
+
+set highlight-color         "#fabd2f"
+set highlight-active-color  "#fe8019"
+
+set completion-bg           "#3c3836"
+set completion-fg           "#ebdbb2"
+set completion-highlight-bg "#83a598"
+set completion-highlight-fg "#282828"
+
+# Recolour mode (toggled with ctrl-r) — for reading papers at night. Off by
+# default because it lies about the document: figures and coloured plots come
+# out wrong, which matters when the paper's point is the figure.
+set recolor false
+set recolor-lightcolor      "#282828"
+set recolor-darkcolor       "#ebdbb2"
+# Leave images alone when recolouring, so plots stay readable.
+set recolor-keephue true

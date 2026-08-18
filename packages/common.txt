@@ -14,3 +14,21 @@ unzip
 tmux
 bat
 restic                    # backups — ADR-0014
+
+# --- PDF viewing ----------------------------------------------------------
+# zathura is vimtex's first-class viewer: auto-opens on compile, and both
+# forward and inverse SyncTeX search work with no configuration. Wanted on
+# every machine that edits LaTeX, which is all of them.
+#
+# Native rather than Flatpak — a deliberate Tier 2 exception, because inverse
+# search has to launch nvim on the host and a sandbox makes that painful for
+# no benefit. okular stays installed as part of the KDE spin; it just stops
+# being what opens PDFs.
+zathura
+zathura-pdf-mupdf         # mupdf backend — lighter and faster than poppler
+
+# --- shell tooling --------------------------------------------------------
+# eza: ls replacement. Aliased in config/fish/config.fish rather than shadowing
+# `ls` outright — scripts and muscle memory that expect real ls behaviour keep
+# getting real ls. Icons need a Nerd Font; see the note in config.fish.
+eza

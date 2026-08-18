@@ -62,3 +62,8 @@
 # starship — one prompt for both shells. See ADR-0010.
 - link:
     ~/.config/starship.toml:      config/starship/starship.toml
+
+# zathura — PDF viewer and vimtex's backend. Native rather than Flatpak so
+# inverse search can launch nvim on the host.
+- link:
+    ~/.config/zathura/zathurarc:  config/zathura/zathurarc

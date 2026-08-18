@@ -28,10 +28,30 @@ test -r "$HOME/.config/fish/local.fish"; and source "$HOME/.config/fish/local.fi
 if status is-interactive
     set -g fish_greeting
 
-    alias ll 'ls -lah'
     alias vim nvim
     alias g git
     alias dotfiles 'cd ~/.dotfiles'
+
+    # --- eza (ls replacement) ----------------------------------------------
+    # Aliased, NOT shadowing /usr/bin/ls. A script or a habit that wants real
+    # ls output still gets it — the same reasoning as not exporting python3
+    # from the uni container. Guarded so a machine without eza still has a
+    # working shell.
+    #
+    # --icons needs a Nerd Font. Plain JetBrains Mono (packages/common.txt)
+    # does NOT include the glyphs, so icons render as boxes until a Nerd Font
+    # variant is installed. Check with:  fc-list | grep -i nerd
+    if command -q eza
+        alias ls   'eza --group-directories-first --icons=auto'
+        alias ll   'eza -l --group-directories-first --icons=auto --git --time-style=long-iso'
+        alias la   'eza -la --group-directories-first --icons=auto --git --time-style=long-iso'
+        alias lt   'eza --tree --level=2 --group-directories-first --icons=auto'
+        alias ltt  'eza --tree --level=4 --group-directories-first --icons=auto'
+        # Tree that respects .gitignore — the one you want inside a repo.
+        alias lg   'eza --tree --level=3 --git-ignore --group-directories-first --icons=auto'
+    else
+        alias ll 'ls -lah'
+    end
 
     # --- prompt ------------------------------------------------------------
     # starship, shared with bash on purpose. ADR-0010 makes bash the rescue

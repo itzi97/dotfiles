@@ -27,8 +27,19 @@ return {
     --   latex, bibtex    CV and reports
     --   markdown         the Space documents
     --   bash, fish       dotfiles
+    -- NOTE: "latex" is deliberately absent.
+    --
+    -- Its parser needs `tree-sitter generate`, and the tree-sitter-cli 0.26.11
+    -- on this host (pulled in as a weak dependency of neovim) rejects the
+    -- `--no-bindings` flag that nvim-treesitter's master branch passes. Build
+    -- fails every time.
+    --
+    -- Losing nothing: vimtex provides LaTeX syntax, and the vimtex docs are
+    -- explicit that treesitter and vimtex disagree about tex — which is why
+    -- additional_vim_regex_highlighting below keeps regex syntax alive for it.
+    -- bibtex is a separate parser, builds fine, and is the one that helps.
     ensure_installed = {
-      "python", "c", "cpp", "lua", "latex", "bibtex",
+      "python", "c", "cpp", "lua", "bibtex",
       "markdown", "markdown_inline", "bash", "fish",
       "json", "yaml", "toml", "query", "vim", "vimdoc",
     },
