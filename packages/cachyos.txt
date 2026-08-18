@@ -5,6 +5,7 @@ python-pipx               # Fedora: pipx
 ttf-jetbrains-mono        # Fedora: jetbrains-mono-fonts
 base-devel
 man-db
+starship                  # prompt — in Arch repos proper; Fedora needs a COPR
 
 # --- CD ripping (see ADR-0009) -------------------------------------------
 # Deliberately NOT in common.txt: the ThinkPad has no optical drive, and on

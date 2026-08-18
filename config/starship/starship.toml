@@ -1,0 +1,92 @@
+# ~/.dotfiles/config/starship/starship.toml
+# Linked to ~/.config/starship.toml by install.conf.yaml.
+#
+# Shared by fish AND bash deliberately (ADR-0010). bash is the login shell and
+# the rescue path; I only end up sitting in it when something is already broken,
+# which is exactly when I still want the prompt telling me where I am, what
+# branch I'm on, and whether the last command failed.
+#
+# Kept close to starship's defaults on purpose. Every module costs prompt
+# latency, and a prompt is something I read a few hundred times a day — the bar
+# for adding to it is "I have looked for this and it wasn't there".
+
+add_newline = false
+
+format = """
+$container\
+$directory\
+$git_branch\
+$git_state\
+$git_status\
+$python\
+$cmd_duration\
+$line_break\
+$character"""
+
+[character]
+# vi mode is on (fish_vi_key_bindings in config.fish). fish's own
+# fish_mode_prompt is emptied there so this owns the mode display alone,
+# rather than two things reporting it in two different styles.
+success_symbol = "[❯](bold green)"
+error_symbol   = "[❯](bold red)"
+vimcmd_symbol  = "[❮](bold yellow)"
+
+[container]
+# The most important module on this machine, and the reason this file exists
+# rather than living on starship's defaults.
+#
+# The `uni` distrobox shares $HOME, so a shell inside the container is visually
+# identical to a shell on the host — same prompt, same files, same everything.
+# That is precisely how bootstrap.sh silently ran dotbot *inside* the box on
+# 2026-08-12 and failed on a PyYAML that was installed on the host all along.
+# Twenty minutes of confusion that this line would have prevented.
+format = "[▣ $name]($style) "
+style  = "bold yellow"
+
+[directory]
+truncation_length = 3
+truncate_to_repo  = true
+style             = "bold cyan"
+
+[git_branch]
+format = "[$symbol$branch]($style) "
+style  = "bold purple"
+
+[git_state]
+# Mid-rebase / mid-merge / mid-bisect. Rare, but the one git situation where
+# forgetting what state you're in genuinely costs you something.
+style = "bold red"
+
+[git_status]
+# Terse: counts rather than a wall of symbols.
+format = '([$all_status$ahead_behind]($style) )'
+style  = "bold yellow"
+
+[cmd_duration]
+# Only speak up when something actually took a while.
+min_time = 2000
+format   = "[$duration]($style) "
+style    = "dimmed white"
+
+[python]
+# Virtualenv name only, no interpreter version. venvs are the workflow now that
+# miniforge is gone, and knowing *which* env is active is the thing that
+# actually prevents mistakes — the version rarely is.
+format = '[($virtualenv)]($style) '
+style  = "dimmed green"
+
+# --- disabled ---------------------------------------------------------------
+# Not used on these machines, and each one is prompt latency for nothing.
+# Re-enable individually if a module starts earning its place.
+[package]
+disabled = true
+[nodejs]
+disabled = true
+[java]
+disabled = true
+[rust]
+disabled = true
+[golang]
+disabled = true
+[docker_context]
+disabled = true

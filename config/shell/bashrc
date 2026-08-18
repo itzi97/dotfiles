@@ -4,6 +4,12 @@ case $- in *i*) ;; *) return ;; esac
 . "$HOME/.config/shell/exports.sh"
 . "$HOME/.config/shell/aliases.sh"
 
+# --- prompt (starship) ---------------------------------------------------
+# BEFORE the fish handoff on purpose: this is what the rescue shell looks like.
+# ADR-0010 drops me into bash when fish is broken, which is precisely when I
+# still want a prompt telling me the branch, the exit code and where I am.
+command -v starship >/dev/null 2>&1 && eval "$(starship init bash)"
+
 # --- hand off to fish -----------------------------------------------------
 # bash stays the LOGIN shell so /etc/profile and /etc/profile.d/*.sh are still
 # read (fish cannot read them — that's the whole reason for this). fish is the

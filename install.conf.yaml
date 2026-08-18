@@ -58,3 +58,7 @@
     - command: git -C "$HOME/.config/nvim" --version >/dev/null 2>&1 || true
       stdout: false
       description: Shared links applied
+
+# starship — one prompt for both shells. See ADR-0010.
+- link:
+    ~/.config/starship.toml:      config/starship/starship.toml

@@ -11,3 +11,14 @@ man-db
 distrobox
 podman
 python3-pyyaml            # required by dotbot; Arch: python-yaml
+
+# --- prompt (ADR-0010: shared by fish and bash) -----------------------
+# NOT in common.txt even though the name matches Arch: Fedora dropped
+# starship from its repos (it was there until ~F37) and it now comes from
+# a COPR, which bootstrap.sh does not enable. Same shape as the `lame` /
+# RPM Fusion note in cachyos.txt.
+#
+#   sudo dnf copr enable -y atim/starship
+#
+# Until that is run by hand, this line is a no-op with --skip-unavailable.
+starship
