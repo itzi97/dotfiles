@@ -110,15 +110,32 @@ while IFS='|' read -r name url pkg; do
 
   # Take the LAST occurrence of each (after redirects). Header names are
   # case-insensitive per RFC, hence the tolower().
-  sig="$(printf '%s' "$headers" | awk '
-    BEGIN{IGNORECASE=1}
-    tolower($0) ~ /^etag:/           {gsub(/\r/,""); e=$0}
-    tolower($0) ~ /^last-modified:/  {gsub(/\r/,""); m=$0}
-    tolower($0) ~ /^content-length:/ {gsub(/\r/,""); c=$0}
-    END{print e "|" m "|" c}')"
+  read -r etag lastmod clen <<<"$(printf '%s' "$headers" | awk '
+    tolower($0) ~ /^etag:/           {gsub(/\r/,""); sub(/^[^:]*: */,""); e=$0}
+    tolower($0) ~ /^last-modified:/  {gsub(/\r/,""); sub(/^[^:]*: */,""); m=$0}
+    tolower($0) ~ /^content-length:/ {gsub(/\r/,""); sub(/^[^:]*: */,""); c=$0}
+    END{gsub(/ /,"_",m); print (e==""?"-":e), (m==""?"-":m), (c==""?"-":c)}')"
 
-  if [[ "$sig" == "||" ]]; then
-    bad "$name — no ETag, Last-Modified or Content-Length to compare"
+  # ETag is deliberately the LAST resort, not part of the normal signature.
+  #
+  # Proton serve these through a CDN with multipart-upload ETags
+  # ("9c80aa83…-4"), and those vary between edge nodes for the same object.
+  # The first version included the ETag and reported "upstream build changed"
+  # for Proton Authenticator minutes after baselining it — on a file whose
+  # Last-Modified was two months old (2026-08-18).
+  #
+  # A watcher that cries wolf gets ignored, and this one exists precisely
+  # because nothing else is watching a password manager for staleness.
+  # Last-Modified + Content-Length are stable across edges and change when the
+  # artefact actually changes.
+  if [[ "$lastmod" != "-" || "$clen" != "-" ]]; then
+    sig="lm:${lastmod}|len:${clen}"
+  elif [[ "$etag" != "-" ]]; then
+    sig="etag:${etag}"
+    warn "  $name: no Last-Modified/Content-Length, falling back to ETag —"
+    warn "  expect occasional false positives if this is behind a CDN"
+  else
+    bad "$name — no Last-Modified, Content-Length or ETag to compare"
     failed+=("$name"); continue
   fi
 
