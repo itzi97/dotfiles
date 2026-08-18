@@ -1,0 +1,13 @@
+# restic excludes — OFF-SITE repo (Hetzner) only.
+# Used IN ADDITION to excludes.txt:
+#   restic backup --exclude-file excludes.txt --exclude-file excludes-offsite.txt
+#
+# The distinction this file exists to enforce:
+#   local repo (/mnt/backup-local, my hardware)  -> ~/work IS backed up
+#   off-site repo (Hetzner, rented hardware)     -> ~/work is NOT
+#
+# Employer material on a machine I own is a boundary I manage. Employer material
+# on a server I rent from a third party is someone else's compliance problem and
+# my liability. ADR-0011.
+
+/home/*/work

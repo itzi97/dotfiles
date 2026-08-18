@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+#
+# backup-verify — prove the backup can actually be restored.
+# ADR-0014: a backup that has never been restored is a hypothesis, exactly
+# like a bootstrap.sh that has never been run on a clean machine.
+#
+# Checks repo integrity, then restores one real file at random and diffs it
+# against the original. Run monthly by backup-verify.timer.
+
+set -Eeuo pipefail
+
+REPO="${RESTIC_REPOSITORY:-/mnt/backup-local/restic}"
+PASSWORD_FILE="${RESTIC_PASSWORD_FILE:-$HOME/.config/restic/password}"
+
+info() { printf '\033[36m==>\033[0m %s\n' "$*"; }
+die()  {
+  printf '\033[31mbackup VERIFY FAILED:\033[0m %s\n' "$*" >&2
+  command -v notify-send >/dev/null 2>&1 &&
+    notify-send -u critical "Backup verification failed" "$*" || true
+  exit 1
+}
+trap 'die "unexpected error on line $LINENO"' ERR
+
+export RESTIC_REPOSITORY="$REPO"
+export RESTIC_PASSWORD_FILE="$PASSWORD_FILE"
+
+mountpoint -q "$(dirname "$REPO")" || die "$(dirname "$REPO") is not mounted"
+
+info "checking repository structure"
+restic check
+
+# --read-data-subset spot-checks actual pack contents rather than just the
+# index. 5% monthly means the whole repo is covered roughly twice a year
+# without ever costing a full read.
+info "spot-checking 5% of pack data"
+restic check --read-data-subset=5%
+
+info "picking a file to restore"
+target="$(mktemp -d)"
+trap 'rm -rf "$target"' EXIT
+
+candidate=""
+while read -r f; do
+  [[ -f "$f" && -s "$f" ]] || continue
+  candidate="$f"; break
+done < <(restic ls latest 2>/dev/null | grep '^/' | shuf)
+
+[[ -n "$candidate" ]] || die "could not find a restorable file in the latest snapshot"
+
+info "restoring: ${candidate}"
+restic restore latest --include "$candidate" --target "$target" >/dev/null
+
+restored="${target}${candidate}"
+[[ -f "$restored" ]] || die "restore produced no file at ${restored}"
+
+if cmp -s "$restored" "$candidate"; then
+  info "verified: restored copy is byte-identical to the original"
+else
+  die "restored file DIFFERS from the original: ${candidate}"
+fi
+
+info "verification passed"

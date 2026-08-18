@@ -1,0 +1,11 @@
+# dotbot creates these when a real file is in the way and backup is enabled
+*.dotbot-backup.*
+
+# Secrets never enter this repo (03-conventions/dotfiles.md).
+# Listed explicitly so an accidental `cp` into the repo is caught by git,
+# not discovered in a public mirror later.
+config/restic/password
+**/password
+*.key
+*.pem
+.env

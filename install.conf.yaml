@@ -1,0 +1,60 @@
+# Shared configuration — applied on every machine.
+# Run via ./bootstrap.sh, not directly.
+#
+# Each link maps:  <destination in $HOME>: <source path in this repo>
+# Links are explicit on purpose: there is no directory-folding heuristic to
+# surprise you, and this file doubles as documentation of what is managed.
+
+- defaults:
+    link:
+      create: true      # mkdir -p the parent directory if missing
+      relink: true      # replace an existing symlink that points elsewhere
+      force: false      # do NOT clobber real files; fail loudly instead
+
+- clean:
+    # Prune symlinks pointing into this repo that no longer resolve.
+    # This is what a hand-rolled ln -s loop always forgets.
+    '~':
+      force: false
+    '~/.config':
+      recursive: true
+
+- link:
+    # --- shell ---------------------------------------------------------
+    ~/.config/shell/aliases.sh:   config/shell/aliases.sh
+    ~/.config/shell/exports.sh:   config/shell/exports.sh
+    ~/.bashrc:                    config/shell/bashrc
+
+    # --- editor --------------------------------------------------------
+    # Whole directory: nvim owns everything under here, including
+    # lazy-lock.json, which we WANT tracked.
+    ~/.config/nvim:               config/nvim
+
+    # --- terminal ------------------------------------------------------
+    # File-level, not directory-level, so that local.conf (linked
+    # per-machine below) is not swallowed by a directory symlink.
+    ~/.config/kitty/kitty.conf:   config/kitty/kitty.conf
+
+    # --- fish (the interactive shell — ADR-0010) -------------------------
+    # File-level, NOT ~/.config/fish as a directory: fish writes
+    # fish_variables and generated completions in there, and a directory
+    # symlink would drop all of that into this repo.
+    ~/.config/fish/config.fish:   config/fish/config.fish
+
+    # --- git -----------------------------------------------------------
+    ~/.config/git/config:         config/git/config
+    ~/.config/git/ignore:         config/git/ignore
+
+    # --- inventory -----------------------------------------------------
+    # Read-only audit script; feeds the ADR-0012 tiering exercise. Shared
+    # rather than per-machine: it detects dnf vs pacman itself, and the
+    # desktop wants it too whenever "what is actually installed here?"
+    # comes up.
+    ~/.local/bin/stack-inventory.sh:
+      path: bin/stack-inventory.sh
+      mode: 755
+
+- shell:
+    - command: git -C "$HOME/.config/nvim" --version >/dev/null 2>&1 || true
+      stdout: false
+      description: Shared links applied

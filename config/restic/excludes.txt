@@ -1,0 +1,42 @@
+# restic excludes — desktop. Regenerable or deliberately disposable only.
+# Rule: if losing it costs nothing but time, it does not belong in the backup.
+
+# --- caches and build output ------------------------------------------
+**/node_modules
+**/.venv
+**/venv
+**/__pycache__
+**/target/debug
+**/target/release
+**/.next
+**/dist
+**/build
+**/.gradle
+**/.cache
+**/*.tmp
+
+# --- disposable by convention (03-conventions/filesystem-layout.md) ---
+/home/*/Downloads
+/home/*/dev/scratch
+/home/*/Games
+/home/*/.cache
+/home/*/.local/share/Trash
+
+# --- application state, not my data -----------------------------------
+/home/*/Documents/Paradox Interactive
+/home/*/Music/_Serato_
+/home/*/Music/$Temp
+/home/*/Videos/$Temp
+/home/*/Videos/SteelSeries Moments
+
+# NOTE: ~/work is deliberately NOT excluded here.
+# The concern in ADR-0011 was employer material reaching *rented* hardware — my
+# Hetzner box, my Nextcloud, my off-site backups. A restic repo on an internal
+# drive in my own machine is neither. Excluding it from the local backup left the
+# employer material with exactly one copy, plus a USB stick of
+# unknown currency. That is worse, not better.
+# The off-site repo uses excludes-offsite.txt, which adds ~/work back.
+
+# --- large and re-downloadable ----------------------------------------
+**/*.iso
+**/*.AppImage

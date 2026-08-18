@@ -1,0 +1,14 @@
+[Unit]
+Description=Monthly check for new builds of hand-downloaded packages
+
+[Timer]
+# Monthly, not weekly: these apps release every few weeks at most, and a
+# notification that arrives more often than you act on it becomes noise.
+OnCalendar=monthly
+# The laptop is frequently asleep or off on the 1st. Without this the check
+# silently never runs, which is the exact failure ADR-0016 depends on avoiding.
+Persistent=true
+RandomizedDelaySec=1h
+
+[Install]
+WantedBy=timers.target

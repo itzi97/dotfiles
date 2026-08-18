@@ -1,0 +1,15 @@
+# ~/.config/systemd/user/backup-local.timer
+# Why: daily backup, but never at a fixed second — see RandomizedDelaySec.
+# Added: 2026-08
+# Machine: desktop
+[Unit]
+Description=Daily restic backup
+
+[Timer]
+OnCalendar=*-*-* 20:00:00
+# Machine is often off in the evening; run on next boot if a window was missed.
+Persistent=true
+RandomizedDelaySec=30m
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,16 @@
+# Packages whose name is IDENTICAL on Arch and Fedora.
+# One per line. Blank lines and # comments ignored.
+git
+neovim
+kitty
+fish
+ripgrep
+fzf
+htop
+jq
+curl
+wget
+unzip
+tmux
+bat
+restic                    # backups — ADR-0014

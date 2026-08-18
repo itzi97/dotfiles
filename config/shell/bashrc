@@ -1,0 +1,23 @@
+# Interactive shells only.
+case $- in *i*) ;; *) return ;; esac
+
+. "$HOME/.config/shell/exports.sh"
+. "$HOME/.config/shell/aliases.sh"
+
+# --- hand off to fish -----------------------------------------------------
+# bash stays the LOGIN shell so /etc/profile and /etc/profile.d/*.sh are still
+# read (fish cannot read them — that's the whole reason for this). fish is the
+# shell I actually type in. See ADR-0010.
+#
+# Placed last, so everything above is already in the environment fish inherits.
+#
+# The guard is EXPORTED: typing `bash` from inside fish must stay bash, or the
+# escape hatch loops straight back into fish and stops being an escape hatch.
+#
+# Note: a bare TTY login reads ~/.bash_profile, not ~/.bashrc, so it lands in
+# bash. That is deliberate — it's the rescue shell for when fish is broken or
+# not installed.
+if [ -z "${FISH_LAUNCHED:-}" ] && command -v fish >/dev/null 2>&1; then
+    export FISH_LAUNCHED=1
+    exec fish
+fi

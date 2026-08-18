@@ -1,0 +1,65 @@
+# uni — coursework toolchain for the ThinkPad.
+#
+# Everything here lives INSIDE the container. Nothing in this list should ever
+# be installed on the Fedora host: if a package is here, `dnf remove` it there.
+#
+# Directives (read by bin/tbx). Written WITHOUT the colon here on purpose —
+# with it, this legend parses as a directive and wins over the real values
+# below. That is exactly what happened on 2026-08-12.
+#   tbx-image   <ref>    container base image
+#   tbx-export  <names>  binaries to expose on the host PATH via ~/.local/bin
+#   tbx-home    <path>   own home instead of sharing ~ (omit to share; absolute)
+#
+# tbx-image: registry.fedoraproject.org/fedora-toolbox:44
+# jupyter is NOT in the export list: it isn't in the package list, so the export
+# only ever printed a warning. Add the package first if you need it, then the
+# binary here — an export list that names things that don't exist trains you to
+# ignore its warnings.
+# tbx-export: python3 pip latexmk pdflatex gcc g++ make cmake node npm
+
+# --- language runtimes ------------------------------------------------
+# Python here replaces ~/miniforge3 on the host. Per-project isolation is
+# `python3 -m venv .venv`, not conda environments — one tool per job (#6),
+# and venv doesn't need a second package manager on $PATH to work.
+# If a course hands you an environment.yml that genuinely needs conda,
+# install micromamba INSIDE this box. Contained is fine; on the host is not.
+python3
+python3-pip
+python3-devel          # headers — needed to build any wheel from source
+python3-virtualenv
+nodejs
+npm
+
+# --- C/C++ (engine work) ----------------------------------------------
+gcc
+gcc-c++
+make
+cmake
+gdb
+
+# --- LaTeX (reports, ~/texmf on the host is NOT used from in here) ----
+# scheme-medium is a few hundred packages, NOT the ~3400 the host is carrying
+# from `dnf install texlive`. Deliberately smaller — prove a real report
+# builds before removing TeX Live from the host, and expect to add a
+# collection or two here when it doesn't.
+texlive-scheme-medium
+latexmk                # NOT texlive-latexmk — Fedora 44 ships it unprefixed
+texlive-babel-spanish
+texlive-xetex
+texlive-collection-latexextra
+texlive-collection-fontsrecommended
+
+# --- from the host, per the 2026-08-12 tiering ------------------------
+java-latest-openjdk-devel
+postgresql             # client only
+
+# typst is NOT in Fedora's repos — it comes from copr:claaj:typst, which the
+# container doesn't have. A flat package list can't express "enable this repo
+# first", which is the same gap that blocks a Claude Desktop box needing an apt
+# repo. Until tbx grows a setup hook, typst stays on the HOST as a known Tier 3
+# exception. Do not re-add this line without the hook.
+# typst
+
+# --- misc coursework --------------------------------------------------
+graphviz
+pandoc

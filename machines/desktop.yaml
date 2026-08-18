@@ -1,0 +1,56 @@
+# CachyOS desktop — daily driver. Tiling, gaming, experiments.
+# Applied after install.conf.yaml.
+
+- defaults:
+    link:
+      create: true
+      relink: true
+      force: false
+
+- link:
+    # Per-machine fragments. Each shared config `include`s these, so the
+    # machine difference lives in a separate small file rather than in a
+    # template. Works even if dotbot is not installed.
+    ~/.config/kitty/local.conf:   local/desktop/kitty-local.conf
+    ~/.config/shell/local.sh:     local/desktop/local.sh
+    ~/.config/fish/local.fish:    local/desktop/local.fish
+
+    # Desktop-only: Hyprland does not exist on the ThinkPad.
+    # Plain live-reloading config file — deliberately NOT templated or
+    # generated, so `hyprctl reload` after save keeps working.
+    ~/.config/hypr:               desktop/hypr
+
+    # --- CD ripping (desktop only: it's the machine with the optical drive) --
+    # abcde still reads ~/.abcde.conf, not an XDG path. Leave the destination
+    # alone even though the source lives under config/.
+    ~/.abcde.conf:                config/abcde/abcde.conf
+
+    # rip-cd and audit-library stay in fish — see ADR-0009. File-level links,
+    # NOT ~/.config/fish, so fish's own generated state (fish_variables,
+    # completions) never lands in this repo.
+    ~/.config/fish/functions/rip-cd.fish:        config/fish/functions/rip-cd.fish
+    ~/.config/fish/functions/audit-library.fish: config/fish/functions/audit-library.fish
+
+    # --- backups (ADR-0014) ---------------------------------------------
+    # Scripts and units are linked; the repo PASSWORD is not in this repo and
+    # never will be. It lives at ~/.config/restic/password, mode 600, mirrored
+    # in ProtonPass and on an offline copy.
+    ~/.local/bin/backup-local:
+      path: bin/backup-local
+      mode: 755
+    ~/.local/bin/backup-verify:
+      path: bin/backup-verify
+      mode: 755
+    ~/.config/restic/excludes.txt:          config/restic/excludes.txt
+    ~/.config/restic/excludes-offsite.txt:  config/restic/excludes-offsite.txt
+
+    ~/.config/systemd/user/backup-local.service:   config/systemd/backup-local.service
+    ~/.config/systemd/user/backup-local.timer:     config/systemd/backup-local.timer
+    ~/.config/systemd/user/backup-verify.service:  config/systemd/backup-verify.service
+    ~/.config/systemd/user/backup-verify.timer:    config/systemd/backup-verify.timer
+
+- shell:
+    - command: systemctl --user daemon-reload && systemctl --user enable --now backup-local.timer backup-verify.timer
+      stdout: true
+      stderr: true
+      description: Enable backup timers

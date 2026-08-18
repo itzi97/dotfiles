@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+#
+# backup-local — restic snapshot of the things I cannot re-download.
+# ADR-0014. Desktop only (for now); the Hetzner repo will reuse this script
+# with RESTIC_REPOSITORY pointed at sftp:.
+#
+#   backup-local            # snapshot, then prune to the retention policy
+#   backup-local --dry-run  # show what would be sent, change nothing
+#
+# Failure is LOUD on purpose. "Things that break silently" is the one thing
+# the operator profile calls out as intolerable, and a backup that quietly
+# stopped running six weeks ago is the canonical example.
+
+set -Eeuo pipefail
+
+REPO="${RESTIC_REPOSITORY:-/mnt/backup-local/restic}"
+PASSWORD_FILE="${RESTIC_PASSWORD_FILE:-$HOME/.config/restic/password}"
+EXCLUDES="${HOME}/.config/restic/excludes.txt"
+# Off-site repos get a second exclude file that removes ~/work. Set
+# RESTIC_OFFSITE=1 when pointing this script at Hetzner.
+EXCLUDES_OFFSITE="${HOME}/.config/restic/excludes-offsite.txt"
+TAG="desktop"
+
+DRY_RUN=()
+[[ "${1:-}" == "--dry-run" || "${1:-}" == "-n" ]] && DRY_RUN=(--dry-run -vv)
+
+info() { printf '\033[36m==>\033[0m %s\n' "$*"; }
+die()  {
+  printf '\033[31mbackup FAILED:\033[0m %s\n' "$*" >&2
+  command -v notify-send >/dev/null 2>&1 &&
+    notify-send -u critical "Backup failed" "$*" || true
+  exit 1
+}
+trap 'die "unexpected error on line $LINENO"' ERR
+
+command -v restic >/dev/null 2>&1 || die "restic is not installed"
+[[ -r "$PASSWORD_FILE" ]] || die "no repo password at ${PASSWORD_FILE}"
+[[ -f "$EXCLUDES" ]]      || die "no exclude file at ${EXCLUDES}"
+
+# The drive being unmounted is the realistic failure, and restic would happily
+# create a brand-new empty repo in the empty mountpoint if we did not check.
+mountpoint -q "$(dirname "$REPO")" \
+  || die "$(dirname "$REPO") is not mounted — refusing to write a backup to the root filesystem"
+
+export RESTIC_REPOSITORY="$REPO"
+export RESTIC_PASSWORD_FILE="$PASSWORD_FILE"
+
+restic cat config >/dev/null 2>&1 \
+  || die "no restic repo at ${REPO} — run: restic init"
+
+# Paths worth keeping. Deliberately NOT ~ wholesale: dotfiles are in git and
+# ~/Games is Steam's problem. ~/work IS included here — on my own hardware that
+# is prudence, not bleed. It is stripped again for the off-site repo below.
+PATHS=(
+  "$HOME/Documents"
+  "$HOME/work"
+  "$HOME/Pictures"
+  "$HOME/Videos"
+  "$HOME/Music"
+  "$HOME/Backups"
+  "$HOME/dev"
+  "$HOME/.dotfiles"
+  "$HOME/.ssh"
+  "$HOME/.config"
+)
+
+EXISTING=()
+for p in "${PATHS[@]}"; do [[ -e "$p" ]] && EXISTING+=("$p"); done
+((${#EXISTING[@]})) || die "none of the backup paths exist — wrong user?"
+
+info "backing up ${#EXISTING[@]} path(s) to ${REPO}"
+EXCLUDE_ARGS=(--exclude-file "$EXCLUDES")
+if [[ "${RESTIC_OFFSITE:-0}" == "1" ]]; then
+  [[ -f "$EXCLUDES_OFFSITE" ]] || die "RESTIC_OFFSITE=1 but no ${EXCLUDES_OFFSITE}"
+  EXCLUDE_ARGS+=(--exclude-file "$EXCLUDES_OFFSITE")
+  TAG="offsite"
+  info "off-site mode: ~/work will NOT be sent"
+fi
+
+restic backup \
+  --tag "$TAG" \
+  "${EXCLUDE_ARGS[@]}" \
+  --exclude-caches \
+  --one-file-system \
+  "${DRY_RUN[@]+"${DRY_RUN[@]}"}" \
+  -- "${EXISTING[@]}"
+
+if ((${#DRY_RUN[@]})); then
+  info "dry run — no snapshot written, nothing pruned"
+  exit 0
+fi
+
+info "applying retention policy"
+restic forget \
+  --tag "$TAG" \
+  --keep-daily 7 --keep-weekly 4 --keep-monthly 12 --keep-yearly 2 \
+  --prune
+
+info "backup complete"
+restic snapshots --tag "$TAG" --latest 3

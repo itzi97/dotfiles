@@ -1,0 +1,13 @@
+# ~/.config/systemd/user/backup-verify.service
+# Why: an unrestored backup is a hypothesis (ADR-0014).
+# Added: 2026-08
+# Machine: desktop
+[Unit]
+Description=Verify restic repository and restore one file
+ConditionPathIsMountPoint=/mnt/backup-local
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/backup-verify
+Nice=15
+IOSchedulingClass=idle

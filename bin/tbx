@@ -1,0 +1,199 @@
+#!/usr/bin/env bash
+#
+# tbx — build a distrobox container from a package list in ~/.dotfiles/toolboxes/
+#
+#   tbx list                 show defined and running boxes
+#   tbx create <name>        create the box and install its package list
+#   tbx sync   <name>        install anything added to the list since last run
+#   tbx enter  <name>        shell into it
+#   tbx rm     <name>        destroy it (the list stays; recreate any time)
+#
+# Why distrobox and not toolbox: toolbox always shares $HOME. distrobox can
+# give a box its own home (tbx-home:), which is what makes the work box an
+# actual boundary rather than a tidier prompt. One tool for both cases
+# rather than two — principle #6.
+#
+# The container is disposable by design. The package LIST is the artefact,
+# it lives in git, and `tbx create` rebuilds the box from it. If a box gets
+# into a state you can't explain: rm and recreate, never hand-repair.
+
+set -Eeuo pipefail
+
+DOTFILES="${DOTFILES:-$HOME/.dotfiles}"
+BOXDIR="${DOTFILES}/toolboxes"
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles"
+DEFAULT_IMAGE="registry.fedoraproject.org/fedora-toolbox:$(rpm -E %fedora 2>/dev/null || echo 42)"
+
+die()  { printf '\033[31merror:\033[0m %s\n' "$*" >&2; exit 1; }
+info() { printf '\033[36m==>\033[0m %s\n' "$*"; }
+warn() { printf '\033[33mwarn:\033[0m %s\n' "$*" >&2; }
+
+command -v distrobox >/dev/null 2>&1 || die "distrobox not installed (dnf install distrobox)"
+
+list_file() {
+  local f="${BOXDIR}/${1}.txt"
+  [[ -f "$f" ]] || die "no package list: ${f}"
+  printf '%s\n' "$f"
+}
+
+# Read a `# tbx-<key>: value` directive out of a list file.
+#
+# tail -n1, NOT head -n1. The header of each list file documents what the
+# directives are, and on 2026-08-12 that legend matched first: `image` came back
+# as "container base image" and `home` as "give this box its own home instead of
+# sharing ~", which mkdir -p then created as a relative directory in $PWD.
+# Real directives are written after the legend, so the last match is the one
+# that means something. The legend has also been reworded not to match, and the
+# values are validated below — three cheap defences, because this failed in the
+# most confusing possible way.
+directive() {
+  sed -n "s/^#[[:space:]]*tbx-${2}:[[:space:]]*//p" "$1" | tail -n1
+}
+
+# Strip comments and blanks — same contract as bootstrap.sh's clean_list.
+packages() {
+  sed -e 's/#.*//' -e 's/[[:space:]]*$//' -e '/^$/d' "$1" | sort -u
+}
+
+box_exists() { podman container exists "$1" 2>/dev/null; }
+
+cmd_list() {
+  printf 'defined in %s:\n' "$BOXDIR"
+  for f in "$BOXDIR"/*.txt; do
+    [[ -e "$f" ]] || { echo "  (none)"; break; }
+    local n; n="$(basename "$f" .txt)"
+    if box_exists "$n"; then printf '  %-12s built\n' "$n"
+    else printf '  %-12s not built\n' "$n"; fi
+  done
+  echo
+  distrobox list 2>/dev/null || true
+}
+
+cmd_create() {
+  local name="$1" f image home
+  f="$(list_file "$name")"
+  image="$(directive "$f" image)"; image="${image:-$DEFAULT_IMAGE}"
+  home="$(directive "$f" home)";   home="${home/#\~/$HOME}"
+
+  # Validate before acting. A directive that parsed wrong should stop the run,
+  # not get passed to podman or — worse — to mkdir.
+  [[ "$image" =~ ^[a-z0-9._/-]+(:[a-zA-Z0-9._-]+)?$ ]] \
+    || die "tbx-image in ${f} is not a container reference: '${image}'"
+  if [[ -n "$home" ]]; then
+    [[ "$home" = /* ]] \
+      || die "tbx-home in ${f} must be an absolute path (or ~/...), got: '${home}'"
+  fi
+
+  if box_exists "$name"; then
+    info "box '${name}' already exists — running sync instead"
+  else
+    local args=(--name "$name" --image "$image" --yes)
+    if [[ -n "$home" ]]; then
+      mkdir -p "$home"
+      args+=(--home "$home")
+      info "creating '${name}' with a SEPARATE home at ${home}"
+      info "  it will NOT see ~/Documents, ~/dev, or anything Nextcloud syncs"
+    else
+      info "creating '${name}' sharing your real \$HOME"
+    fi
+    distrobox create "${args[@]}"
+  fi
+  cmd_sync "$name"
+}
+
+cmd_sync() {
+  local name="$1" f stamp want have
+  f="$(list_file "$name")"
+  box_exists "$name" || die "box '${name}' does not exist — run: tbx create ${name}"
+
+  mkdir -p "$STATE_DIR"
+  stamp="${STATE_DIR}/tbx.${name}.sha256"
+  want="$(packages "$f" | sha256sum | cut -d' ' -f1)"
+  have="$(cat "$stamp" 2>/dev/null || true)"
+  if [[ "$want" == "$have" ]]; then
+    info "'${name}': package list unchanged — nothing to do"
+    return 0
+  fi
+
+  local pkgs=(); mapfile -t pkgs < <(packages "$f")
+  ((${#pkgs[@]})) || { warn "'${name}': package list is empty"; return 0; }
+
+  info "'${name}': installing ${#pkgs[@]} package(s)"
+  # No `--` before the package list: dnf5 rejects it ("Unknown argument \"--\" for
+  # command install"), dnf4 accepted it. The `--` after `enter --name` is a
+  # different thing — that one separates distrobox's args from the command and
+  # must stay. Package names never begin with a dash, so nothing is lost.
+  #
+  # --skip-unavailable so one wrong name doesn't block the other 21, and because
+  # a package present in the toolbox image already (python3) otherwise fails the
+  # whole transaction. Permissive here is only safe because of the verification
+  # below — a partial install that reported success would be the worst outcome.
+  distrobox enter --name "$name" -- sudo dnf install -y --skip-unavailable "${pkgs[@]}" || true
+
+  # Verify what actually landed, rather than trusting dnf's exit code.
+  #
+  # Ask rpm --whatprovides, NOT for matching %{NAME}. Plenty of valid install
+  # targets are virtual provides satisfied by a differently-named package:
+  # `nodejs` by nodejs22, `npm` by nodejs22-npm, `pandoc` by pandoc-cli. A
+  # name-only comparison reported all three as missing when they were installed
+  # and working — a check that lies in the safe direction is still a check that
+  # lies, and this one would have had you chasing package names for nothing.
+  local missing
+  missing="$(distrobox enter --name "$name" -- bash -c \
+    'for p in "$@"; do rpm -q --whatprovides "$p" >/dev/null 2>&1 || echo "$p"; done' \
+    _ "${pkgs[@]}" 2>/dev/null || true)"
+
+  if [[ -n "$missing" ]]; then
+    warn "'${name}': these declared packages are NOT installed:"
+    printf '  %s\n' $missing >&2
+    warn "Either the name is wrong for this image, or it needs a repo the box"
+    warn "doesn't have. Find the right name with:"
+    warn "  distrobox enter ${name} -- dnf provides '*/bin/<binary>'"
+    warn "Not stamping — this will re-run until the list and the box agree."
+    return 1
+  fi
+
+  local exports; exports="$(directive "$f" export)"
+  if [[ -n "$exports" ]]; then
+    info "'${name}': exporting binaries to ~/.local/bin"
+    local b
+    for b in $exports; do
+      # Non-fatal: a binary listed for export may not exist in every rebuild.
+      distrobox enter --name "$name" -- distrobox-export --bin "/usr/bin/${b}" \
+        --export-path "$HOME/.local/bin" 2>/dev/null \
+        || warn "  could not export ${b} (not installed in the box?)"
+    done
+  fi
+
+  # Stamp only on success — a failed install leaves it stale so the next
+  # run retries. Same contract as bootstrap.sh.
+  printf '%s\n' "$want" > "$stamp"
+  info "'${name}': ready"
+}
+
+cmd_enter() { distrobox enter --name "$1"; }
+
+cmd_rm() {
+  local name="$1"
+  box_exists "$name" || die "no such box: ${name}"
+  read -rp "destroy container '${name}'? its package list stays in git. [y/N] " ans
+  [[ "$ans" == [yY] ]] || { echo "aborted"; return 0; }
+  distrobox rm --force "$name"
+  rm -f "${STATE_DIR}/tbx.${name}.sha256"
+  info "'${name}' destroyed — 'tbx create ${name}' rebuilds it"
+}
+
+main() {
+  local cmd="${1:-list}"; shift || true
+  case "$cmd" in
+    list)   cmd_list ;;
+    create) [[ $# -ge 1 ]] || die "usage: tbx create <name>"; cmd_create "$1" ;;
+    sync)   [[ $# -ge 1 ]] || die "usage: tbx sync <name>";   cmd_sync "$1" ;;
+    enter)  [[ $# -ge 1 ]] || die "usage: tbx enter <name>";  cmd_enter "$1" ;;
+    rm)     [[ $# -ge 1 ]] || die "usage: tbx rm <name>";     cmd_rm "$1" ;;
+    -h|--help|help) sed -n '2,20p' "${BASH_SOURCE[0]}" | sed 's/^# \?//' ;;
+    *)      die "unknown command: ${cmd} (try: tbx --help)" ;;
+  esac
+}
+
+main "$@"

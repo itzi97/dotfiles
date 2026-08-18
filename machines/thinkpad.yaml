@@ -1,0 +1,38 @@
+# Fedora ThinkPad — college machine. Reliability over elegance.
+# No Hyprland, no gaming config. Applied after install.conf.yaml.
+
+- defaults:
+    link:
+      create: true
+      relink: true
+      force: false
+
+- link:
+    ~/.config/kitty/local.conf:   local/thinkpad/kitty-local.conf
+    ~/.config/shell/local.sh:     local/thinkpad/local.sh
+    ~/.config/fish/local.fish:    local/thinkpad/local.fish
+
+# `tbx` builds coursework containers from ~/.dotfiles/toolboxes/*.txt.
+# Linked on the ThinkPad only — see ADR-0012.
+- link:
+    ~/.local/bin/tbx:
+      path: bin/tbx
+      mode: 755
+
+# pkgwatch — the mitigation ADR-0016 depends on. Hand-downloaded RPMs (ProtonPass,
+# Proton Authenticator) get no update notifications from anything else.
+# ThinkPad-only for now because that's where the Tier A downloads live; add to
+# desktop.yaml if anything there stops coming from a repo or the AUR.
+- link:
+    ~/.local/bin/pkgwatch:
+      path: bin/pkgwatch
+      mode: 755
+    ~/.config/pkgwatch/watchlist.conf:            config/pkgwatch/watchlist.conf
+    ~/.config/systemd/user/pkgwatch.service:      config/systemd/pkgwatch.service
+    ~/.config/systemd/user/pkgwatch.timer:        config/systemd/pkgwatch.timer
+
+- shell:
+    - command: systemctl --user daemon-reload && systemctl --user enable --now pkgwatch.timer
+      stdout: true
+      stderr: true
+      description: Enable the monthly pkgwatch timer

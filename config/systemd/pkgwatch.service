@@ -1,0 +1,12 @@
+[Unit]
+Description=Check hand-downloaded packages for new upstream builds (ADR-0016)
+Documentation=file:///home/itziar/Documents/00_Claude_Spaces/personal-stack-space/05-decisions/0016-packaging-trust-rule.md
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/pkgwatch --notify
+# Exit 10 means "new build found" — a successful check with something to report,
+# not a failure. Without this systemd would mark the unit failed every time the
+# script did its job, and a unit that's always red is a unit you stop reading.
+SuccessExitStatus=10

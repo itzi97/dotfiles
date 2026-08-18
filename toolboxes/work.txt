@@ -1,0 +1,18 @@
+# work — separate home, deliberately.
+#
+# tbx-home means this container CANNOT see ~/Documents, ~/dev or your
+# Nextcloud-synced folders. That is the entire point: it is the boundary
+# that a second user account would not actually have given you, and it
+# keeps employer material out of anything that syncs to Hetzner.
+#
+# Nothing in here is backed up. Treat the contents as disposable.
+#
+# tbx-image: registry.fedoraproject.org/fedora-toolbox:44
+# tbx-home: ~/.local/share/dbhome-work
+# tbx-export: python3
+
+python3
+python3-pip
+nodejs
+npm
+git

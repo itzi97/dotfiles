@@ -1,0 +1,15 @@
+# ~/.config/systemd/user/backup-local.service
+# Why: nightly restic snapshot to the internal spare drive (ADR-0014).
+# Added: 2026-08
+# Machine: desktop
+[Unit]
+Description=restic backup to local drive
+# Do not even try if the drive is absent — the script checks too, but failing
+# here keeps the journal honest about *why* nothing ran.
+ConditionPathIsMountPoint=/mnt/backup-local
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/backup-local
+Nice=10
+IOSchedulingClass=idle

@@ -1,0 +1,160 @@
+#!/usr/bin/env bash
+#
+# pkgwatch — notice when a hand-downloaded package has a new build upstream.
+#
+#   pkgwatch              # check everything, print a report
+#   pkgwatch --notify     # also raise a desktop notification if anything changed
+#   pkgwatch --list       # show what's watched and the last seen state
+#   pkgwatch --reset NAME # forget stored state for one entry (re-baselines it)
+#
+# For software installed from a downloaded .rpm/.deb/AppImage, `dnf upgrade` will
+# never touch it and nothing tells you a new version exists. ADR-0016 accepts that
+# for Tier A apps (password vaults, TOTP) on the condition that a check actually
+# happens. This is that check.
+#
+# HOW IT DECIDES, and why it's deliberately stupid:
+#   It sends an HTTP HEAD and records ETag, Last-Modified and Content-Length.
+#   It does NOT parse HTML, scrape a version string, or follow a changelog. Those
+#   break silently every time a vendor redesigns a page, and a check that silently
+#   stops working is worse than no check at all — it feels like coverage.
+#   If the headers change, there's a new build. If they can't be read, it says so
+#   LOUDLY and exits non-zero rather than reporting "up to date".
+#
+# Exit codes:  0 = nothing new    10 = new build(s) available    1 = check failed
+#
+# Watchlist:   ~/.config/pkgwatch/watchlist.conf
+# State:       ${XDG_STATE_HOME:-~/.local/state}/pkgwatch/
+
+set -Eeuo pipefail
+
+CONF="${PKGWATCH_CONF:-${XDG_CONFIG_HOME:-$HOME/.config}/pkgwatch/watchlist.conf}"
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/pkgwatch"
+NOTIFY=0
+MODE=check
+RESET_NAME=""
+
+while (($#)); do
+  case "$1" in
+    --notify) NOTIFY=1 ;;
+    --list)   MODE=list ;;
+    --reset)  MODE=reset; shift; RESET_NAME="${1:-}" ;;
+    -h|--help) sed -n '2,28p' "${BASH_SOURCE[0]}" | sed 's/^# \?//'; exit 0 ;;
+    *) echo "unknown option: $1" >&2; exit 1 ;;
+  esac
+  shift
+done
+
+info() { printf '\033[36m==>\033[0m %s\n' "$*"; }
+ok()   { printf '  \033[32mok\033[0m      %s\n' "$*"; }
+new()  { printf '  \033[33mNEW\033[0m     %s\n' "$*"; }
+bad()  { printf '  \033[31mUNKNOWN\033[0m %s\n' "$*"; }
+die()  { printf '\033[31merror:\033[0m %s\n' "$*" >&2; exit 1; }
+
+[[ -f "$CONF" ]] || die "no watchlist at $CONF"
+mkdir -p "$STATE_DIR"
+
+# Strip comments and blank lines. Same contract as bootstrap.sh / tbx.
+entries() { sed -e 's/#.*//' -e 's/[[:space:]]*$//' -e '/^$/d' "$CONF"; }
+
+# The config is written `name | url | pkg` for readability, so every field arrives
+# padded. Trimming has to happen everywhere the fields are read — a URL with a
+# leading space is not a URL, and a state file named "ProtonPass .state" is not
+# the one the check wrote.
+trim() { printf '%s' "${1:-}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'; }
+
+if [[ "$MODE" == reset ]]; then
+  [[ -n "$RESET_NAME" ]] || die "usage: pkgwatch --reset NAME"
+  rm -f "$STATE_DIR/$RESET_NAME.state"
+  info "state cleared for '$RESET_NAME' — next run re-baselines it"
+  exit 0
+fi
+
+if [[ "$MODE" == list ]]; then
+  info "watchlist: $CONF"
+  while IFS='|' read -r name url pkg; do
+    [[ -n "${name:-}" ]] || continue
+    name="$(trim "$name")"; url="$(trim "${url:-}")"; pkg="$(trim "${pkg:-}")"
+    printf '  %-22s %s\n' "$name" "$url"
+    printf '  %-22s last seen: %s\n' "" "$(cat "$STATE_DIR/$name.state" 2>/dev/null || echo '(never checked)')"
+    [[ -n "$pkg" ]] && printf '  %-22s installed: %s\n' "" "$(rpm -q "$pkg" 2>/dev/null || echo 'not installed')"
+  done < <(entries)
+  exit 0
+fi
+
+# --- check ----------------------------------------------------------------
+changed=(); failed=(); unchanged=0
+
+while IFS='|' read -r name url pkg; do
+  [[ -n "${name:-}" ]] || continue
+  name="$(trim "$name")"; url="$(trim "${url:-}")"; pkg="$(trim "${pkg:-}")"
+
+  if [[ "$url" == *REPLACE_ME* || -z "${url:-}" ]]; then
+    bad "$name — no URL configured yet (edit $CONF)"
+    failed+=("$name"); continue
+  fi
+
+  # -s silent, -I head, -L follow redirects, bounded time. Vendors commonly
+  # redirect a stable download path to a versioned file; -L means the headers
+  # we read are the ones for the actual artefact.
+  headers="$(curl -sIL --max-time 25 "$url" 2>/dev/null || true)"
+  if [[ -z "$headers" ]]; then
+    bad "$name — HEAD request failed (offline? URL moved?)"
+    failed+=("$name"); continue
+  fi
+
+  status="$(printf '%s' "$headers" | awk '/^HTTP\//{code=$2} END{print code}')"
+  if [[ "$status" != 2* ]]; then
+    bad "$name — HTTP $status from $url"
+    failed+=("$name"); continue
+  fi
+
+  # Take the LAST occurrence of each (after redirects). Header names are
+  # case-insensitive per RFC, hence the tolower().
+  sig="$(printf '%s' "$headers" | awk '
+    BEGIN{IGNORECASE=1}
+    tolower($0) ~ /^etag:/           {gsub(/\r/,""); e=$0}
+    tolower($0) ~ /^last-modified:/  {gsub(/\r/,""); m=$0}
+    tolower($0) ~ /^content-length:/ {gsub(/\r/,""); c=$0}
+    END{print e "|" m "|" c}')"
+
+  if [[ "$sig" == "||" ]]; then
+    bad "$name — no ETag, Last-Modified or Content-Length to compare"
+    failed+=("$name"); continue
+  fi
+
+  state_file="$STATE_DIR/$name.state"
+  previous="$(cat "$state_file" 2>/dev/null || true)"
+  installed=""
+  [[ -n "${pkg:-}" ]] && installed="$(rpm -q "$pkg" 2>/dev/null || echo 'not installed')"
+
+  if [[ -z "$previous" ]]; then
+    printf '%s\n' "$sig" > "$state_file"
+    ok "$name — baseline recorded${installed:+  (installed: $installed)}"
+  elif [[ "$previous" != "$sig" ]]; then
+    printf '%s\n' "$sig" > "$state_file"
+    new "$name — upstream build changed${installed:+  (installed: $installed)}"
+    printf '          download: %s\n' "$url"
+    changed+=("$name")
+  else
+    ((unchanged++)) || true
+    ok "$name — unchanged${installed:+  (installed: $installed)}"
+  fi
+done < <(entries)
+
+echo
+if ((${#failed[@]})); then
+  info "could not check: ${failed[*]} — verify by hand, do not assume up to date"
+fi
+if ((${#changed[@]})); then
+  info "new builds: ${changed[*]}"
+  ((NOTIFY)) && notify-send -u normal -a pkgwatch \
+    "Package update available" "New upstream build: ${changed[*]}" 2>/dev/null || true
+  exit 10
+fi
+((${#failed[@]})) && {
+  ((NOTIFY)) && notify-send -u critical -a pkgwatch \
+    "pkgwatch check FAILED" "Could not check: ${failed[*]}" 2>/dev/null || true
+  exit 1
+}
+info "nothing new (${unchanged} unchanged)"
+exit 0

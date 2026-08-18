@@ -1,0 +1,13 @@
+[user]
+	name = Itziar
+	# email deliberately not set here — see machine-local include below
+
+[init]
+	defaultBranch = main
+
+[pull]
+	rebase = true
+
+# Machine-local overrides. Native git feature, no templating needed.
+[include]
+	path = local

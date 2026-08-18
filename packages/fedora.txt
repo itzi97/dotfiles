@@ -1,0 +1,12 @@
+# Fedora only — or names that differ from Arch.
+fd-find                   # Arch: fd
+pipx                      # Arch: python-pipx
+jetbrains-mono-fonts      # Arch: ttf-jetbrains-mono
+man-db
+
+# --- containerised toolchains (ADR-0012) ------------------------------
+# ThinkPad only: coursework tooling goes in a distrobox, not on the host.
+# The desktop deliberately does NOT get this — AUR is already its escape
+# hatch, and principle #7 says the desktop is allowed to be messy.
+distrobox
+podman

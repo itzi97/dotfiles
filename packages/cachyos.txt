@@ -1,0 +1,17 @@
+# CachyOS / Arch only — or names that differ from Fedora.
+# Fedora equivalent noted in a comment where the name diverges.
+fd                        # Fedora: fd-find
+python-pipx               # Fedora: pipx
+ttf-jetbrains-mono        # Fedora: jetbrains-mono-fonts
+base-devel
+man-db
+
+# --- CD ripping (see ADR-0009) -------------------------------------------
+# Deliberately NOT in common.txt: the ThinkPad has no optical drive, and on
+# Fedora `lame` needs RPM Fusion, which bootstrap.sh does not enable.
+cdparanoia
+lame                      # Fedora: RPM Fusion only
+python-eyed3              # Fedora: python3-eyed3
+python-musicbrainzngs     # abcde optdepend: CDDBMETHOD=musicbrainz
+libdiscid                 # abcde optdepend: MUSICBRAINZCD=y
+glyr                      # provides glyrc — abcde optdepend for GETCOVER=y

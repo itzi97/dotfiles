@@ -1,0 +1,14 @@
+# AUR packages — Arch family only. Installed with paru after the repo packages.
+# Ignored entirely on Fedora.
+#
+# Keep this list SHORT. Every AUR package is source you are choosing to trust
+# and a potential build failure on a machine you need working. If something
+# exists in the official repos, it belongs in cachyos.txt instead.
+#
+abcde                     # not in the official repos; AUR is the only source
+
+# Examples — uncomment what you actually want:
+# visual-studio-code-bin
+# spotify
+# proton-pass-bin
+# zen-browser-bin
