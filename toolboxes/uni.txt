@@ -15,7 +15,7 @@
 # only ever printed a warning. Add the package first if you need it, then the
 # binary here — an export list that names things that don't exist trains you to
 # ignore its warnings.
-# tbx-export: python3 pip latexmk pdflatex gcc g++ make cmake node npm
+# tbx-export: latexmk pdflatex gcc g++ make cmake node npm
 
 # --- language runtimes ------------------------------------------------
 # Python here replaces ~/miniforge3 on the host. Per-project isolation is

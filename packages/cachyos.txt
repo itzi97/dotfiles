@@ -15,3 +15,4 @@ python-eyed3              # Fedora: python3-eyed3
 python-musicbrainzngs     # abcde optdepend: CDDBMETHOD=musicbrainz
 libdiscid                 # abcde optdepend: MUSICBRAINZCD=y
 glyr                      # provides glyrc — abcde optdepend for GETCOVER=y
+python-yaml               # required by dotbot; Fedora: python3-pyyaml

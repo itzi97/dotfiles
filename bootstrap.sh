@@ -30,7 +30,7 @@ warn() { printf '\033[33mwarn:\033[0m %s\n' "$*" >&2; }
 while (($#)); do
   case "$1" in
     --skip-packages) SKIP_PACKAGES=1 ;;
-    -n|--dry-run)    DOTBOT_ARGS+=(--dry-run) ;;
+    -n|--dry-run)    DOTBOT_ARGS+=(--dry-run); SKIP_PACKAGES=1 ;;
     -v|--verbose)    DOTBOT_ARGS+=(-v) ;;
     -h|--help)       sed -n '2,12p' "${BASH_SOURCE[0]}" | sed 's/^# \?//'; exit 0 ;;
     -*)              die "unknown option: $1" ;;

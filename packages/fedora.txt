@@ -10,3 +10,4 @@ man-db
 # hatch, and principle #7 says the desktop is allowed to be messy.
 distrobox
 podman
+python3-pyyaml            # required by dotbot; Arch: python-yaml
