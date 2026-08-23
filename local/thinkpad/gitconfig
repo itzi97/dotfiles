@@ -1,0 +1,30 @@
+# Machine-local git config for the ThinkPad.
+# Linked to ~/.config/git/local by machines/thinkpad.yaml, and pulled in by the
+# [include] at the bottom of config/git/config.
+#
+# WHY IDENTITY LIVES HERE RATHER THAN IN THE SHARED CONFIG
+#
+# It doesn't strictly have to — the email is the same on both machines today.
+# But this is the file that would carry a *different* identity if one ever
+# appeared: a work signing key, a separate committer address for employer
+# repos, a machine-specific SSH command. Keeping it here means that change is
+# one file on one machine rather than a conditional in shared config.
+#
+# It also means the shared config can be read by anyone without publishing an
+# email address, which matters if ~/.dotfiles ever goes public.
+
+[user]
+	email = itzimr97@pm.me
+
+# --- signing (not enabled yet) ---------------------------------------------
+# When you set up commit signing, it belongs here rather than in the shared
+# config: the key is machine-specific and the desktop will have a different
+# one. SSH signing reuses the key you already made for GitHub, which is
+# simpler than GPG for this purpose.
+#
+# [user]
+# 	signingkey = ~/.ssh/id_ed25519.pub
+# [gpg]
+# 	format = ssh
+# [commit]
+# 	gpgsign = true

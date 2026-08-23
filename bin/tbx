@@ -8,6 +8,12 @@
 #   tbx enter  <name>        shell into it
 #   tbx rm     <name>        destroy it (the list stays; recreate any time)
 #
+# Optional, per box: toolboxes/<name>.setup.sh runs INSIDE the box before the
+# package list is installed. That ordering is the whole point — its job is to
+# make the list installable (enable a COPR, add a vendor repo, import a key).
+# It runs on every sync, so it must be idempotent, and it's hashed into the
+# sync stamp so editing it re-triggers.
+#
 # Why distrobox and not toolbox: toolbox always shares $HOME. distrobox can
 # give a box its own home (tbx-home:), which is what makes the work box an
 # actual boundary rather than a tidier prompt. One tool for both cases
@@ -70,10 +76,11 @@ cmd_list() {
 }
 
 cmd_create() {
-  local name="$1" f image home
+  local name="$1" f image home nvidia want_nvidia=0
   f="$(list_file "$name")"
   image="$(directive "$f" image)"; image="${image:-$DEFAULT_IMAGE}"
   home="$(directive "$f" home)";   home="${home/#\~/$HOME}"
+  nvidia="$(directive "$f" nvidia)"
 
   # Validate before acting. A directive that parsed wrong should stop the run,
   # not get passed to podman or — worse — to mkdir.
@@ -84,8 +91,41 @@ cmd_create() {
       || die "tbx-home in ${f} must be an absolute path (or ~/...), got: '${home}'"
   fi
 
+  # tbx-nvidia: pass the host's NVIDIA driver into the box (distrobox --nvidia,
+  # which mounts the host driver libraries and devices in).
+  #
+  # Two things make this worth more code than a flag usually deserves:
+  #
+  # 1. It is CREATE-time only. podman cannot add a device to an existing
+  #    container, so flipping this directive and running `tbx sync` is a silent
+  #    no-op — the box keeps whatever it was built with, TensorFlow keeps
+  #    reporting zero GPUs, and nothing anywhere says why. Hence the warning in
+  #    the box_exists branch below.
+  # 2. When it fails it fails INSIDE the box, where the cause is invisible. An
+  #    akmod that didn't rebuild after a kernel update looks identical from in
+  #    there to a container misconfiguration. So the host driver gets checked
+  #    first, and the error names the host as the suspect.
+  case "${nvidia,,}" in
+    ''|no|false|0) want_nvidia=0 ;;
+    yes|true|1)    want_nvidia=1 ;;
+    *) die "tbx-nvidia in ${f} must be yes or no, got: '${nvidia}'" ;;
+  esac
+
+  if (( want_nvidia )); then
+    command -v nvidia-smi >/dev/null 2>&1 \
+      || die "tbx-nvidia: yes, but nvidia-smi is not on the host. Fix the host driver first."
+    if ! nvidia-smi -L >/dev/null 2>&1; then
+      die "tbx-nvidia: yes, but 'nvidia-smi -L' fails on the HOST — the container is not the problem. Usual cause: akmod-nvidia has not rebuilt for the running kernel."
+    fi
+  fi
+
   if box_exists "$name"; then
     info "box '${name}' already exists — running sync instead"
+    if (( want_nvidia )); then
+      warn "'${name}' asks for tbx-nvidia, but --nvidia only applies at create time."
+      warn "This box has whatever it was built with. To apply it:"
+      warn "  tbx rm ${name} && tbx create ${name}"
+    fi
   else
     local args=(--name "$name" --image "$image" --yes)
     if [[ -n "$home" ]]; then
@@ -96,29 +136,72 @@ cmd_create() {
     else
       info "creating '${name}' sharing your real \$HOME"
     fi
+    if (( want_nvidia )); then
+      args+=(--nvidia)
+      info "  passing the host NVIDIA driver through (--nvidia)"
+    fi
     distrobox create "${args[@]}"
   fi
   cmd_sync "$name"
 }
 
 cmd_sync() {
-  local name="$1" f stamp want have
+  local name="$1" f stamp want have setup pm hash_src
   f="$(list_file "$name")"
   box_exists "$name" || die "box '${name}' does not exist — run: tbx create ${name}"
 
+  setup="${BOXDIR}/${name}.setup.sh"
+
+  # tbx-pm: which package manager the IMAGE uses. Defaults to dnf, because every
+  # box so far is fedora-toolbox. The tbx-image directive has always invited a
+  # non-Fedora image — the ADR names that as distrobox's advantage over toolbx —
+  # but until now the install command was hardcoded to dnf, so an ubuntu image
+  # was impossible in practice. That's what blocked a `claude` box.
+  pm="$(directive "$f" pm)"; pm="${pm:-dnf}"
+  case "$pm" in
+    dnf|apt) ;;
+    *) die "tbx-pm in ${f} must be dnf or apt, got: '${pm}'" ;;
+  esac
+
   mkdir -p "$STATE_DIR"
   stamp="${STATE_DIR}/tbx.${name}.sha256"
-  want="$(packages "$f" | sha256sum | cut -d' ' -f1)"
+
+  # Hash the setup hook alongside the package list. Without this, editing the
+  # hook to add a repo would leave the stamp matching and tbx would report
+  # "nothing to do" — the change would appear to have been applied and silently
+  # not have been. Built as separate statements, not a { ...; } | sha256sum
+  # group: under `set -e` a false [[ -f ]] at the end of a command substitution
+  # takes the whole script down.
+  hash_src="$(packages "$f")"
+  if [[ -f "$setup" ]]; then
+    hash_src+=$'\n'"$(cat "$setup")"
+  fi
+  want="$(printf '%s' "$hash_src" | sha256sum | cut -d' ' -f1)"
   have="$(cat "$stamp" 2>/dev/null || true)"
   if [[ "$want" == "$have" ]]; then
-    info "'${name}': package list unchanged — nothing to do"
+    info "'${name}': package list and setup hook unchanged — nothing to do"
     return 0
   fi
 
   local pkgs=(); mapfile -t pkgs < <(packages "$f")
   ((${#pkgs[@]})) || { warn "'${name}': package list is empty"; return 0; }
 
-  info "'${name}': installing ${#pkgs[@]} package(s)"
+  # The hook runs BEFORE the install, and a failure here aborts. Enabling a repo
+  # is a precondition for the names below resolving, so continuing after it
+  # fails produces the worst outcome: a partial install whose missing packages
+  # look like typos in the list.
+  #
+  # Passed as an argument via bash -c "$(cat …)" rather than piped to `bash -s`,
+  # because distrobox enter's stdin handling is not something to rely on — and
+  # a box with tbx-home can't see the file on disk anyway.
+  if [[ -f "$setup" ]]; then
+    info "'${name}': running setup hook ${setup##*/} (before install)"
+    if ! distrobox enter --name "$name" -- bash -c "$(cat "$setup")"; then
+      die "'${name}': setup hook failed — package list NOT installed. Fix ${setup}, then: tbx sync ${name}"
+    fi
+  fi
+
+  info "'${name}': installing ${#pkgs[@]} package(s) with ${pm}"
   # No `--` before the package list: dnf5 rejects it ("Unknown argument \"--\" for
   # command install"), dnf4 accepted it. The `--` after `enter --name` is a
   # different thing — that one separates distrobox's args from the command and
@@ -128,7 +211,26 @@ cmd_sync() {
   # a package present in the toolbox image already (python3) otherwise fails the
   # whole transaction. Permissive here is only safe because of the verification
   # below — a partial install that reported success would be the worst outcome.
-  distrobox enter --name "$name" -- sudo dnf install -y --skip-unavailable "${pkgs[@]}" || true
+  case "$pm" in
+    dnf)
+      distrobox enter --name "$name" -- sudo dnf install -y --skip-unavailable "${pkgs[@]}" || true
+      ;;
+    apt)
+      # apt has no --skip-unavailable: one unknown name aborts the entire
+      # transaction, which is exactly the failure --skip-unavailable exists to
+      # prevent. Batch first because it's fast, then fall back to one-at-a-time
+      # so a single bad name can't cost you the other twenty. The verify step
+      # below is what makes this permissive retry safe.
+      distrobox enter --name "$name" -- sudo apt-get update -qq || true
+      if ! distrobox enter --name "$name" -- sudo apt-get install -y "${pkgs[@]}"; then
+        warn "'${name}': batch apt install failed — retrying one package at a time"
+        local p
+        for p in "${pkgs[@]}"; do
+          distrobox enter --name "$name" -- sudo apt-get install -y "$p" || true
+        done
+      fi
+      ;;
+  esac
 
   # Verify what actually landed, rather than trusting dnf's exit code.
   #
@@ -139,16 +241,40 @@ cmd_sync() {
   # and working — a check that lies in the safe direction is still a check that
   # lies, and this one would have had you chasing package names for nothing.
   local missing
-  missing="$(distrobox enter --name "$name" -- bash -c \
-    'for p in "$@"; do rpm -q --whatprovides "$p" >/dev/null 2>&1 || echo "$p"; done' \
-    _ "${pkgs[@]}" 2>/dev/null || true)"
+  case "$pm" in
+    dnf)
+      missing="$(distrobox enter --name "$name" -- bash -c \
+        'for p in "$@"; do rpm -q --whatprovides "$p" >/dev/null 2>&1 || echo "$p"; done' \
+        _ "${pkgs[@]}" 2>/dev/null || true)"
+      ;;
+    apt)
+      # Same virtual-provides lesson as the rpm side, done the awkward way:
+      # dpkg has no --whatprovides, so the Provides field of every installed
+      # package is collected and matched against. Versioned provides
+      # ("foo (= 1.0)") are cut back to the bare name.
+      missing="$(distrobox enter --name "$name" -- bash -c '
+        prov=$(dpkg-query -W -f="\${Provides}\n" 2>/dev/null \
+               | tr "," "\n" | sed "s/^ *//; s/[ (].*//" | sort -u)
+        for p in "$@"; do
+          dpkg -s "$p" >/dev/null 2>&1 && continue
+          printf "%s\n" "$prov" | grep -qx -- "$p" && continue
+          echo "$p"
+        done' _ "${pkgs[@]}" 2>/dev/null || true)"
+      ;;
+  esac
 
   if [[ -n "$missing" ]]; then
     warn "'${name}': these declared packages are NOT installed:"
     printf '  %s\n' $missing >&2
     warn "Either the name is wrong for this image, or it needs a repo the box"
     warn "doesn't have. Find the right name with:"
-    warn "  distrobox enter ${name} -- dnf provides '*/bin/<binary>'"
+    if [[ "$pm" == "apt" ]]; then
+      warn "  distrobox enter ${name} -- apt-file search bin/<binary>"
+    else
+      warn "  distrobox enter ${name} -- dnf provides '*/bin/<binary>'"
+    fi
+    warn "If it needs a repo, that is what ${name}.setup.sh is for — it runs"
+    warn "before this install precisely so the names below can resolve."
     warn "Not stamping — this will re-run until the list and the box agree."
     return 1
   fi
@@ -191,7 +317,11 @@ main() {
     sync)   [[ $# -ge 1 ]] || die "usage: tbx sync <name>";   cmd_sync "$1" ;;
     enter)  [[ $# -ge 1 ]] || die "usage: tbx enter <name>";  cmd_enter "$1" ;;
     rm)     [[ $# -ge 1 ]] || die "usage: tbx rm <name>";     cmd_rm "$1" ;;
-    -h|--help|help) sed -n '2,20p' "${BASH_SOURCE[0]}" | sed 's/^# \?//' ;;
+    # Print the leading comment block, whatever length it is. This was a fixed
+    # `sed -n '2,20p'` range, which silently truncated help the moment the
+    # header grew — and it grew twice on 2026-08-20.
+    -h|--help|help)
+      awk 'NR==1 {next} /^#/ {sub(/^# ?/,""); print; next} {exit}' "${BASH_SOURCE[0]}" ;;
     *)      die "unknown command: ${cmd} (try: tbx --help)" ;;
   esac
 }

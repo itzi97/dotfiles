@@ -11,6 +11,11 @@
     ~/.config/kitty/local.conf:   local/thinkpad/kitty-local.conf
     ~/.config/shell/local.sh:     local/thinkpad/local.sh
     ~/.config/fish/local.fish:    local/thinkpad/local.fish
+    # config/git/config has ended with `[include] path = local` since it was
+    # written, and nothing ever created the target. git tolerates a missing
+    # include silently, so user.email was simply unset — and a stray
+    # ~/.gitconfig quietly supplied it instead. Found 2026-08-21.
+    ~/.config/git/local:          local/thinkpad/gitconfig
 
 # `tbx` builds coursework containers from ~/.dotfiles/toolboxes/*.txt.
 # Linked on the ThinkPad only — see ADR-0012.

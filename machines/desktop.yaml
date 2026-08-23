@@ -14,6 +14,9 @@
     ~/.config/kitty/local.conf:   local/desktop/kitty-local.conf
     ~/.config/shell/local.sh:     local/desktop/local.sh
     ~/.config/fish/local.fish:    local/desktop/local.fish
+    # See the note in thinkpad.yaml — the git [include] target was never
+    # created on either machine.
+    ~/.config/git/local:          local/desktop/gitconfig
 
     # Desktop-only: Hyprland does not exist on the ThinkPad.
     # Plain live-reloading config file — deliberately NOT templated or

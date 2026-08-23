@@ -2,6 +2,12 @@
 #
 # Everything here lives INSIDE the container. Nothing in this list should ever
 # be installed on the Fedora host: if a package is here, `dnf remove` it there.
+# (Two documented exceptions below: TeX Live, ADR-0018; typst, the COPR gap.)
+#
+# Revised 2026-08-20 against the real 2026-27 final-year folder
+# (~/Documents/03_Education/2019-2026_Bachelors-UTAD/2026). Six subjects:
+# foundations, computer-vision, machine-learning-1, machine-learning-2,
+# data-engineering-projects, software-engineering, business-creation.
 #
 # Directives (read by bin/tbx). Written WITHOUT the colon here on purpose —
 # with it, this legend parses as a directive and wins over the real values
@@ -9,24 +15,43 @@
 #   tbx-image   <ref>    container base image
 #   tbx-export  <names>  binaries to expose on the host PATH via ~/.local/bin
 #   tbx-home    <path>   own home instead of sharing ~ (omit to share; absolute)
+#   tbx-nvidia  yes|no   pass the host NVIDIA driver in. CREATE-TIME ONLY —
+#                        changing it on a built box does nothing until you
+#                        `tbx rm` and recreate. tbx warns when you try.
 #
 # tbx-image: registry.fedoraproject.org/fedora-toolbox:44
+# tbx-nvidia: yes
 # jupyter is NOT in the export list: it isn't in the package list, so the export
 # only ever printed a warning. Add the package first if you need it, then the
 # binary here — an export list that names things that don't exist trains you to
 # ignore its warnings.
-# tbx-export: latexmk pdflatex gcc g++ make cmake node npm
+#
+# latexmk and pdflatex removed from the export list 2026-08-20 (ADR-0018): TeX Live
+# is Tier 1 on the host now, so a wrapper in ~/.local/bin would shadow /usr/bin and
+# silently build host documents inside the box, against the box's fonts. Same failure
+# as the exported python3 in the tiering runbook. Do not re-add.
+#
+# Jupyter is deliberately NOT exported. Run `jupyter lab` inside the box and open
+# the localhost URL in the host browser — the network namespace is shared, so this
+# needs no wrapper and no export. One less shadowed binary.
+# tbx-export: gcc g++ make cmake node npm
 
 # --- language runtimes ------------------------------------------------
 # Python here replaces ~/miniforge3 on the host. Per-project isolation is
 # `python3 -m venv .venv`, not conda environments — one tool per job (#6),
 # and venv doesn't need a second package manager on $PATH to work.
-# If a course hands you an environment.yml that genuinely needs conda,
-# install micromamba INSIDE this box. Contained is fine; on the host is not.
+#
+# NOTE, 2026-08-20: the 2026 folder's README and Survival-Guide say "install
+# Anaconda in week one" twelve times over. That advice predates the conda
+# removal (see 07-runbooks/2026-08-12-conda-to-container.md) and it is not the
+# plan any more. venv inside this box does the same job. If a course hands you
+# an environment.yml that genuinely needs conda, install micromamba INSIDE this
+# box. Contained is fine; on the host is not.
 python3
 python3-pip
 python3-devel          # headers — needed to build any wheel from source
 python3-virtualenv
+python3-tkinter        # matplotlib's default interactive backend
 nodejs
 npm
 
@@ -37,29 +62,106 @@ make
 cmake
 gdb
 
-# --- LaTeX (reports, ~/texmf on the host is NOT used from in here) ----
-# scheme-medium is a few hundred packages, NOT the ~3400 the host is carrying
-# from `dnf install texlive`. Deliberately smaller — prove a real report
-# builds before removing TeX Live from the host, and expect to add a
-# collection or two here when it doesn't.
-texlive-scheme-medium
-latexmk                # NOT texlive-latexmk — Fedora 44 ships it unprefixed
-texlive-babel-spanish
-texlive-xetex
-texlive-collection-latexextra
-texlive-collection-fontsrecommended
+# --- scientific Python: SYSTEM deps only ------------------------------
+# The libraries themselves (numpy, pandas, matplotlib, scikit-learn, opencv,
+# tensorflow/keras, pyspark) are pip installs into a per-subject venv, NOT dnf
+# packages. A flat dnf list cannot express them — the same structural gap that
+# blocks typst's COPR and a Claude Desktop box's apt repo.
+#
+# What IS needed from dnf is the system libraries those wheels dlopen at runtime,
+# which is the failure that wastes an afternoon: `import cv2` dies with
+# "libGL.so.1: cannot open shared object file" on a headless container image.
+mesa-libGL             # opencv-python, matplotlib
+glib2                  # opencv-python
+libglvnd-glx
+zlib-devel
+openssl-devel
+libjpeg-turbo-devel    # Pillow, if a wheel ever has to build
+freetype-devel
+
+# --- R (Machine Learning I) -------------------------------------------
+# Confirmed in use 2026-08-20 — the Survival-Guide calls the syllabus's RStudio
+# mention "tooling drift", but that's wrong: R is genuinely part of ML I.
+#
+# UNRESOLVED, and it needs deciding before term: RStudio has to live on the same
+# side of the boundary as R. RStudio on the host cannot see an R that only
+# exists in this box — it will report no R installation, which is a confusing
+# failure with an obvious cause only in hindsight.
+#
+# Both-in-the-box is the coherent answer, but RStudio isn't in Fedora's repos
+# (Posit ships its own RPM), so this flat list can't express it — the THIRD
+# instance of the missing setup hook, after typst's COPR and Claude Desktop's
+# apt repo. Three is enough; the hook should get written.
+# Until then: either install the Posit RPM inside the box by hand after create
+# (and accept that it's undeclared), or put R and RStudio both on the host as a
+# named exception. Don't split them.
+R
+
+# --- data engineering (Docker + Spark) --------------------------------
+# Spark runs from pip (`pyspark`) and only needs a JVM, which java-latest below
+# provides. That works inside this box.
+#
+# Docker does NOT. data-engineering-projects/Plan.md is the one subject that
+# wants containers as course content, and Docker-in-distrobox is a fight you do
+# not want during a project deadline. Use the HOST's podman + podman-compose
+# (both already Tier 1) and treat "docker" in the brief as "OCI containers".
+# `podman-compose` reads the same compose files. If a lecturer requires the
+# literal docker CLI, `podman-docker` on the host provides it.
+
+# --- software engineering (UML) ---------------------------------------
+# software-engineering/Plan.md wants UML diagrams: PlantUML for text-based ones
+# (needs the JVM below and graphviz for layout), draw.io for hand-drawn ones.
+# draw.io is a GUI — Tier 2, Flathub `com.jgraph.drawio.desktop`, not here.
+plantuml
+graphviz
 
 # --- from the host, per the 2026-08-12 tiering ------------------------
-java-latest-openjdk-devel
-postgresql             # client only
+java-latest-openjdk-devel   # also the JVM for pyspark and plantuml
+postgresql                  # client only
 
 # typst is NOT in Fedora's repos — it comes from copr:claaj:typst, which the
 # container doesn't have. A flat package list can't express "enable this repo
 # first", which is the same gap that blocks a Claude Desktop box needing an apt
 # repo. Until tbx grows a setup hook, typst stays on the HOST as a known Tier 3
 # exception. Do not re-add this line without the hook.
+#
+# 2026-08-20: this exception now looks like the wrong shape. Typst is the tool
+# for SHORT assignments — which is what all 10 .typ files in the 2026 folder
+# are — so it's used constantly, not occasionally. Same argument that moved TeX
+# Live to Tier 1 in ADR-0018. Worth settling as its own ADR rather than leaving
+# it as a workaround. Fedora 44 ships typst in-repo, so the COPR can go either way.
+#
+# Do NOT read "10 .typ files, zero .tex" as "coursework doesn't use LaTeX". That
+# folder is a scaffold of problem-set skeletons, so it over-represents the short
+# format by construction. Long assignments are LaTeX — see the block below.
 # typst
 
+# --- LaTeX --- REMOVED 2026-08-20, ADR-0018 --------------------------
+# TeX Live is Tier 1 and stays on the Fedora host. It is not coursework-only
+# tooling — it builds the CV and personal documents — and ADR-0012's criterion
+# is repeatability, not size: TeX Live is three package names, which makes it
+# the most re-creatable thing on the machine.
+#
+# Corrected 2026-08-20, same day: an earlier note here said "coursework is Typst
+# end to end", inferred from the 2026 folder containing 10 .typ files and no
+# .tex. That inference was wrong — the folder is a scaffold of short problem
+# sets, and LONG assignments are written in LaTeX. So TeX Live is coursework
+# tooling AND personal tooling, which strengthens the Tier 1 case rather than
+# resting it on the CV alone. It also means trimming collections is riskier than
+# it first looked: long-form work is exactly what needs latexextra,
+# mathscience and fontsrecommended.
+#
+# So the header rule at the top of this file does NOT apply to texlive here.
+# Do not re-add these lines to get a `dnf remove texlive` on the host; that
+# removal was cancelled deliberately, not forgotten.
+#
+# Was: texlive-scheme-medium, latexmk, texlive-babel-spanish, texlive-xetex,
+#      texlive-collection-latexextra, texlive-collection-fontsrecommended
+
 # --- misc coursework --------------------------------------------------
-graphviz
-pandoc
+pandoc                 # under review — see note below
+# pandoc's main job is converting to PDF, which it does by calling LaTeX. LaTeX
+# now lives on the host (ADR-0018), so `pandoc -o x.pdf` in here will fail on a
+# missing engine. Either move pandoc to the host next to TeX Live, or accept it
+# as markdown->html/docx only. Not decided yet; left here so the box still
+# matches what's installed.

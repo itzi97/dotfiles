@@ -1,0 +1,15 @@
+# Machine-local git config for the CachyOS desktop.
+# Linked to ~/.config/git/local by machines/desktop.yaml, and pulled in by the
+# [include] at the bottom of config/git/config.
+#
+# Same identity as the ThinkPad today. The file exists per-machine so that a
+# machine-specific difference — a signing key, a different committer address —
+# is a one-file change rather than a conditional in shared config.
+#
+# NOTE: not yet applied. The desktop is still on the old stow repo; this lands
+# when it migrates (07-runbooks/2026-08-12-dotfiles-migration.md). Check there
+# is no leftover ~/.gitconfig on that machine when it does — on the ThinkPad
+# one existed and silently overrode the managed config for three days.
+
+[user]
+	email = itzimr97@pm.me

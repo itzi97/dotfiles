@@ -1,13 +1,132 @@
+# ~/.config/git/config  (linked from ~/.dotfiles/config/git/config)
+#
+# Shared across machines. Identity and anything machine-specific lives in the
+# [include] at the bottom, which resolves to local/<machine>/gitconfig.
+#
+# CAUTION: git reads BOTH ~/.gitconfig and ~/.config/git/config, and
+# ~/.gitconfig wins. If a setting here appears not to take effect, check
+# `git config --show-origin --get <key>` before editing anything — a stray
+# ~/.gitconfig overrode this file for three days in August 2026.
+
 [user]
-	name = Itziar
-	# email deliberately not set here — see machine-local include below
+	# Full name, matching every commit before 2026-08-21. The skeleton version
+	# of this file said just "Itziar" while the stray ~/.gitconfig it was
+	# losing to said the full name — so removing that file silently changed
+	# the author on new commits. Same person, two names in `git log`, which is
+	# tedious to fix afterwards.
+	name = Itziar Morales Rodríguez
+	# email is machine-local — see the include at the bottom
 
 [init]
 	defaultBranch = main
 
+# --- fetching and pushing ---------------------------------------------------
 [pull]
+	# Rebase rather than merge, so pulling doesn't litter history with
+	# "Merge branch 'main' of github.com:…" commits nobody wrote on purpose.
 	rebase = true
 
-# Machine-local overrides. Native git feature, no templating needed.
+[push]
+	# Create the upstream branch automatically on first push. Removes the
+	# `--set-upstream origin <branch>` dance entirely.
+	autoSetupRemote = true
+	# Push the current branch to its tracking branch, never anything else.
+	default = simple
+	# Push annotated tags that point at commits being pushed.
+	followTags = true
+
+[fetch]
+	# Delete local refs for branches deleted on the remote. Without this,
+	# `git branch -r` slowly fills with branches that were merged a year ago.
+	prune = true
+	pruneTags = true
+	# Verify object hashes on fetch — see the integrity note below. Lives in
+	# this section, not its own: `[fetch "fsck"]` silently creates a
+	# meaningless `fetch.fsck.fsckobjects` key instead.
+	fsckObjects = true
+
+# --- reading diffs ----------------------------------------------------------
+[diff]
+	# histogram produces noticeably more readable diffs than the default
+	# Myers algorithm on real code, especially around moved blocks.
+	algorithm = histogram
+	# Colour moved lines differently from added/removed ones, so a refactor
+	# that shuffles code reads as a move rather than a rewrite.
+	colorMoved = zebra
+	colorMovedWS = allow-indentation-change
+	# Show which function each hunk is in, in the @@ header.
+	context = 5
+
+[merge]
+	# zdiff3 conflict markers include the common ancestor, so you can see what
+	# the line was BEFORE either side changed it. The default (merge) hides
+	# that and leaves you guessing at intent.
+	conflictstyle = zdiff3
+
+[rerere]
+	# REuse REcorded REsolution: remembers how you resolved a conflict and
+	# replays it if the same conflict reappears. Pays for itself the first
+	# time a long-lived rebase hits the same hunk twice.
+	enabled = true
+	autoUpdate = true
+
+# --- ergonomics -------------------------------------------------------------
+[commit]
+	# Show the full diff in the commit message editor. Makes it much harder to
+	# commit a stray debug line, and makes the message better because you're
+	# looking at what you actually changed.
+	verbose = true
+
+[branch]
+	# Sort `git branch` by most recent commit rather than alphabetically —
+	# what you were just working on is at the bottom, next to the cursor.
+	sort = -committerdate
+
+[column]
+	ui = auto
+
+[log]
+	date = iso
+
+[help]
+	# Wait 2s then run the command you obviously meant. Set to 0 to just
+	# suggest instead of acting.
+	autocorrect = 20
+
+# --- integrity --------------------------------------------------------------
+# Verify object hashes on transfer. Catches corruption in flight or on disk
+# rather than silently writing a bad object into history. Small CPU cost,
+# and the whole point of git is that history is trustworthy.
+[transfer]
+	fsckObjects = true
+[receive]
+	fsckObjects = true
+# fetch.fsckObjects is set in the [fetch] section above.
+
+# --- aliases ----------------------------------------------------------------
+# Kept short and few on purpose. An alias you have to look up is slower than
+# the command it replaces.
+[alias]
+	s = status --short --branch
+	# Graph log, one line per commit. The one worth muscle-memorising.
+	l = log --oneline --graph --decorate -20
+	ll = log --oneline --graph --decorate --all
+	# What am I about to commit?
+	d = diff
+	dc = diff --cached
+	# Fix the last commit without changing its message.
+	amend = commit --amend --no-edit
+	# Undo the last commit but keep the changes staged. NOT a discard.
+	undo = reset --soft HEAD~1
+	# Everything not yet pushed to any remote — the "what would I lose if this
+	# laptop died right now" query.
+	unpushed = log --branches --not --remotes --oneline
+
+# --- machine-local ----------------------------------------------------------
+# Identity, signing keys, anything that differs per machine.
+# Linked by machines/<profile>.yaml to local/<machine>/gitconfig.
+#
+# Missing file = silently ignored by git, which is how the original version of
+# this include went unnoticed. If identity seems wrong, check the link exists.
 [include]
 	path = local
