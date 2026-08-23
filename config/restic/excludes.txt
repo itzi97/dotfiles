@@ -1,5 +1,10 @@
-# restic excludes — desktop. Regenerable or deliberately disposable only.
+# restic excludes — shared by every machine, not desktop-only.
 # Rule: if losing it costs nothing but time, it does not belong in the backup.
+#
+# Header said "desktop" until 2026-08-23. It stopped being true when
+# backup-local's tag became host-derived and roadmap item 7 pointed the same
+# script at the ThinkPad's travelling drive. Paths here use /home/*/ rather
+# than a hardcoded user precisely so this file is portable.
 
 # --- caches and build output ------------------------------------------
 **/node_modules
@@ -21,6 +26,25 @@
 /home/*/Games
 /home/*/.cache
 /home/*/.local/share/Trash
+
+# --- Flatpak application state ----------------------------------------
+# ~/.var/app is backed up (added 2026-08-23) because Signal Desktop's message
+# history lives there and does not restore from the phone. But Flatpak apps
+# keep large caches in the same tree, and none of the globs above catch them:
+# the directory is `cache`, not `.cache`.
+#
+# Electron apps (Signal, Obsidian, Proton Mail) are the bulk of it — several
+# hundred MB of GPU and code cache that regenerates on first launch.
+/home/*/.var/app/*/cache
+/home/*/.var/app/*/.cache
+/home/*/.var/app/*/config/*/Cache
+/home/*/.var/app/*/config/*/Code Cache
+/home/*/.var/app/*/config/*/GPUCache
+/home/*/.var/app/*/config/*/DawnCache
+/home/*/.var/app/*/config/*/ShaderCache
+
+# Spotify's offline library — re-downloadable, and large.
+/home/*/.var/app/com.spotify.Client/cache
 
 # --- application state, not my data -----------------------------------
 /home/*/Documents/Paradox Interactive

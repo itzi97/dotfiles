@@ -19,7 +19,16 @@ EXCLUDES="${HOME}/.config/restic/excludes.txt"
 # Off-site repos get a second exclude file that removes ~/work. Set
 # RESTIC_OFFSITE=1 when pointing this script at Hetzner.
 EXCLUDES_OFFSITE="${HOME}/.config/restic/excludes-offsite.txt"
-TAG="desktop"
+
+# Tag derives from the hostname, it is NOT hardcoded to "desktop".
+#
+# ADR-0015 makes the ThinkPad the primary machine during the Canada period,
+# and roadmap item 7 runs this script there against the travelling drive. With
+# a hardcoded tag, both machines' snapshots would be labelled "desktop" — and
+# the retention policy below is applied `--tag "$TAG"`, so `restic forget`
+# would prune across machines. Two hosts sharing a tag is a data-loss bug, not
+# a cosmetic one.
+TAG="${RESTIC_TAG:-$(hostname -s 2>/dev/null || echo unknown)}"
 
 DRY_RUN=()
 [[ "${1:-}" == "--dry-run" || "${1:-}" == "-n" ]] && DRY_RUN=(--dry-run -vv)
@@ -62,6 +71,13 @@ PATHS=(
   "$HOME/.dotfiles"
   "$HOME/.ssh"
   "$HOME/.config"
+  # Flatpak per-application state. Added 2026-08-23 — it was missing, and it
+  # is the single thing on this machine with no copy anywhere else:
+  # Signal Desktop's message history lives here and does NOT restore from the
+  # phone (relinking gives an empty client). Obsidian's plugins and per-vault
+  # settings too; the vaults themselves are safe under Documents.
+  # Large and partly regenerable — see excludes.txt for the runtime caches.
+  "$HOME/.var/app"
 )
 
 EXISTING=()

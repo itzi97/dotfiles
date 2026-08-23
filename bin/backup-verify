@@ -12,6 +12,11 @@ set -Eeuo pipefail
 REPO="${RESTIC_REPOSITORY:-/mnt/backup-local/restic}"
 PASSWORD_FILE="${RESTIC_PASSWORD_FILE:-$HOME/.config/restic/password}"
 
+# Must match backup-local's tag derivation. The repo can hold snapshots from
+# more than one machine, and verifying the wrong host's snapshot against this
+# host's files would fail for the most confusing possible reason.
+TAG="${RESTIC_TAG:-$(hostname -s 2>/dev/null || echo unknown)}"
+
 info() { printf '\033[36m==>\033[0m %s\n' "$*"; }
 die()  {
   printf '\033[31mbackup VERIFY FAILED:\033[0m %s\n' "$*" >&2
@@ -39,16 +44,48 @@ info "picking a file to restore"
 target="$(mktemp -d)"
 trap 'rm -rf "$target"' EXIT
 
-candidate=""
-while read -r f; do
-  [[ -f "$f" && -s "$f" ]] || continue
-  candidate="$f"; break
-done < <(restic ls latest 2>/dev/null | grep '^/' | shuf)
+# --- choosing a file that can give a MEANINGFUL answer ----------------------
+#
+# The comparison below is restored-copy vs live-file. That only proves anything
+# if the live file hasn't changed since the snapshot was taken — otherwise a
+# perfectly good backup reports "restored file DIFFERS" and fires a critical
+# notification.
+#
+# The original version picked any file at random. `~/.config` and `~/.var/app`
+# are in the backup set and are full of files that mutate constantly, so on a
+# monthly timer this would have raised false alarms until it got ignored —
+# which is the one failure mode that makes a verification check worthless.
+#
+# Two filters, both necessary:
+#   1. Only stable trees. Documents/Pictures/Videos/Music/work are things I
+#      write deliberately, not things a program rewrites in the background.
+#   2. Only files whose mtime predates the snapshot. Belt and braces: even in
+#      a stable tree, a file edited an hour ago would differ legitimately.
+command -v jq >/dev/null 2>&1 || die "jq is required (packages/common.txt)"
 
-[[ -n "$candidate" ]] || die "could not find a restorable file in the latest snapshot"
+snap_epoch="$(restic snapshots --tag "$TAG" --latest 1 --json 2>/dev/null \
+              | jq -r '.[0].time' | xargs -I{} date -d {} +%s 2>/dev/null || true)"
+[[ -n "$snap_epoch" ]] || die "could not read the timestamp of the latest '${TAG}' snapshot"
+
+candidate=""
+scanned=0
+while read -r f; do
+  ((scanned++))
+  [[ -f "$f" && -s "$f" ]] || continue
+  case "$f" in
+    "$HOME"/Documents/*|"$HOME"/Pictures/*|"$HOME"/Videos/*|"$HOME"/Music/*|"$HOME"/work/*) ;;
+    *) continue ;;
+  esac
+  (( $(stat -c %Y "$f" 2>/dev/null || echo 0) <= snap_epoch )) || continue
+  candidate="$f"; break
+done < <(restic ls --tag "$TAG" latest 2>/dev/null | grep '^/' | shuf)
+
+# No candidate is NOT a pass. It means this run proved nothing, and saying so
+# is the whole point of the script.
+[[ -n "$candidate" ]] || die "no unchanged file in a stable tree found among ${scanned} paths — verification proved nothing"
 
 info "restoring: ${candidate}"
-restic restore latest --include "$candidate" --target "$target" >/dev/null
+restic restore --tag "$TAG" latest --include "$candidate" --target "$target" >/dev/null
 
 restored="${target}${candidate}"
 [[ -f "$restored" ]] || die "restore produced no file at ${restored}"
