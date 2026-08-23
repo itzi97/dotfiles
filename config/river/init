@@ -20,7 +20,38 @@
 #
 # Package set: packages/bundles/river.txt
 
-set -euo pipefail
+# NO `set -e` HERE. This is deliberate and it is the most important line in
+# the file.
+#
+# 2026-08-23: the first version had `set -euo pipefail`. A single riverctl
+# command that river 0.4.8 doesn't recognise then aborted the whole init —
+# no keybindings, no background, no waybar, no autostart. The result is a
+# black screen with no way to interact with it, and the only recovery is a
+# TTY or the power button.
+#
+# A compositor init is exactly the case where partial success beats failure:
+# a session missing one binding is usable, a session missing everything is
+# not. Every command below is allowed to fail on its own.
+#
+# `set -u` is kept — an unset variable here is a typo, not a version
+# difference, and it fails at the point of use rather than silently binding
+# something to nothing.
+set -u
+
+# Log what didn't work, so a missing feature is diagnosable without a bisect.
+# Read it with:  cat ~/.local/state/river/init.log
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/river"
+mkdir -p "$STATE_DIR"
+LOG="${STATE_DIR}/init.log"
+: > "$LOG"
+
+# Wrapper for anything river-version-dependent. Runs the command, records a
+# failure, carries on.
+try() {
+  if ! "$@" 2>>"$LOG"; then
+    printf 'FAILED: %s\n' "$*" >> "$LOG"
+  fi
+}
 
 mod="Super"
 
@@ -178,10 +209,10 @@ riverctl map normal "$mod" W spawn river-wallpaper
 # Touchpad. Device names are machine-specific, so match rather than hardcode:
 # a hardcoded name silently stops applying after a kernel or firmware change.
 riverctl list-inputs 2>/dev/null | grep -i -E 'touchpad|synaptics' | while read -r dev; do
-  riverctl input "$dev" tap enabled
-  riverctl input "$dev" natural-scroll enabled
-  riverctl input "$dev" scroll-method two-finger
-  riverctl input "$dev" disable-while-typing enabled
+  try riverctl input "$dev" tap enabled
+  try riverctl input "$dev" natural-scroll enabled
+  try riverctl input "$dev" scroll-method two-finger
+  try riverctl input "$dev" disable-while-typing enabled
 done || true
 
 # KEYBOARD LAYOUT — Spanish.
@@ -192,15 +223,15 @@ done || true
 # discover a compositor "doesn't work".
 #
 # Verify a binding actually fires with:  wev   (shows the keysym you produced)
-riverctl keyboard-layout es
+try riverctl keyboard-layout es
 
-riverctl focus-follows-cursor normal
-riverctl set-cursor-warp on-output-change
-riverctl set-repeat 50 300
+try riverctl focus-follows-cursor normal
+try riverctl set-cursor-warp on-output-change
+try riverctl set-repeat 50 300
 # breeze_cursors, matching what Plasma set in ~/.config/gtk-*/settings.ini.
 # A different cursor theme per session is the kind of small inconsistency that
 # reads as "something is broken" without being nameable.
-riverctl xcursor-theme breeze_cursors 24
+try riverctl xcursor-theme breeze_cursors 24
 
 # --- appearance -------------------------------------------------------------
 # gruvbox dark, matching kitty, neovim, zathura and waybar.
@@ -212,11 +243,11 @@ riverctl border-width 2
 
 # --- rules ------------------------------------------------------------------
 # Float things that are dialogs pretending to be windows.
-riverctl rule-add -app-id 'scratchpad'  float
-riverctl rule-add -app-id 'pavucontrol' float
-riverctl rule-add -app-id 'blueman-manager' float
-riverctl rule-add -app-id 'org.kde.polkit-kde-authentication-agent-1' float
-riverctl rule-add -app-id '*' ssd        # server-side decorations: river draws
+try riverctl rule-add -app-id 'scratchpad'  float
+try riverctl rule-add -app-id 'pavucontrol' float
+try riverctl rule-add -app-id 'blueman-manager' float
+try riverctl rule-add -app-id 'org.kde.polkit-kde-authentication-agent-1' float
+try riverctl rule-add -app-id '*' ssd        # server-side decorations: river draws
                                          # the border, apps don't draw their own
 
 # --- layout -----------------------------------------------------------------

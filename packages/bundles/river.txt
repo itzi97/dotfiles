@@ -19,7 +19,27 @@
 # COPR, which is precisely why this is river and not Hyprland.
 
 # --- the compositor ---------------------------------------------------
-river
+# river-classic, NOT river. This distinction is the whole ballgame.
+#
+# river went "non-monolithic" at 0.4.x: the compositor and the window manager
+# split into separate programs. Fedora's `river` package is that new 0.4.8,
+# which needs a compatible external WM and does nothing on its own — it
+# refuses to read an init file at all:
+#
+#   error: The init file … contains the string "riverctl".
+#   This river version (0.4.8) does not support riverctl, you may
+#   wish to install river-classic instead.
+#
+# Everything anyone has written about river — riverctl, the init script, tags,
+# rivertile, every guide and dotfiles repo — is river-CLASSIC. That is the
+# continuation of the project people mean.
+#
+# Installed `river` first (2026-08-23) on the strength of `dnf info river`
+# showing 0.4.8 in Fedora's own repos. Verifying a package EXISTS is not the
+# same as verifying it is the thing you think it is; the version number ran
+# continuously straight across an architectural break. Cost: one black screen
+# and a hard power-off.
+river-classic
 
 # --- bar, launcher, notifications -------------------------------------
 waybar                    # bar; the `tray` module is what makes nm-applet work
