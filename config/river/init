@@ -198,11 +198,20 @@ riverctl map normal "$mod" Escape spawn swaylock
 riverctl map normal "$mod"+Shift P spawn wlogout
 riverctl map normal "$mod" V spawn 'cliphist list | fuzzel --dmenu | cliphist decode | wl-copy'
 
-# Super+F1 — searchable keybind reference, parsed from THIS file so it cannot
-# drift out of date. F1 rather than Super+? because `?` on the Spanish layout
-# is Shift+apostrophe, not Shift+slash, and function keys are layout-stable.
-# F1 is also the conventional help key, which is one less thing to remember.
-riverctl map normal "$mod" F1 spawn river-cheatsheet
+# Super+Shift+H — searchable keybind reference, parsed from THIS file so it
+# cannot drift out of date.
+#
+# Third choice of key, and the reasoning is worth keeping:
+#   Super+?  — `?` is Shift+apostrophe on the Spanish layout, not Shift+slash,
+#              so the `slash` keysym never fires.
+#   Super+F1 — layout-stable, but this ThinkPad's top row is Fn-first, making
+#              it a three-key chord: Fn+Super+F1.
+#   Super+Shift+H — a letter, so layout-stable; H for Help; and free, since
+#              plain Super+H is main-ratio and Super+Shift+J/K are the swaps.
+#
+# General rule this keeps proving: bind to LETTERS. Symbols move with the
+# layout and the function row moves with the hardware.
+riverctl map normal "$mod"+Shift H spawn river-cheatsheet
 riverctl map normal "$mod" W spawn river-wallpaper
 
 # --- input ------------------------------------------------------------------
@@ -291,7 +300,12 @@ run waybar
 run swaync
 run nm-applet --indicator
 run blueman-applet
-run kanshi
+# kanshi only if it has a config. Started bare it prints "failed to parse
+# config file" and exits — which is what that error in the first nested run
+# was. Its config needs real output names (eDP-1 and whatever the projector
+# reports), so it stays unstarted until those are known: see
+# `wlr-randr` inside a river session.
+[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/kanshi/config" ] && run kanshi
 run river-wallpaper --restore   # re-applies the last choice; silent if none
 run wl-paste --watch cliphist store
 

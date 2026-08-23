@@ -90,7 +90,13 @@
 
   "custom/notification": {
     "tooltip": false,
-    "format": "{icon} {}",
+    // "{text}", not "{}" — waybar rejects mixing manual and automatic
+    // argument indexing and drops the module with:
+    //   error: custom/notification: mixing manual and automatic argument
+    //   indexing is no longer supported
+    // The bar still renders, so the only symptom is a silently missing
+    // notification indicator (2026-08-23).
+    "format": "{icon} {text}",
     "format-icons": {
       "notification": "󰂚<span foreground='#fb4934'><sup></sup></span>",
       "none": "󰂚",
