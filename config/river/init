@@ -249,7 +249,11 @@ if command -v swayidle >/dev/null 2>&1; then
     timeout 360 'wlr-randr --output "*" --off' \
     resume       'wlr-randr --output "*" --on' \
     timeout 900 'systemctl suspend' \
-    before-sleep 'swaylock -f' &
+    before-sleep 'swaylock' &
+    # NOTE: before-sleep intentionally has NO -f. swayidle waits for the
+    # command to exit before allowing suspend; a backgrounded swaylock exits
+    # at once and the machine sleeps unlocked. The timeout lines above DO use
+    # -f, because there swayidle must stay responsive rather than block.
 fi
 
 # The scratchpad terminal, parked on tag 10 and left there.

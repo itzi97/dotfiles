@@ -66,4 +66,15 @@ font-size=20
 # Fail closed. If swaylock cannot render for any reason it must still lock the
 # session rather than exiting and leaving the desktop exposed.
 ignore-empty-password
-daemonize
+
+# `daemonize` is deliberately NOT set here.
+#
+# swayidle's `before-sleep 'swaylock -f'` waits for the command to EXIT before
+# letting systemd suspend. A daemonizing swaylock exits immediately, so the
+# machine suspends while the lock screen is still starting — and the lid opens
+# onto an unlocked desktop. That is threat-model adversary #3 (device theft,
+# "the ThinkPad on campus is the exposed one") undone by a convenience flag.
+#
+# Callers that genuinely want backgrounding pass -f explicitly, which is
+# exactly what config/river/init's swayidle lines already do. Putting it in
+# the config file applies it everywhere, including where it must not.
