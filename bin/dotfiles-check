@@ -47,11 +47,33 @@
 
 set -Eeuo pipefail
 
-BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# RESOLVE SYMLINKS before deriving the repo root.
+#
+# This script is linked into ~/.local/bin by install.conf.yaml, and
+# ${BASH_SOURCE[0]} reports the LINK path, not its target. Without readlink -f,
+# running `dotfiles-check` from $PATH set BASEDIR to ~/.local — so it linted
+# ~/.local/bin (the binaries tbx exports from the uni container), found zero
+# dotbot configs and zero package lists, and scanned ~/.local/share for
+# secrets, where Steam's runtime and podman's overlays are full of example
+# PEM files. Eight false failures and every real check silently skipped
+# (2026-08-23).
+BASEDIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+
 QUIET=0
 [[ "${1:-}" == "-q" || "${1:-}" == "--quiet" ]] && QUIET=1
 
 FAILURES=0
+
+# Refuse to run anywhere that isn't the dotfiles repo. The bug above was only
+# survivable because it was obvious in the output; a subtler wrong root would
+# have reported "all checks passed" while checking nothing at all.
+for required in install.conf.yaml packages bin machines; do
+  [[ -e "$BASEDIR/$required" ]] || {
+    printf '\033[31merror:\033[0m %s does not look like the dotfiles repo (no %s)\n' \
+      "$BASEDIR" "$required" >&2
+    exit 2
+  }
+done
 
 hdr()  { ((QUIET)) || printf '\n\033[36m==>\033[0m %s\n' "$*"; }
 ok()   { ((QUIET)) || printf '  \033[32mok\033[0m    %s\n' "$*"; }
@@ -79,8 +101,12 @@ done
 
 # --------------------------------------------------------------- dotbot YAML
 hdr "dotbot configs parse, and every link source exists"
+# A section that examines nothing must FAIL, not pass quietly. Every empty
+# section here was a symptom of the wrong-BASEDIR bug and none of them said so.
+checked=0
 for cfg in "$BASEDIR/install.conf.yaml" "$BASEDIR"/machines/*.yaml; do
   [[ -f "$cfg" ]] || continue
+  checked=$((checked+1))
   rel="${cfg#$BASEDIR/}"
 
   if ! python3 -c "import yaml,sys; yaml.safe_load(open(sys.argv[1]))" "$cfg" 2>/dev/null; then
@@ -112,9 +138,12 @@ PY
   )
 done
 
+((checked)) || fail "no dotbot configs found under $BASEDIR — nothing was checked"
+
 # ------------------------------------------------------------- package lists
 hdr "package lists"
 COMMON="$BASEDIR/packages/common.txt"
+[[ -f "$COMMON" ]] || fail "packages/common.txt not found — nothing was checked"
 for distro in fedora cachyos; do
   d="$BASEDIR/packages/${distro}.txt"
   [[ -f "$COMMON" && -f "$d" ]] || continue

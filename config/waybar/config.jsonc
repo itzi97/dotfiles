@@ -1,0 +1,134 @@
+// ~/.config/waybar/config.jsonc
+//
+// Bar for the river session. Left: tags, window icons, focused title.
+// Right: tray, audio, brightness, battery, notifications, clock.
+//
+// Icons are Nerd Font glyphs. A Nerd Font is already installed (eza's --icons
+// renders correctly), and style.css falls back to plain JetBrains Mono if that
+// ever stops being true — you would get boxes, not a broken bar.
+{
+  "layer": "top",
+  "position": "top",
+  "height": 30,
+  "spacing": 6,
+
+  // wlr/taskbar is here because river/window is TEXT ONLY — waybar has no
+  // app-icon lookup for it. Wanting "the focused title with an icon" needs
+  // both modules: taskbar supplies icons for the windows on this tag,
+  // river/window supplies the title of whichever is focused.
+  "modules-left": ["river/tags", "wlr/taskbar", "river/window"],
+  "modules-center": [],
+  "modules-right": [
+    "tray",
+    "wireplumber",
+    "backlight",
+    "battery",
+    "custom/notification",
+    "clock"
+  ],
+
+  "river/tags": {
+    // Nine tags. Tag 10 exists but is the scratchpad (see config/river/init)
+    // and is deliberately not shown — it is an overlay, not a place you go.
+    "num-tags": 9,
+    "tag-labels": ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+    "set-tags": [1, 2, 4, 8, 16, 32, 64, 128, 256]
+  },
+
+  "wlr/taskbar": {
+    "format": "{icon}",
+    "icon-size": 16,
+    "tooltip-format": "{title}",
+    "on-click": "activate",
+    "on-click-middle": "close",
+    // Only this output's windows, and only the visible tag — otherwise the
+    // bar fills with every window you have open anywhere.
+    "all-outputs": false,
+    "active-first": true
+  },
+
+  "river/window": {
+    "format": "{}",
+    "max-length": 60,
+    "tooltip": false
+  },
+
+  "tray": {
+    // This is what makes nm-applet and blueman-applet reachable. Without a
+    // tray module they run invisibly and you cannot pick a wifi network.
+    "icon-size": 16,
+    "spacing": 10
+  },
+
+  "wireplumber": {
+    "format": "{icon} {volume}%",
+    "format-muted": "󰝟 muted",
+    "format-icons": ["󰕿", "󰖀", "󰕾"],
+    "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+    "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+",
+    "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-",
+    "tooltip-format": "{node_name}"
+  },
+
+  "backlight": {
+    "format": "{icon} {percent}%",
+    "format-icons": ["󰃞", "󰃟", "󰃠"],
+    "on-scroll-up": "brightnessctl set 5%+",
+    "on-scroll-down": "brightnessctl set 5%-"
+  },
+
+  "battery": {
+    "states": { "warning": 30, "critical": 15 },
+    "format": "{icon} {capacity}%",
+    "format-charging": "󰂄 {capacity}%",
+    "format-plugged": "󰚥 {capacity}%",
+    "format-icons": ["󰁺", "󰁼", "󰁾", "󰂀", "󰂂", "󰁹"],
+    // Time-to-empty in the tooltip. On a laptop that leaves the house this is
+    // the number that actually matters, and it is worth a hover not a glance.
+    "tooltip-format": "{timeTo}  ({power}W)"
+  },
+
+  "custom/notification": {
+    "tooltip": false,
+    "format": "{icon} {}",
+    "format-icons": {
+      "notification": "󰂚<span foreground='#fb4934'><sup></sup></span>",
+      "none": "󰂚",
+      "dnd-notification": "󰂛<span foreground='#fb4934'><sup></sup></span>",
+      "dnd-none": "󰂛",
+      "inhibited-notification": "󰂚<span foreground='#fb4934'><sup></sup></span>",
+      "inhibited-none": "󰂚",
+      "dnd-inhibited-notification": "󰂛<span foreground='#fb4934'><sup></sup></span>",
+      "dnd-inhibited-none": "󰂛"
+    },
+    "return-type": "json",
+    "exec-if": "which swaync-client",
+    "exec": "swaync-client -swb",
+    "on-click": "swaync-client -t -sw",        // open the notification panel
+    "on-click-right": "swaync-client -d -sw",  // toggle do-not-disturb
+    "escape": true
+  },
+
+  "clock": {
+    "format": "{:%a %d %b  %H:%M}",
+    // Click to expand the calendar, scroll to change month.
+    "tooltip-format": "<tt><small>{calendar}</small></tt>",
+    "calendar": {
+      "mode": "month",
+      "weeks-pos": "right",
+      "on-scroll": 1,
+      "format": {
+        "months":  "<span color='#ebdbb2'><b>{}</b></span>",
+        "days":    "<span color='#ebdbb2'>{}</span>",
+        "weeks":   "<span color='#83a598'><b>W{}</b></span>",
+        "weekdays":"<span color='#d79921'><b>{}</b></span>",
+        "today":   "<span color='#fe8019'><b><u>{}</u></b></span>"
+      }
+    },
+    "actions": {
+      "on-click-right": "mode",
+      "on-scroll-up": "shift_up",
+      "on-scroll-down": "shift_down"
+    }
+  }
+}

@@ -1,0 +1,240 @@
+#!/usr/bin/env bash
+#
+# ~/.config/river/init  (linked from ~/.dotfiles/config/river/init)
+#
+# river runs this once at startup. It is a plain shell script — every line is
+# a `riverctl` call — so it is live-editable: change it, then `riverctl` the
+# single command you changed, or log out and back in.
+#
+# CONTEXT (read this before changing anything structural)
+#
+#   river is a SECONDARY session. Plasma remains the default in SDDM, on
+#   purpose: river has no Fedora maintainer, no fallback mode, and this config
+#   is young. ADR-0002 established that pattern for Hyprland on the desktop;
+#   principle #2 requires it on the college machine. If you ever set river as
+#   the SDDM default, this stops being a low-risk experiment.
+#
+#   river composites and nothing else. Every autostart at the bottom of this
+#   file replaces something Plasma was quietly doing. That list is the honest
+#   cost of a minimal compositor.
+#
+# Package set: packages/bundles/river.txt
+
+set -euo pipefail
+
+mod="Super"
+
+# --- environment ------------------------------------------------------------
+# Set before anything spawns, or the children inherit the wrong values.
+export XDG_CURRENT_DESKTOP=river          # portals key off this
+export XDG_SESSION_TYPE=wayland
+export QT_QPA_PLATFORM=wayland
+export QT_QPA_PLATFORMTHEME=qt6ct         # or Qt apps render in default grey
+export MOZ_ENABLE_WAYLAND=1
+export _JAVA_AWT_WM_NONREPARENTING=1      # IntelliJ draws a grey box without this
+export ELECTRON_OZONE_PLATFORM_HINT=auto  # Signal, Obsidian, Proton Mail
+
+# Portals and systemd user services need these to reach the session.
+# Without this, screen sharing silently produces a black frame.
+if command -v dbus-update-activation-environment >/dev/null 2>&1; then
+  dbus-update-activation-environment --systemd \
+    WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE
+fi
+
+# --- core keybinds ----------------------------------------------------------
+# XMONAD BINDINGS, deliberately.
+#
+# This whole section mirrors xmonad's defaults rather than i3/Hyprland's,
+# because that is the muscle memory that stuck. The two schemes disagree in
+# ways that matter: xmonad uses j/k for focus and h/l to resize the main area,
+# where i3 uses hjkl for directional focus. Mixing them produces a config that
+# feels wrong in a way that is hard to name.
+#
+# xmonad default          river equivalent
+# ----------------------  ------------------------------------------
+# Mod+Shift+Return        spawn terminal
+# Mod+p                   launcher
+# Mod+Shift+c             close window
+# Mod+j / Mod+k           focus next / previous
+# Mod+Shift+j / +k        swap next / previous
+# Mod+h / Mod+l           shrink / grow the main area
+# Mod+Return              promote focused view to main   (river: zoom)
+# Mod+comma / Mod+period  more / fewer views in main
+# Mod+Space               cycle layout   (river: cycle main-location)
+# Mod+t                   sink a floating window back into the tiling
+# Mod+Shift+q             quit
+riverctl map normal "$mod"+Shift Return spawn kitty
+riverctl map normal "$mod" P            spawn fuzzel
+riverctl map normal "$mod"+Shift C      close
+riverctl map normal "$mod"+Shift Q      exit
+
+# Focus and swap — j/k, xmonad style.
+riverctl map normal "$mod" J focus-view next
+riverctl map normal "$mod" K focus-view previous
+riverctl map normal "$mod"+Shift J swap next
+riverctl map normal "$mod"+Shift K swap previous
+
+# Resize the main area — h/l, xmonad style. This is the control you reach for
+# constantly in a main-and-stack layout, which is why xmonad gave it the home
+# keys and why it keeps them here.
+riverctl map normal "$mod" H send-layout-cmd rivertile "main-ratio -0.05"
+riverctl map normal "$mod" L send-layout-cmd rivertile "main-ratio +0.05"
+
+# How many views share the main area. xmonad used comma/period.
+riverctl map normal "$mod" comma  send-layout-cmd rivertile "main-count +1"
+riverctl map normal "$mod" period send-layout-cmd rivertile "main-count -1"
+
+# Promote the focused view to main — xmonad's Mod+Return.
+riverctl map normal "$mod" Return zoom
+
+# Where the main area sits. rivertile does the arranging; you pick the axis.
+# river has one layout generator at a time rather than xmonad's layout list,
+# so cycling main-location is the nearest thing to Mod+Space cycling layouts.
+riverctl map normal "$mod" Up    send-layout-cmd rivertile "main-location top"
+riverctl map normal "$mod" Right send-layout-cmd rivertile "main-location right"
+riverctl map normal "$mod" Down  send-layout-cmd rivertile "main-location bottom"
+riverctl map normal "$mod" Left  send-layout-cmd rivertile "main-location left"
+
+riverctl map normal "$mod" F toggle-fullscreen
+riverctl map normal "$mod" T toggle-float     # xmonad's Mod+t: sink back to tiling
+riverctl map normal "$mod"+Shift Space toggle-float
+
+# Mouse: move and resize floating windows.
+riverctl map-pointer normal "$mod" BTN_LEFT  move-view
+riverctl map-pointer normal "$mod" BTN_RIGHT resize-view
+
+# --- tags -------------------------------------------------------------------
+# river tags are a BITMASK, not workspaces. A view can carry several, and the
+# visible set is a mask — which is what makes the scratchpad below work
+# without leaving the tag you are on.
+for i in $(seq 1 9); do
+  tag=$(( 1 << (i - 1) ))
+  riverctl map normal "$mod" "$i"               set-focused-tags  "$tag"
+  riverctl map normal "$mod"+Shift "$i"         set-view-tags     "$tag"
+  riverctl map normal "$mod"+Control "$i"       toggle-focused-tags "$tag"
+  riverctl map normal "$mod"+Shift+Control "$i" toggle-view-tags  "$tag"
+done
+
+all_tags=$(( (1 << 32) - 1 ))
+riverctl map normal "$mod" 0 set-focused-tags "$all_tags"
+
+# --- scratchpad -------------------------------------------------------------
+# Tag 10 (bit 9) is reserved. Super+grave ADDS it to the visible mask rather
+# than switching to it, so the scratchpad floats over whatever you were doing
+# and vanishes again without changing tags. That is a real scratchpad, using
+# river's own model rather than emulating someone else's.
+scratch_tag=$(( 1 << 9 ))
+riverctl map normal "$mod" grave toggle-focused-tags "$scratch_tag"
+riverctl map normal "$mod"+Shift grave set-view-tags "$scratch_tag"
+
+# --- hardware keys ----------------------------------------------------------
+# Nothing handles these for you here. All four are laptop-specific and all
+# four are on the "test before relying on it" list.
+riverctl map normal None XF86AudioRaiseVolume  spawn 'wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+'
+riverctl map normal None XF86AudioLowerVolume  spawn 'wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-'
+riverctl map normal None XF86AudioMute         spawn 'wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle'
+riverctl map normal None XF86AudioMicMute      spawn 'wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle'
+riverctl map normal None XF86MonBrightnessUp   spawn 'brightnessctl set 5%+'
+riverctl map normal None XF86MonBrightnessDown spawn 'brightnessctl set 5%-'
+
+# Media keys work in locked mode too, so music can be paused at the lock screen.
+for mode in normal locked; do
+  riverctl map $mode None XF86AudioMedia spawn 'playerctl play-pause' 2>/dev/null || true
+done
+
+# --- screenshots ------------------------------------------------------------
+# Print          : region -> annotate in swappy
+# Shift+Print    : region -> straight to clipboard
+# Super+Print    : whole output -> ~/Pictures/Screenshots
+riverctl map normal None  Print spawn 'grim -g "$(slurp)" - | swappy -f -'
+riverctl map normal Shift Print spawn 'grim -g "$(slurp)" - | wl-copy'
+riverctl map normal "$mod" Print spawn 'mkdir -p ~/Pictures/Screenshots && grim ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png'
+
+# --- session ----------------------------------------------------------------
+# Session. NOT Super+Control+L — that is main-ratio now. Super+Escape locks,
+# which is also closer to the Plasma habit.
+riverctl map normal "$mod" Escape spawn swaylock
+riverctl map normal "$mod"+Shift P spawn wlogout
+riverctl map normal "$mod" V spawn 'cliphist list | fuzzel --dmenu | cliphist decode | wl-copy'
+
+# --- input ------------------------------------------------------------------
+# Touchpad. Device names are machine-specific, so match rather than hardcode:
+# a hardcoded name silently stops applying after a kernel or firmware change.
+riverctl list-inputs 2>/dev/null | grep -i -E 'touchpad|synaptics' | while read -r dev; do
+  riverctl input "$dev" tap enabled
+  riverctl input "$dev" natural-scroll enabled
+  riverctl input "$dev" scroll-method two-finger
+  riverctl input "$dev" disable-while-typing enabled
+done || true
+
+riverctl focus-follows-cursor normal
+riverctl set-cursor-warp on-output-change
+riverctl set-repeat 50 300
+riverctl xcursor-theme Adwaita 24
+
+# --- appearance -------------------------------------------------------------
+# gruvbox dark, matching kitty, neovim, zathura and waybar.
+riverctl background-color   0x282828
+riverctl border-color-focused   0xd79921   # gruvbox yellow
+riverctl border-color-unfocused 0x504945   # bg2
+riverctl border-color-urgent    0xfb4934   # bright red
+riverctl border-width 2
+
+# --- rules ------------------------------------------------------------------
+# Float things that are dialogs pretending to be windows.
+riverctl rule-add -app-id 'scratchpad'  float
+riverctl rule-add -app-id 'pavucontrol' float
+riverctl rule-add -app-id 'blueman-manager' float
+riverctl rule-add -app-id 'org.kde.polkit-kde-authentication-agent-1' float
+riverctl rule-add -app-id '*' ssd        # server-side decorations: river draws
+                                         # the border, apps don't draw their own
+
+# --- layout -----------------------------------------------------------------
+riverctl default-layout rivertile
+# Gaps. -view-padding is between windows, -outer-padding is against the screen
+# edge; equal values give visually even spacing.
+rivertile -view-padding 6 -outer-padding 6 -main-ratio 0.55 &
+
+# --- autostart --------------------------------------------------------------
+# Everything Plasma used to do. Each line is guarded so a missing package
+# degrades one feature instead of aborting the session.
+run() { command -v "$1" >/dev/null 2>&1 && "$@" & }
+
+# Secret Service — Signal, Element and anything using libsecret need this.
+# gnome-keyring rather than kwallet: it works outside a Plasma session without
+# assuming Plasma is there. See packages/bundles/river.txt.
+if command -v gnome-keyring-daemon >/dev/null 2>&1; then
+  eval "$(gnome-keyring-daemon --start --components=secrets,ssh 2>/dev/null)"
+  export SSH_AUTH_SOCK
+fi
+
+# polkit agent. WITHOUT THIS, anything needing authorisation fails silently —
+# no prompt, no error. Binary comes from the already-installed polkit-kde.
+[ -x /usr/libexec/polkit-kde-authentication-agent-1 ] && \
+  /usr/libexec/polkit-kde-authentication-agent-1 &
+
+run waybar
+run swaync
+run nm-applet --indicator
+run blueman-applet
+run kanshi
+run swaybg -i "$HOME/Pictures/wallpaper.png" -m fill
+run wl-paste --watch cliphist store
+
+# Idle: dim at 4min, lock at 5, screen off at 6, suspend at 15.
+if command -v swayidle >/dev/null 2>&1; then
+  swayidle -w \
+    timeout 300 'swaylock -f' \
+    timeout 360 'wlr-randr --output "*" --off' \
+    resume       'wlr-randr --output "*" --on' \
+    timeout 900 'systemctl suspend' \
+    before-sleep 'swaylock -f' &
+fi
+
+# The scratchpad terminal, parked on tag 10 and left there.
+# Spawned while tag 10 is focused because river assigns new views to the
+# CURRENTLY focused tags — there is no reliable rule for "spawn onto tag N".
+riverctl set-focused-tags "$scratch_tag"
+kitty --class scratchpad &
+sleep 0.4
+riverctl set-focused-tags 1

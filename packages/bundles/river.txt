@@ -1,0 +1,78 @@
+# Bundle: river — a complete Wayland tiling session.
+#
+# Opt-in per machine via machines/<profile>.bundles. NOT in common.txt: the
+# desktop runs KDE with Hyprland alongside (ADR-0002) and does not want a
+# third session's worth of packages until that question is settled
+# (06-backlog/open-questions.md §2).
+#
+# river is a compositor and nothing else — no bar, no launcher, no lock, no
+# notifications, no display management. Everything below is a piece the
+# desktop environment was quietly providing. That is the real cost of a
+# minimal compositor, and it is worth seeing written down as a list.
+#
+# Plasma REMAINS the default session. This is a second entry in the display
+# manager, chosen at login. That is not a nicety — river comes from a
+# single upstream with no Fedora-side maintenance, and principle #2 says the
+# college machine keeps a working fallback. See ADR-0002's pattern.
+#
+# All names verified present in Fedora 44's own repos on 2026-08-23 — no
+# COPR, which is precisely why this is river and not Hyprland.
+
+# --- the compositor ---------------------------------------------------
+river
+
+# --- bar, launcher, notifications -------------------------------------
+waybar                    # bar; the `tray` module is what makes nm-applet work
+fuzzel                    # launcher — wlroots-native, no toolkit baggage
+
+# SwayNotificationCenter (binary: swaync), NOT mako.
+#
+# mako is the usual minimal choice and would be the right one if notifications
+# only had to appear and disappear. But a notification INDICATOR on the bar was
+# a stated requirement, and mako has no waybar module, no history and no
+# do-not-disturb UI — you would be polling `makoctl` from a shell script.
+# swaync ships a real waybar module with an unread count, a panel with history,
+# and a DND toggle. Same job, one fewer bodge.
+SwayNotificationCenter
+
+# --- session plumbing -------------------------------------------------
+# Each of these replaces something Plasma did without being asked.
+swaybg                    # wallpaper
+swayidle                  # lock-on-idle and screen blanking
+swaylock                  # the lock screen itself
+wlogout                   # power menu: shutdown/reboot/suspend/hibernate/logout/lock
+kanshi                    # display profiles, applied on hotplug — the projector case
+wlr-randr                 # one-off output tweaks when kanshi isn't the answer
+
+# --- laptop hardware keys ---------------------------------------------
+# Nothing handles these for you here; the keybinds in config/river/init call them.
+brightnessctl
+
+# --- screenshots ------------------------------------------------------
+grim                      # capture
+slurp                     # region selection
+swappy                    # annotate and save — optional, but the reason
+                          # screenshots are useful for coursework
+
+# --- clipboard --------------------------------------------------------
+# wl-clipboard is already installed (nvim uses wl-copy); cliphist adds history.
+cliphist
+
+# --- tray applets -----------------------------------------------------
+# Plasma had these built in. In waybar they are separate processes in the tray.
+network-manager-applet    # nm-applet — the wifi picker. Campus wifi needs this
+blueman                   # blueman-applet — bluetooth
+
+# --- portals and theming ----------------------------------------------
+xdg-desktop-portal-wlr    # SCREEN SHARING. Presentations are a stated use of
+                          # this machine; without this, sharing shows a blank
+xdg-desktop-portal-gtk    # file picker dialogs (already installed, listed for
+                          # completeness — a rebuild must not omit it)
+qt6ct                     # Qt apps outside Plasma otherwise ignore the theme
+                          # entirely and render in default grey
+
+# --- deliberately NOT here --------------------------------------------
+# polkit-kde        already installed; provides the auth agent binary that
+#                   config/river/init launches. Not re-declared here.
+# gnome-keyring     already installed; Secret Service provider for Signal et al.
+# kitty, fish, nvim already in common.txt — this bundle assumes them

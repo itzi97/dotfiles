@@ -1,0 +1,121 @@
+/* ~/.config/waybar/style.css
+ *
+ * gruvbox dark, matching config/kitty/kitty.conf, config/river/init's border
+ * colours, nvim's colourscheme and zathura. Same palette everywhere so the
+ * light level doesn't jump when focus moves between windows.
+ *
+ *   bg0 #282828   bg1 #3c3836   bg2 #504945   bg3 #665c54
+ *   fg  #ebdbb2   gray #928374
+ *   red #fb4934   green #b8bb26  yellow #fabd2f
+ *   blue #83a598  purple #d3869b aqua #8ec07c  orange #fe8019
+ */
+
+* {
+  /* Nerd Font first for the glyphs, plain JetBrains Mono as the fallback —
+     if the Nerd Font ever goes missing you get boxes, not a broken bar. */
+  font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", monospace;
+  font-size: 13px;
+  min-height: 0;
+  border: none;
+  border-radius: 0;
+}
+
+window#waybar {
+  background: #282828;
+  color: #ebdbb2;
+  border-bottom: 2px solid #3c3836;
+}
+
+/* --- tags ---------------------------------------------------------------- */
+#tags button {
+  padding: 0 8px;
+  color: #928374;              /* an empty tag is barely there */
+  background: transparent;
+}
+
+#tags button.occupied {
+  color: #ebdbb2;              /* has windows */
+}
+
+#tags button.focused {
+  color: #282828;
+  background: #d79921;         /* same yellow as the focused window border */
+  font-weight: bold;
+}
+
+#tags button.urgent {
+  color: #282828;
+  background: #fb4934;
+}
+
+/* Hover has to be visible or the bar feels dead under the cursor. */
+#tags button:hover {
+  background: #504945;
+  color: #ebdbb2;
+}
+
+/* --- taskbar and title --------------------------------------------------- */
+#taskbar button {
+  padding: 0 4px;
+  background: transparent;
+}
+
+#taskbar button.active {
+  border-bottom: 2px solid #d79921;
+}
+
+#window {
+  color: #a89984;
+  padding: 0 10px;
+  font-style: italic;
+}
+
+/* Nothing focused: don't leave an empty italic gap. */
+window#waybar.empty #window {
+  background: transparent;
+  padding: 0;
+}
+
+/* --- right side ---------------------------------------------------------- */
+#tray,
+#wireplumber,
+#backlight,
+#battery,
+#custom-notification,
+#clock {
+  padding: 0 10px;
+  color: #ebdbb2;
+}
+
+#tray > .passive { -gtk-icon-effect: dim; }
+#tray > .needs-attention { -gtk-icon-effect: highlight; }
+
+#wireplumber { color: #8ec07c; }
+#wireplumber.muted { color: #928374; }
+
+#backlight { color: #fabd2f; }
+
+#battery { color: #b8bb26; }
+#battery.charging { color: #8ec07c; }
+#battery.warning:not(.charging) { color: #fe8019; }
+
+/* Critical battery is the one thing on this bar allowed to be annoying.
+   A laptop that dies mid-lecture is the failure this prevents. */
+#battery.critical:not(.charging) {
+  color: #282828;
+  background: #fb4934;
+  font-weight: bold;
+}
+
+#custom-notification { color: #83a598; }
+
+#clock {
+  color: #ebdbb2;
+  font-weight: bold;
+}
+
+tooltip {
+  background: #282828;
+  border: 1px solid #504945;
+  color: #ebdbb2;
+}

@@ -36,6 +36,19 @@
     ~/.config/systemd/user/pkgwatch.service:      config/systemd/pkgwatch.service
     ~/.config/systemd/user/pkgwatch.timer:        config/systemd/pkgwatch.timer
 
+# river — SECONDARY Wayland session. Plasma stays the SDDM default (ADR-0002's
+# pattern, principle #2). Packages come from the `river` bundle, declared in
+# machines/thinkpad.bundles. ThinkPad only for now: the desktop's compositor
+# question is still open (06-backlog/open-questions.md §2).
+- link:
+    # init must be executable — river runs it directly, and a non-executable
+    # init produces an empty session with no error worth reading.
+    ~/.config/river/init:
+      path: config/river/init
+      mode: 755
+    ~/.config/waybar/config.jsonc:  config/waybar/config.jsonc
+    ~/.config/waybar/style.css:     config/waybar/style.css
+
 - shell:
     - command: systemctl --user daemon-reload && systemctl --user enable --now pkgwatch.timer
       stdout: true
