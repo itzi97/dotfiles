@@ -57,6 +57,23 @@ mod="Super"
 
 # --- environment ------------------------------------------------------------
 # Set before anything spawns, or the children inherit the wrong values.
+
+# PATH first, and this one is load-bearing.
+#
+# river is started by the display manager, which does NOT necessarily read the
+# profile files that put ~/.local/bin on PATH. Every `spawn` below inherits
+# river's PATH, so without this, `spawn river-cheatsheet` and
+# `spawn river-wallpaper` fail SILENTLY — the keybinding fires, river tries to
+# exec something it cannot find, and nothing happens or is logged.
+#
+# A terminal inside river hides the problem: fish adds ~/.local/bin itself via
+# fish_add_path, so testing the script by hand works fine while the binding
+# does not. Found 2026-08-23.
+case ":$PATH:" in
+  *":$HOME/.local/bin:"*) ;;
+  *) export PATH="$HOME/.local/bin:$PATH" ;;
+esac
+
 export XDG_CURRENT_DESKTOP=river          # portals key off this
 export XDG_SESSION_TYPE=wayland
 export QT_QPA_PLATFORM=wayland
