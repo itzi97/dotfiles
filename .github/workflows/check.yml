@@ -1,0 +1,57 @@
+# Backstop for hooks/pre-commit.
+#
+# The hook is the primary defence and catches things earlier — critically,
+# it catches secrets BEFORE they reach GitHub, which is the only moment that
+# matters for those. This workflow exists for the two cases the hook can't
+# cover:
+#
+#   1. `git commit --no-verify`, used deliberately and then forgotten about.
+#   2. A machine that hasn't run bootstrap.sh yet, so core.hooksPath is unset
+#      and the hook simply doesn't exist. The desktop is in exactly that state
+#      until it migrates off the stow repo.
+#
+# It cannot be bypassed, which is its whole value.
+
+name: dotfiles-check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # Manual runs, for checking a change without pushing it.
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Submodules OFF on purpose: dotbot is vendored as a submodule and
+          # dotfiles-check explicitly excludes it from the secrets scan. Cloning
+          # it here would only add time.
+          submodules: false
+
+      - name: Install dependencies
+        # PyYAML for the dotbot config parsing. Everything else the script uses
+        # — bash, sed, grep, comm, find — is already on the runner.
+        run: python3 -m pip install --quiet pyyaml
+
+      - name: Run dotfiles-check
+        # Not -q: on CI the full output IS the log, and a passing run that
+        # prints nothing is indistinguishable from a run that checked nothing.
+        # Today's recurring bug has been checks that silently examine zero
+        # items and report success; the log is the evidence they didn't.
+        run: |
+          chmod +x bin/dotfiles-check
+          ./bin/dotfiles-check
+
+      - name: Confirm shell scripts pass shellcheck
+        # Not part of dotfiles-check because shellcheck isn't installed on
+        # either machine and the script must run offline. Here it's free.
+        # Advisory only — shellcheck has opinions this repo doesn't always
+        # share, and a red X on style would train me to ignore the badge.
+        continue-on-error: true
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          shellcheck --severity=warning bin/* bootstrap.sh hooks/* || true

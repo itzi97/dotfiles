@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+#
+# pre-commit — refuse to commit a repo that fails its own linter.
+#
+# Wired up by bootstrap.sh:  git config core.hooksPath hooks
+# Per-repo, deliberately. A global core.hooksPath would hijack every
+# repository on the machine.
+#
+# WHY A HOOK AND NOT JUST CI
+#
+# Most of what dotfiles-check catches is recoverable with another commit — a
+# dangling link target or a duplicate package is embarrassing, not permanent.
+# The secrets check is different: by the time a GitHub Action runs, the key is
+# already on GitHub's servers, in the reflog, and in every clone. There is
+# exactly one useful moment to catch that, and it is here, before the commit
+# object exists.
+#
+# 03-conventions/dotfiles.md asks for "a pre-commit check for keys/tokens".
+# This is it.
+#
+# Bypass with `git commit --no-verify` when you genuinely need to — a
+# work-in-progress commit on a branch, say. The CI workflow is the backstop
+# for when you do that and forget.
+
+set -Eeuo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+CHECK="${REPO_ROOT}/bin/dotfiles-check"
+
+[[ -x "$CHECK" ]] || {
+  printf '\033[33mpre-commit:\033[0m bin/dotfiles-check missing or not executable — skipping\n' >&2
+  exit 0
+}
+
+printf '\033[36m==>\033[0m pre-commit: running dotfiles-check\n'
+
+if "$CHECK" -q; then
+  printf '\033[32m==>\033[0m pre-commit: clean\n'
+  exit 0
+fi
+
+cat >&2 <<'MSG'
+
+Commit refused: dotfiles-check reported failures above.
+
+  Fix them, or bypass deliberately with:
+
+      git commit --no-verify
+
+  Bypassing is fine for a WIP commit. It is not fine for anything the secrets
+  check flagged — that one cannot be undone by a later commit.
+MSG
+exit 1

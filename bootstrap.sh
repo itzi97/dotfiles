@@ -379,6 +379,10 @@ main() {
     install_flatpaks
   fi
 
+  # Point git at the tracked hooks/ directory. Per-repo, NOT --global:
+  # a global core.hooksPath would hijack every repository on the machine.
+  git -C "$BASEDIR" config core.hooksPath hooks 2>/dev/null || true
+
   ensure_dotbot
   run_dotbot "$BASE_CONFIG"
   run_dotbot "$PROFILE_CONFIG"
