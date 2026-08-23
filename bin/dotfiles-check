@@ -1,0 +1,226 @@
+#!/usr/bin/env bash
+#
+# dotfiles-check — lint this repo before it lints you.
+#
+#   dotfiles-check          # run every check, exit non-zero on any failure
+#   dotfiles-check -q       # only print failures
+#
+# Every check here exists because the corresponding bug actually happened:
+#
+#   dangling link targets   install.conf.yaml declared a link to
+#                           config/fish/functions/rip-cd.fish before that file
+#                           existed, so `bootstrap.sh desktop` would have failed
+#                           (ADR-0009 audit). Separately, config/git/config has
+#                           ended with `[include] path = local` since it was
+#                           written and nothing ever created the target — git
+#                           ignores a missing include silently, so user.email
+#                           was unset for weeks while a stray ~/.gitconfig
+#                           quietly supplied it.
+#
+#   shell syntax            a --dry-run that installed seven packages, a sed
+#                           whose delimiter appeared in its own pattern, a
+#                           `die` inside a process substitution that killed
+#                           only the subshell. bash -n catches the cheap third
+#                           of that class for free.
+#
+#   duplicate packages      common.txt is for names identical on both distros.
+#                           Listing something in common AND fedora installs it
+#                           twice and hides which file is authoritative.
+#
+#   bundle references       a typo in machines/<profile>.bundles used to be
+#                           non-fatal, silently installing nothing.
+#
+#   tbx directives          the legend at the top of toolboxes/uni.txt parsed
+#                           as a directive and won, so `tbx create uni` tried
+#                           to pull an image called "container base image" and
+#                           mkdir'd a directory named after a help string.
+#
+#   executable bits         the repo was copied from a mounted folder that
+#                           doesn't preserve modes; bootstrap.sh arrived
+#                           non-executable.
+#
+#   secrets                 03-conventions/dotfiles.md says "add a pre-commit
+#                           check for keys/tokens". This is it. Matters more
+#                           the moment this repo goes public.
+#
+# Deliberately read-only. It reports; it never edits.
+
+set -Eeuo pipefail
+
+BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+QUIET=0
+[[ "${1:-}" == "-q" || "${1:-}" == "--quiet" ]] && QUIET=1
+
+FAILURES=0
+
+hdr()  { ((QUIET)) || printf '\n\033[36m==>\033[0m %s\n' "$*"; }
+ok()   { ((QUIET)) || printf '  \033[32mok\033[0m    %s\n' "$*"; }
+fail() { printf '  \033[31mFAIL\033[0m  %s\n' "$*"; FAILURES=$((FAILURES+1)); }
+note() { ((QUIET)) || printf '  \033[33mnote\033[0m  %s\n' "$*"; }
+
+clean_list() { sed -e 's/#.*//' -e 's/[[:space:]]*$//' -e '/^$/d' "$1" 2>/dev/null; }
+
+# --------------------------------------------------------------- shell syntax
+hdr "shell syntax"
+while read -r f; do
+  [[ -f "$f" ]] || continue
+  head -c2 "$f" | grep -q '^#!' || continue
+  if bash -n "$f" 2>/dev/null; then ok "${f#$BASEDIR/}"
+  else fail "${f#$BASEDIR/} — bash -n reports a syntax error"; fi
+done < <(find "$BASEDIR/bin" "$BASEDIR" -maxdepth 1 -type f 2>/dev/null | sort -u)
+
+# ------------------------------------------------------------ executable bits
+hdr "executable bits"
+for f in "$BASEDIR"/bin/* "$BASEDIR/bootstrap.sh"; do
+  [[ -f "$f" ]] || continue
+  if [[ -x "$f" ]]; then ok "${f#$BASEDIR/}"
+  else fail "${f#$BASEDIR/} is not executable (git tracks the bit: chmod +x, then commit)"; fi
+done
+
+# --------------------------------------------------------------- dotbot YAML
+hdr "dotbot configs parse, and every link source exists"
+for cfg in "$BASEDIR/install.conf.yaml" "$BASEDIR"/machines/*.yaml; do
+  [[ -f "$cfg" ]] || continue
+  rel="${cfg#$BASEDIR/}"
+
+  if ! python3 -c "import yaml,sys; yaml.safe_load(open(sys.argv[1]))" "$cfg" 2>/dev/null; then
+    fail "$rel — invalid YAML"; continue
+  fi
+  ok "$rel parses"
+
+  # Emit one source path per line. dotbot link values are either a bare string
+  # or a mapping with a `path:` key.
+  while read -r src; do
+    [[ -n "$src" ]] || continue
+    if [[ -e "$BASEDIR/$src" ]]; then
+      ok "  → $src"
+    else
+      fail "  → $src — declared in $rel but does not exist in the repo"
+    fi
+  done < <(python3 - "$cfg" <<'PY'
+import sys, yaml
+doc = yaml.safe_load(open(sys.argv[1])) or []
+for block in doc:
+    if not isinstance(block, dict):
+        continue
+    for dest, val in (block.get("link") or {}).items():
+        if isinstance(val, str):
+            print(val)
+        elif isinstance(val, dict) and "path" in val:
+            print(val["path"])
+PY
+  )
+done
+
+# ------------------------------------------------------------- package lists
+hdr "package lists"
+COMMON="$BASEDIR/packages/common.txt"
+for distro in fedora cachyos; do
+  d="$BASEDIR/packages/${distro}.txt"
+  [[ -f "$COMMON" && -f "$d" ]] || continue
+  dupes="$(comm -12 <(clean_list "$COMMON" | sort -u) <(clean_list "$d" | sort -u))"
+  if [[ -z "$dupes" ]]; then ok "no overlap between common.txt and ${distro}.txt"
+  else while read -r p; do
+         fail "$p is in BOTH common.txt and ${distro}.txt — pick one"
+       done <<< "$dupes"
+  fi
+done
+
+for f in "$BASEDIR"/packages/*.txt "$BASEDIR"/packages/bundles/*.txt; do
+  [[ -f "$f" ]] || continue
+  rel="${f#$BASEDIR/}"
+  d="$(clean_list "$f" | sort | uniq -d)"
+  [[ -z "$d" ]] || while read -r p; do fail "$rel lists '$p' more than once"; done <<< "$d"
+done
+
+for b in "$BASEDIR"/packages/bundles/*.txt; do
+  [[ -f "$b" ]] || continue
+  name="$(basename "$b" .txt)"
+  overlap="$(comm -12 <(clean_list "$b" | sort -u) \
+                      <(cat <(clean_list "$COMMON") \
+                            <(clean_list "$BASEDIR/packages/fedora.txt") \
+                            <(clean_list "$BASEDIR/packages/cachyos.txt") 2>/dev/null | sort -u))"
+  if [[ -z "$overlap" ]]; then ok "bundle '$name' declares nothing already in the base lists"
+  else while read -r p; do
+         fail "bundle '$name' also lists '$p', which is already installed on every machine"
+       done <<< "$overlap"
+  fi
+done
+
+# --------------------------------------------------------- bundle references
+hdr "machine bundle references resolve"
+shopt -s nullglob
+for bf in "$BASEDIR"/machines/*.bundles; do
+  profile="$(basename "$bf" .bundles)"
+  # `tr -d ' \t'`, NOT `tr -d '[:space:]'` — the latter deletes newlines too,
+  # joining every entry into one unterminated line. `read` then returns false
+  # immediately and the loop body never executes: a check that silently
+  # examines nothing and reports success. Caught while testing this script
+  # against a repo with a deliberate typo (2026-08-23).
+  #
+  # `|| [[ -n "$name" ]]` handles a final line with no trailing newline, which
+  # read would otherwise discard for the same reason.
+  while read -r name || [[ -n "$name" ]]; do
+    name="${name//[[:space:]]/}"
+    [[ -n "$name" ]] || continue
+    if [[ -f "$BASEDIR/packages/bundles/${name}.txt" ]]; then ok "$profile → $name"
+    else fail "$profile declares bundle '$name' but packages/bundles/${name}.txt does not exist"; fi
+  done < <(clean_list "$bf" | tr -d ' \t')
+done
+shopt -u nullglob
+
+# ------------------------------------------------------------ tbx directives
+hdr "toolbox directives"
+for t in "$BASEDIR"/toolboxes/*.txt; do
+  [[ -f "$t" ]] || continue
+  name="$(basename "$t" .txt)"
+  # tail -n1: the header legend is written without colons so it can't match,
+  # but take the last occurrence anyway — that is what bin/tbx does.
+  image="$(sed -n 's/^#[[:space:]]*tbx-image:[[:space:]]*//p' "$t" | tail -n1)"
+  home="$(sed -n 's/^#[[:space:]]*tbx-home:[[:space:]]*//p' "$t" | tail -n1)"
+
+  if [[ -z "$image" ]]; then note "$name has no tbx-image (will use tbx's default)"
+  elif [[ "$image" =~ ^[a-z0-9._/-]+(:[a-zA-Z0-9._-]+)?$ ]]; then ok "$name image: $image"
+  else fail "$name tbx-image is not a container reference: '$image'"; fi
+
+  if [[ -n "$home" ]]; then
+    if [[ "$home" == ~* || "$home" == /* ]]; then ok "$name home: $home"
+    else fail "$name tbx-home must be absolute or ~/…, got: '$home'"; fi
+  fi
+done
+
+# ------------------------------------------------------------------- secrets
+hdr "secrets"
+# High-signal patterns only. A scanner that flags every line containing the
+# word "password" gets switched off within a week, and this repo legitimately
+# discusses password FILE PATHS all over the place.
+PATTERNS=(
+  'BEGIN [A-Z ]*PRIVATE KEY'
+  'ghp_[A-Za-z0-9]{36}'
+  'github_pat_[A-Za-z0-9_]{20,}'
+  'AKIA[0-9A-Z]{16}'
+  'xox[baprs]-[A-Za-z0-9-]{10,}'
+  '-----BEGIN CERTIFICATE-----'
+)
+hits=0
+for pat in "${PATTERNS[@]}"; do
+  while read -r line; do
+    [[ -n "$line" ]] || continue
+    fail "possible secret: $line"; hits=$((hits+1))
+  done < <(grep -rnE --exclude-dir=.git --exclude-dir=dotbot "$pat" "$BASEDIR" 2>/dev/null || true)
+done
+((hits)) || ok "no private keys or provider tokens found"
+
+# Belt and braces: the two files that must never be committed.
+for forbidden in "config/restic/password" ".ssh/id_ed25519"; do
+  [[ -e "$BASEDIR/$forbidden" ]] && fail "$forbidden exists in the repo — it must not"
+done
+((QUIET)) || ok "no password or key file present in the repo"
+
+# ---------------------------------------------------------------------- done
+echo
+if ((FAILURES)); then
+  printf '\033[31m%d check(s) failed\033[0m\n' "$FAILURES"
+  exit 1
+fi
+printf '\033[32mall checks passed\033[0m\n'
