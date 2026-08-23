@@ -93,11 +93,39 @@ done < <(find "$BASEDIR/bin" "$BASEDIR" -maxdepth 1 -type f 2>/dev/null | sort -
 
 # ------------------------------------------------------------ executable bits
 hdr "executable bits"
-for f in "$BASEDIR"/bin/* "$BASEDIR/bootstrap.sh"; do
+for f in "$BASEDIR"/bin/* "$BASEDIR/bootstrap.sh" "$BASEDIR"/hooks/*; do
   [[ -f "$f" ]] || continue
   if [[ -x "$f" ]]; then ok "${f#$BASEDIR/}"
   else fail "${f#$BASEDIR/} is not executable (git tracks the bit: chmod +x, then commit)"; fi
 done
+
+# Anything a dotbot config declares with `mode: 755` must ALSO be executable
+# in the repo.
+#
+# `mode` is not a documented dotbot link option — it may be silently ignored.
+# What actually carries the bit is git, on the source file. config/river/init
+# was committed 644 while thinkpad.yaml said mode: 755, and river execs its
+# init directly: the result would have been a session with no keybindings at
+# all, discovered at a login screen (2026-08-23).
+while read -r src; do
+  [[ -n "$src" ]] || continue
+  if [[ -x "$BASEDIR/$src" ]]; then ok "$src (declared mode 755, is executable)"
+  else fail "$src is declared mode 755 but is NOT executable in the repo"; fi
+done < <(python3 - "$BASEDIR" <<'PY'
+import sys, glob, os, yaml
+base = sys.argv[1]
+cfgs = [os.path.join(base, "install.conf.yaml")] + glob.glob(os.path.join(base, "machines", "*.yaml"))
+for c in cfgs:
+    if not os.path.exists(c):
+        continue
+    for block in (yaml.safe_load(open(c)) or []):
+        if not isinstance(block, dict):
+            continue
+        for _dest, val in (block.get("link") or {}).items():
+            if isinstance(val, dict) and str(val.get("mode", "")).endswith("755") and "path" in val:
+                print(val["path"])
+PY
+)
 
 # --------------------------------------------------------------- dotbot YAML
 hdr "dotbot configs parse, and every link source exists"
