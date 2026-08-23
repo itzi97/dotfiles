@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+#
+# river-wallpaper — pick a wallpaper from a menu, apply it, and remember it.
+#
+#   river-wallpaper           # menu
+#   river-wallpaper --restore # re-apply the saved one (called from river init)
+#
+# Bound to Super+w in config/river/init.
+#
+# The choice is persisted to XDG_STATE_HOME, not to the dotfiles repo: it is
+# per-machine, changes often, and is exactly the kind of mutable state that
+# 03-conventions/filesystem-layout.md keeps out of config. The repo stores the
+# mechanism; the machine stores the choice.
+
+set -euo pipefail
+
+WALLPAPER_DIR="${WALLPAPER_DIR:-$HOME/Pictures/Wallpapers}"
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/river"
+STATE_FILE="${STATE_DIR}/wallpaper"
+
+mkdir -p "$WALLPAPER_DIR" "$STATE_DIR"
+
+apply() {
+  local img="$1"
+  [[ -f "$img" ]] || return 1
+  # One swaybg at a time. Without the kill you stack instances and the old one
+  # keeps painting underneath — invisible, but it never exits.
+  pkill -x swaybg 2>/dev/null || true
+  swaybg -i "$img" -m fill >/dev/null 2>&1 &
+  printf '%s\n' "$img" > "$STATE_FILE"
+}
+
+# --restore: used at session start. Silent, and never fatal — a missing
+# wallpaper must not take the session down with it.
+if [[ "${1:-}" == "--restore" ]]; then
+  [[ -r "$STATE_FILE" ]] || exit 0
+  saved="$(cat "$STATE_FILE")"
+  apply "$saved" || true
+  exit 0
+fi
+
+mapfile -t images < <(find "$WALLPAPER_DIR" -maxdepth 2 -type f \
+  \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) | sort)
+
+if ((${#images[@]} == 0)); then
+  # Say where to put them rather than failing silently with an empty menu.
+  notify-send "No wallpapers found" "Put images in ${WALLPAPER_DIR}" 2>/dev/null \
+    || echo "No wallpapers in ${WALLPAPER_DIR}" >&2
+  exit 1
+fi
+
+# Show basenames in the menu, keep full paths for the apply step.
+choice="$(printf '%s\n' "${images[@]}" \
+  | while read -r p; do printf '%s\t%s\n' "$(basename "$p")" "$p"; done \
+  | fuzzel --dmenu --prompt 'wallpaper ❯ ' --lines 15 --width 50 \
+  | cut -f2)"
+
+[[ -n "${choice:-}" ]] || exit 0
+apply "$choice"

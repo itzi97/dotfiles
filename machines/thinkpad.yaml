@@ -48,6 +48,12 @@
       mode: 755
     ~/.config/waybar/config.jsonc:  config/waybar/config.jsonc
     ~/.config/waybar/style.css:     config/waybar/style.css
+    ~/.local/bin/river-cheatsheet:
+      path: bin/river-cheatsheet
+      mode: 755
+    ~/.local/bin/river-wallpaper:
+      path: bin/river-wallpaper
+      mode: 755
 
 - shell:
     - command: systemctl --user daemon-reload && systemctl --user enable --now pkgwatch.timer

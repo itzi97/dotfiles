@@ -157,6 +157,11 @@ riverctl map normal "$mod" Escape spawn swaylock
 riverctl map normal "$mod"+Shift P spawn wlogout
 riverctl map normal "$mod" V spawn 'cliphist list | fuzzel --dmenu | cliphist decode | wl-copy'
 
+# Super+? — searchable keybind reference, parsed from THIS file so it cannot
+# drift out of date. Super+w — wallpaper picker.
+riverctl map normal "$mod"+Shift slash spawn river-cheatsheet
+riverctl map normal "$mod" W spawn river-wallpaper
+
 # --- input ------------------------------------------------------------------
 # Touchpad. Device names are machine-specific, so match rather than hardcode:
 # a hardcoded name silently stops applying after a kernel or firmware change.
@@ -218,7 +223,7 @@ run swaync
 run nm-applet --indicator
 run blueman-applet
 run kanshi
-run swaybg -i "$HOME/Pictures/wallpaper.png" -m fill
+run river-wallpaper --restore   # re-applies the last choice; silent if none
 run wl-paste --watch cliphist store
 
 # Idle: dim at 4min, lock at 5, screen off at 6, suspend at 15.
