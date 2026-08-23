@@ -175,7 +175,10 @@ done || true
 riverctl focus-follows-cursor normal
 riverctl set-cursor-warp on-output-change
 riverctl set-repeat 50 300
-riverctl xcursor-theme Adwaita 24
+# breeze_cursors, matching what Plasma set in ~/.config/gtk-*/settings.ini.
+# A different cursor theme per session is the kind of small inconsistency that
+# reads as "something is broken" without being nameable.
+riverctl xcursor-theme breeze_cursors 24
 
 # --- appearance -------------------------------------------------------------
 # gruvbox dark, matching kitty, neovim, zathura and waybar.
@@ -218,14 +221,17 @@ fi
 [ -x /usr/libexec/polkit-kde-authentication-agent-1 ] && \
   /usr/libexec/polkit-kde-authentication-agent-1 &
 
-# GTK4/libadwaita apps ignore gtk-theme-name and follow this preference
-# instead, so the settings.ini files alone are not enough. Set before anything
-# GTK starts, or the first window comes up light and only later windows match.
+# GTK4/libadwaita apps ignore gtk-theme-name and follow the colour-scheme
+# preference through the portal instead, so ~/.config/gtk-*/settings.ini alone
+# is not enough for them.
+#
+# ONLY colour-scheme is set here. Theme, icons and cursor are deliberately left
+# alone: Plasma owns ~/.config/gtk-*/settings.ini, has already set Breeze and
+# breeze-dark coherently, and overriding them from river would make GTK apps
+# look different depending on which session launched them — worse than either
+# choice on its own.
 if command -v gsettings >/dev/null 2>&1; then
   gsettings set org.gnome.desktop.interface color-scheme prefer-dark 2>/dev/null || true
-  gsettings set org.gnome.desktop.interface gtk-theme Adwaita-dark 2>/dev/null || true
-  gsettings set org.gnome.desktop.interface icon-theme breeze-dark 2>/dev/null || true
-  gsettings set org.gnome.desktop.interface cursor-theme Adwaita 2>/dev/null || true
 fi
 
 run waybar

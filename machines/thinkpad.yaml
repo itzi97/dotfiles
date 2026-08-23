@@ -62,8 +62,23 @@
     ~/.config/swaylock/config:      config/swaylock/config
     ~/.config/wlogout/layout:       config/wlogout/layout
     ~/.config/wlogout/style.css:    config/wlogout/style.css
-    ~/.config/gtk-3.0/settings.ini: config/gtk-3.0/settings.ini
-    ~/.config/gtk-4.0/settings.ini: config/gtk-4.0/settings.ini
+
+# GTK settings.ini is deliberately NOT linked.
+#
+# dotbot refused to overwrite the existing files (force: false, working as
+# designed) and inspecting them showed why that was the right outcome: Plasma
+# had already written coherent dark config — prefer-dark, Breeze, breeze-dark
+# icons — plus `gtk-xft-dpi=122880`, a machine-specific 120 DPI value that a
+# checked-in file would have silently destroyed.
+#
+# Plasma is the default session and owns these files; it also rewrites them
+# from its settings module, which would either replace a symlink or write
+# straight through it into this repo. river simply inherits them, and sets
+# only the colour-scheme preference (config/river/init) for GTK4 apps that
+# read the portal rather than settings.ini.
+#
+# If river ever becomes the default session, revisit — at that point nothing
+# else is maintaining these and they should come into the repo.
 
 - shell:
     - command: systemctl --user daemon-reload && systemctl --user enable --now pkgwatch.timer
