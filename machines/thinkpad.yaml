@@ -54,6 +54,16 @@
     ~/.local/bin/river-wallpaper:
       path: bin/river-wallpaper
       mode: 755
+    # Session theming — gruvbox everywhere it can be, Adwaita-dark for GTK
+    # (see the note in gtk-3.0/settings.ini for why not gruvbox there).
+    ~/.config/fuzzel/fuzzel.ini:    config/fuzzel/fuzzel.ini
+    ~/.config/swaync/config.json:   config/swaync/config.json
+    ~/.config/swaync/style.css:     config/swaync/style.css
+    ~/.config/swaylock/config:      config/swaylock/config
+    ~/.config/wlogout/layout:       config/wlogout/layout
+    ~/.config/wlogout/style.css:    config/wlogout/style.css
+    ~/.config/gtk-3.0/settings.ini: config/gtk-3.0/settings.ini
+    ~/.config/gtk-4.0/settings.ini: config/gtk-4.0/settings.ini
 
 - shell:
     - command: systemctl --user daemon-reload && systemctl --user enable --now pkgwatch.timer

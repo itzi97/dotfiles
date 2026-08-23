@@ -1,0 +1,163 @@
+/* ~/.config/swaync/style.css
+ *
+ * gruvbox dark. Same palette as waybar's style.css, kitty, neovim, zathura,
+ * fuzzel and river's window borders:
+ *
+ *   bg0 #282828   bg1 #3c3836   bg2 #504945
+ *   fg  #ebdbb2   gray #928374
+ *   red #fb4934   yellow #fabd2f  aqua #8ec07c  orange #fe8019
+ *
+ * The accent is #d79921 everywhere in this session: focused window border,
+ * focused waybar tag, fuzzel selection. Selection means one colour.
+ */
+
+* {
+  font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", sans-serif;
+  font-size: 13px;
+}
+
+/* --- popup notifications -------------------------------------------------- */
+.notification-row { outline: none; }
+
+.notification {
+  background: #282828;
+  border: 2px solid #504945;
+  border-radius: 0;
+  margin: 6px;
+  padding: 0;
+}
+
+.notification-content {
+  background: transparent;
+  padding: 10px;
+  color: #ebdbb2;
+}
+
+.summary {
+  color: #ebdbb2;
+  font-weight: bold;
+}
+
+.body {
+  color: #a89984;
+}
+
+.time {
+  color: #928374;
+  font-size: 11px;
+}
+
+/* Critical notifications get the red border, and are the only ones that do.
+   swaync's config gives them timeout 0 — they stay until dismissed, because
+   the things that raise them (backup failed, pkgwatch could not check) are
+   exactly the things this stack refuses to let fail silently. */
+.critical {
+  border-color: #fb4934;
+}
+
+.low { border-color: #504945; }
+
+.close-button {
+  background: transparent;
+  color: #928374;
+  border: none;
+}
+
+.close-button:hover {
+  background: #fb4934;
+  color: #282828;
+}
+
+.notification-action {
+  background: #3c3836;
+  color: #ebdbb2;
+  border: 1px solid #504945;
+  border-radius: 0;
+  margin: 4px;
+}
+
+.notification-action:hover {
+  background: #504945;
+}
+
+/* --- control centre ------------------------------------------------------- */
+.control-center {
+  background: #282828;
+  border: 2px solid #504945;
+  border-radius: 0;
+  padding: 10px;
+  color: #ebdbb2;
+}
+
+.control-center .notification {
+  margin: 4px 0;
+}
+
+.widget-title {
+  color: #ebdbb2;
+  font-size: 15px;
+  font-weight: bold;
+  padding: 6px 4px;
+}
+
+.widget-title > button {
+  background: #3c3836;
+  color: #ebdbb2;
+  border: 1px solid #504945;
+  border-radius: 0;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.widget-title > button:hover {
+  background: #d79921;
+  color: #282828;
+}
+
+/* Do-not-disturb toggle. Off is quiet; on is the accent, so a glance at the
+   panel tells you why nothing has been popping up. */
+.widget-dnd {
+  color: #ebdbb2;
+  padding: 6px 4px;
+}
+
+.widget-dnd > switch {
+  background: #504945;
+  border-radius: 0;
+  border: 1px solid #665c54;
+}
+
+.widget-dnd > switch:checked {
+  background: #d79921;
+}
+
+.widget-dnd > switch slider {
+  background: #ebdbb2;
+  border-radius: 0;
+}
+
+/* --- media player --------------------------------------------------------- */
+.widget-mpris {
+  background: #3c3836;
+  padding: 8px;
+  margin: 6px 0;
+}
+
+.widget-mpris-title {
+  color: #ebdbb2;
+  font-weight: bold;
+}
+
+.widget-mpris-subtitle {
+  color: #a89984;
+  font-size: 12px;
+}
+
+.widget-mpris > box > button:hover {
+  background: #504945;
+}
+
+/* Nothing to show: don't leave a labelled empty box. */
+.notification-group-empty {
+  opacity: 0;
+}

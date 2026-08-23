@@ -218,6 +218,16 @@ fi
 [ -x /usr/libexec/polkit-kde-authentication-agent-1 ] && \
   /usr/libexec/polkit-kde-authentication-agent-1 &
 
+# GTK4/libadwaita apps ignore gtk-theme-name and follow this preference
+# instead, so the settings.ini files alone are not enough. Set before anything
+# GTK starts, or the first window comes up light and only later windows match.
+if command -v gsettings >/dev/null 2>&1; then
+  gsettings set org.gnome.desktop.interface color-scheme prefer-dark 2>/dev/null || true
+  gsettings set org.gnome.desktop.interface gtk-theme Adwaita-dark 2>/dev/null || true
+  gsettings set org.gnome.desktop.interface icon-theme breeze-dark 2>/dev/null || true
+  gsettings set org.gnome.desktop.interface cursor-theme Adwaita 2>/dev/null || true
+fi
+
 run waybar
 run swaync
 run nm-applet --indicator

@@ -1,0 +1,69 @@
+# ~/.config/swaylock/config
+#
+# Lock screen. Reached three ways: Super+Escape, the wlogout menu, and
+# swayidle after 5 minutes (see config/river/init).
+#
+# gruvbox dark, same palette as everything else in the session. The default
+# swaylock screen is grey-and-white and is the single most jarring thing in an
+# otherwise dark setup — it is also the screen you see most often.
+#
+# Colours are RRGGBB or RRGGBBAA. No leading '#'.
+
+# Solid background rather than a blurred screenshot: swaylock (as opposed to
+# swaylock-effects) cannot blur, and an UNBLURRED screenshot of your desktop
+# on the lock screen shows whatever you were reading to whoever walks past.
+# That is a privacy regression, not a style choice.
+color=282828
+
+# --- the indicator ---------------------------------------------------------
+indicator
+indicator-radius=90
+indicator-thickness=8
+indicator-caps-lock
+
+# Caps lock shown explicitly. Three failed unlocks because caps was on is a
+# rite of passage nobody needs twice.
+show-keyboard-layout=no
+
+# Idle state: dim ring, no text.
+ring-color=504945
+inside-color=282828
+line-color=282828
+text-color=ebdbb2
+separator-color=00000000
+
+# Typing.
+ring-ver-color=d79921
+inside-ver-color=282828
+line-ver-color=282828
+text-ver-color=ebdbb2
+
+# Keypress / backspace flashes — enough feedback to know it registered.
+key-hl-color=fabd2f
+bs-hl-color=fe8019
+
+# Wrong password.
+ring-wrong-color=fb4934
+inside-wrong-color=282828
+line-wrong-color=282828
+text-wrong-color=fb4934
+
+# Cleared.
+ring-clear-color=8ec07c
+inside-clear-color=282828
+line-clear-color=282828
+text-clear-color=8ec07c
+
+# --- behaviour -------------------------------------------------------------
+# Don't reveal the password length — a shoulder-surfer counting asterisks
+# learns something; a fixed-size ring tells them nothing.
+indicator-idle-visible=no
+hide-keyboard-layout
+
+font=JetBrainsMono Nerd Font
+font-size=20
+
+# Fail closed. If swaylock cannot render for any reason it must still lock the
+# session rather than exiting and leaving the desktop exposed.
+ignore-empty-password
+daemonize
