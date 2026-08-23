@@ -124,8 +124,18 @@ riverctl map normal "$mod" 0 set-focused-tags "$all_tags"
 # and vanishes again without changing tags. That is a real scratchpad, using
 # river's own model rather than emulating someone else's.
 scratch_tag=$(( 1 << 9 ))
-riverctl map normal "$mod" grave toggle-focused-tags "$scratch_tag"
-riverctl map normal "$mod"+Shift grave set-view-tags "$scratch_tag"
+
+# Super+s, NOT Super+grave.
+#
+# `grave` is the idiomatic scratchpad key on a US layout, but on the Spanish
+# layout the key left of 1 emits `masculine` (º/ª) — and river binds by
+# KEYSYM, so Super+grave would silently never fire. A binding that does
+# nothing and reports nothing is the worst kind.
+#
+# Letters are layout-stable; symbols are not. Anything bound to punctuation in
+# this file should be treated as suspect until `wev` says otherwise.
+riverctl map normal "$mod" S toggle-focused-tags "$scratch_tag"
+riverctl map normal "$mod"+Shift S set-view-tags "$scratch_tag"
 
 # --- hardware keys ----------------------------------------------------------
 # Nothing handles these for you here. All four are laptop-specific and all
@@ -157,9 +167,11 @@ riverctl map normal "$mod" Escape spawn swaylock
 riverctl map normal "$mod"+Shift P spawn wlogout
 riverctl map normal "$mod" V spawn 'cliphist list | fuzzel --dmenu | cliphist decode | wl-copy'
 
-# Super+? — searchable keybind reference, parsed from THIS file so it cannot
-# drift out of date. Super+w — wallpaper picker.
-riverctl map normal "$mod"+Shift slash spawn river-cheatsheet
+# Super+F1 — searchable keybind reference, parsed from THIS file so it cannot
+# drift out of date. F1 rather than Super+? because `?` on the Spanish layout
+# is Shift+apostrophe, not Shift+slash, and function keys are layout-stable.
+# F1 is also the conventional help key, which is one less thing to remember.
+riverctl map normal "$mod" F1 spawn river-cheatsheet
 riverctl map normal "$mod" W spawn river-wallpaper
 
 # --- input ------------------------------------------------------------------
@@ -171,6 +183,16 @@ riverctl list-inputs 2>/dev/null | grep -i -E 'touchpad|synaptics' | while read 
   riverctl input "$dev" scroll-method two-finger
   riverctl input "$dev" disable-while-typing enabled
 done || true
+
+# KEYBOARD LAYOUT — Spanish.
+#
+# river defaults to `us` and has no idea what your hardware is. Plasma was
+# setting this; river sets nothing. Without this line every symbol and every
+# accented character is in the wrong place, which is a confusing way to
+# discover a compositor "doesn't work".
+#
+# Verify a binding actually fires with:  wev   (shows the keysym you produced)
+riverctl keyboard-layout es
 
 riverctl focus-follows-cursor normal
 riverctl set-cursor-warp on-output-change
