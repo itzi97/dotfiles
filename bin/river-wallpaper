@@ -14,11 +14,25 @@
 
 set -euo pipefail
 
-WALLPAPER_DIR="${WALLPAPER_DIR:-$HOME/Pictures/Wallpapers}"
+# Two sources, deliberately:
+#
+#   ~/Pictures/Wallpapers        images I chose and want kept. ~/Pictures is a
+#                                Nextcloud sync pair, so anything here goes to
+#                                Hetzner — fine for a handful, wrong for a
+#                                cloned collection of several hundred.
+#
+#   ~/.local/share/wallpapers    bulk collections cloned from git. Not synced,
+#                                not backed up, and correctly so: it is a
+#                                `git clone` away from being recreated.
+#
+# Override either with WALLPAPER_DIRS="dir1:dir2".
+WALLPAPER_DIRS="${WALLPAPER_DIRS:-$HOME/Pictures/Wallpapers:$HOME/.local/share/wallpapers}"
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/river"
 STATE_FILE="${STATE_DIR}/wallpaper"
 
-mkdir -p "$WALLPAPER_DIR" "$STATE_DIR"
+mkdir -p "$STATE_DIR"
+IFS=':' read -r -a _dirs <<< "$WALLPAPER_DIRS"
+mkdir -p "${_dirs[0]}"
 
 apply() {
   local img="$1"
@@ -39,20 +53,34 @@ if [[ "${1:-}" == "--restore" ]]; then
   exit 0
 fi
 
-mapfile -t images < <(find "$WALLPAPER_DIR" -maxdepth 2 -type f \
-  \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) | sort)
+existing=()
+for d in "${_dirs[@]}"; do [[ -d "$d" ]] && existing+=("$d"); done
+
+# -maxdepth 4: collections organise by category, sometimes nested.
+# `-not -path '*/light/*'` skips the light-theme variants that gruvbox
+# collections ship alongside the dark ones — this is a dark session and a
+# light wallpaper in the menu is only ever a mis-click.
+mapfile -t images < <(
+  ((${#existing[@]})) && find "${existing[@]}" -maxdepth 4 -type f \
+    -not -path '*/.git/*' -not -path '*/light/*' \
+    \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) | sort
+)
 
 if ((${#images[@]} == 0)); then
   # Say where to put them rather than failing silently with an empty menu.
-  notify-send "No wallpapers found" "Put images in ${WALLPAPER_DIR}" 2>/dev/null \
-    || echo "No wallpapers in ${WALLPAPER_DIR}" >&2
+  notify-send "No wallpapers found" "Looked in: ${WALLPAPER_DIRS//:/, }" 2>/dev/null \
+    || echo "No wallpapers in ${WALLPAPER_DIRS//:/, }" >&2
   exit 1
 fi
 
-# Show basenames in the menu, keep full paths for the apply step.
+# Menu shows "category/filename" rather than a bare basename — with a few
+# hundred images from a collection, the folder is most of the information.
 choice="$(printf '%s\n' "${images[@]}" \
-  | while read -r p; do printf '%s\t%s\n' "$(basename "$p")" "$p"; done \
-  | fuzzel --dmenu --prompt 'wallpaper ❯ ' --lines 15 --width 50 \
+  | while read -r p; do
+      label="$(basename "$(dirname "$p")")/$(basename "$p")"
+      printf '%s\t%s\n' "$label" "$p"
+    done \
+  | fuzzel --dmenu --prompt 'wallpaper ❯ ' --lines 15 --width 60 \
   | cut -f2)"
 
 [[ -n "${choice:-}" ]] || exit 0

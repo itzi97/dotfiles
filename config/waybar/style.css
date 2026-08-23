@@ -11,9 +11,12 @@
  */
 
 * {
-  /* Nerd Font first for the glyphs, plain JetBrains Mono as the fallback —
-     if the Nerd Font ever goes missing you get boxes, not a broken bar. */
-  font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", monospace;
+  /* JetBrains Mono for text, Symbols Nerd Font Mono for the icons.
+     Fedora packages no Nerd Font at all, so bin/install-nerd-font fetches the
+     symbols-only set (~1MB) into ~/.local/share/fonts. Text font stays the
+     packaged one; only the glyphs come from outside the repos. If the symbols
+     font is missing you get boxes where icons should be, not a broken bar. */
+  font-family: "JetBrains Mono", "Symbols Nerd Font Mono", monospace;
   font-size: 13px;
   min-height: 0;
   border: none;

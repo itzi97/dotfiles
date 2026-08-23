@@ -54,6 +54,10 @@
     ~/.local/bin/river-wallpaper:
       path: bin/river-wallpaper
       mode: 755
+    ~/.local/bin/install-nerd-font:
+      path: bin/install-nerd-font
+      mode: 755
+    ~/.config/kanshi/config:        config/kanshi/config
     # Session theming — gruvbox everywhere it can be, Adwaita-dark for GTK
     # (see the note in gtk-3.0/settings.ini for why not gruvbox there).
     ~/.config/fuzzel/fuzzel.ini:    config/fuzzel/fuzzel.ini
@@ -85,3 +89,15 @@
       stdout: true
       stderr: true
       description: Enable the monthly pkgwatch timer
+
+    # Nerd Font symbols. Fedora packages none, so this is the documented
+    # exception to "if it's part of the setup it goes in a package list"
+    # (03-conventions/dotfiles.md) — a static asset with no update story,
+    # fetched by a committed script so a rebuild reproduces it.
+    #
+    # --check first so the download only happens when it is actually missing;
+    # bootstrap.sh runs often and should not hit GitHub every time.
+    - command: bin/install-nerd-font --check >/dev/null 2>&1 || bin/install-nerd-font
+      stdout: true
+      stderr: true
+      description: Install Nerd Font symbols if missing

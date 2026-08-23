@@ -1,0 +1,38 @@
+# ~/.config/kanshi/config
+#
+# Display profiles, applied at login and re-applied on hotplug. river 0.3 does
+# not manage outputs itself — this is the only thing that does.
+#
+# WHY SCALE 1.25
+#
+# eDP-1 is 2560x1600 across a 340mm-wide panel — about 191 DPI. Unscaled, that
+# renders everything at roughly half the size you are used to. Plasma was
+# already compensating: its GTK config carries `gtk-xft-dpi=122880`, which is
+# 120 DPI, i.e. exactly 1.25x. Matching that means river and Plasma look the
+# same rather than the session switch changing every measurement on screen.
+#
+# 1.25 gives an effective 2048x1280. If it still reads small, 1.5 is the next
+# sane step; wlroots handles fractional scale fine. Try it live first:
+#     wlr-randr --output eDP-1 --scale 1.5
+#
+# Mode is deliberately NOT pinned. The panel offers 2560x1600 at both 165Hz and
+# 60Hz and kanshi will keep the preferred (165Hz). If battery life matters more
+# than smoothness on a given trip, add `mode 2560x1600@60` to this profile —
+# high refresh is a real drain on a laptop that leaves the house.
+
+profile laptop {
+    output eDP-1 enable scale 1.25
+}
+
+# --- external displays ------------------------------------------------------
+# Placeholder for the projector case, which `01-machines/thinkpad-fedora-windows.md`
+# lists as a real use of this machine (presentations).
+#
+# Do NOT guess the output name or resolution — plug the thing in, run
+# `wlr-randr`, and write what it actually reports. A profile that doesn't match
+# is silently skipped, which looks identical to kanshi not running.
+#
+# profile presenting {
+#     output eDP-1 enable scale 1.25 position 0,0
+#     output HDMI-A-1 enable mode 1920x1080 position 2048,0
+# }

@@ -1,0 +1,141 @@
+#!/usr/bin/env bash
+#
+# install-nerd-font — put the Nerd Fonts symbol glyphs on this machine.
+#
+#   install-nerd-font          # install if missing or outdated
+#   install-nerd-font --force  # reinstall regardless
+#   install-nerd-font --check  # report status, change nothing (exit 1 if missing)
+#
+# WHY THIS EXISTS AS A SCRIPT
+#
+# Fedora does not package Nerd Fonts. The only repo hit is
+# `texlive-inconsolata-nerd-font`, which is a LaTeX package, not a system font.
+# So waybar, fuzzel, swaync and wlogout all render their icons as empty boxes.
+#
+# 03-conventions/dotfiles.md says anything the setup needs goes in a package
+# list, not a hand-install. This is the documented exception, and the reasoning
+# matters: ADR-0016's caution about hand-installed software is about things
+# that need security updates and go stale. A symbols font is a static asset —
+# it has no attack surface worth patching and no version you need to chase.
+# What it DOES need is to be reproducible on a rebuild, which is what makes
+# this a committed script rather than a thing you did once and forgot.
+#
+# SYMBOLS-ONLY, not a full patched family. ~1MB rather than ~30MB, and
+# fontconfig uses it automatically as a fallback for exactly the glyphs
+# JetBrains Mono lacks. Your text font stays JetBrains Mono everywhere.
+
+set -Eeuo pipefail
+
+REPO="ryanoasis/nerd-fonts"
+FONT_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/fonts/NerdFontsSymbolsOnly"
+STAMP="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/nerd-font.version"
+
+info() { printf '\033[36m==>\033[0m %s\n' "$*"; }
+ok()   { printf '  \033[32mok\033[0m    %s\n' "$*"; }
+die()  { printf '\033[31merror:\033[0m %s\n' "$*" >&2; exit 1; }
+
+MODE=install
+[[ "${1:-}" == "--force" ]] && MODE=force
+[[ "${1:-}" == "--check" ]] && MODE=check
+
+installed_version() { cat "$STAMP" 2>/dev/null || true; }
+
+if [[ "$MODE" == check ]]; then
+  if fc-list 2>/dev/null | grep -qi 'symbols nerd font'; then
+    ok "Symbols Nerd Font present (version $(installed_version || echo unknown))"
+    exit 0
+  fi
+  echo "Symbols Nerd Font NOT installed" >&2
+  exit 1
+fi
+
+command -v curl >/dev/null 2>&1 || die "curl is required"
+command -v jq   >/dev/null 2>&1 || die "jq is required (packages/common.txt)"
+command -v unzip >/dev/null 2>&1 || die "unzip is required (packages/common.txt)"
+
+info "querying latest release of ${REPO}"
+release_json="$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest")" \
+  || die "could not reach the GitHub API"
+
+tag="$(printf '%s' "$release_json" | jq -r '.tag_name')"
+[[ -n "$tag" && "$tag" != "null" ]] || die "could not read tag_name from the release"
+
+# Discover the asset rather than hardcoding its filename. Release asset names
+# have changed across major versions of this project, and a hardcoded name
+# fails as a 404 — which is exactly the kind of silent-ish breakage that
+# wastes an evening. Match on the pattern, then verify we found exactly one.
+asset_url="$(printf '%s' "$release_json" \
+  | jq -r '.assets[] | select(.name | test("(?i)symbolsonly.*\\.zip$")) | .browser_download_url' \
+  | head -n1)"
+[[ -n "$asset_url" ]] || die "no symbols-only asset in release ${tag} — asset naming may have changed; check https://github.com/${REPO}/releases/latest"
+
+have="$(installed_version)"
+if [[ "$MODE" != force && "$have" == "$tag" ]] && fc-list 2>/dev/null | grep -qi 'symbols nerd font'; then
+  ok "already at ${tag} — nothing to do"
+  exit 0
+fi
+
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+
+info "downloading $(basename "$asset_url") (${tag})"
+curl -fsSL -o "$tmp/font.zip" "$asset_url" || die "download failed"
+
+# Verify against the release's own checksum file. Same reasoning as the Proton
+# RPMs in ADR-0016: a hand-downloaded artefact with no repo signature behind it
+# gets checked, or the integrity story is "I hope so".
+info "verifying checksum"
+if curl -fsSL -o "$tmp/SHA-256.txt" \
+     "https://github.com/${REPO}/releases/download/${tag}/SHA-256.txt" 2>/dev/null; then
+  name="$(basename "$asset_url")"
+  expected="$(grep -F "$name" "$tmp/SHA-256.txt" | awk '{print $1}' | head -n1)"
+  if [[ -n "$expected" ]]; then
+    actual="$(sha256sum "$tmp/font.zip" | awk '{print $1}')"
+    [[ "$expected" == "$actual" ]] || die "CHECKSUM MISMATCH for ${name}
+  expected: ${expected}
+  actual:   ${actual}
+Refusing to install."
+    ok "checksum verified"
+  else
+    printf '\033[33mwarn:\033[0m %s not listed in SHA-256.txt — installing unverified\n' "$name" >&2
+  fi
+else
+  printf '\033[33mwarn:\033[0m could not fetch SHA-256.txt — installing unverified\n' >&2
+fi
+
+info "installing to ${FONT_DIR}"
+rm -rf "$FONT_DIR"
+mkdir -p "$FONT_DIR"
+unzip -q -o "$tmp/font.zip" -d "$FONT_DIR" -x 'README*' 'LICENSE*'
+
+# The archive ships 10-nerd-font-symbols.conf: a fontconfig rule that makes
+# this font the fallback for the Nerd Font glyph ranges. WITHOUT it, apps only
+# get the icons if they name "Symbols Nerd Font Mono" explicitly — with it,
+# any font falls back correctly and the whole point of a symbols-only install
+# is realised. Easy to miss because the font "installs fine" either way.
+conf_src="${FONT_DIR}/10-nerd-font-symbols.conf"
+if [[ -f "$conf_src" ]]; then
+  conf_dir="${XDG_CONFIG_HOME:-$HOME/.config}/fontconfig/conf.d"
+  mkdir -p "$conf_dir"
+  cp -f "$conf_src" "${conf_dir}/10-nerd-font-symbols.conf"
+  ok "fontconfig fallback rule installed"
+fi
+
+# `fc-cache -f` with NO path argument.
+#
+# Passing "$FONT_DIR" rebuilds only that directory's cache and does not
+# refresh what fc-list reports in the same run — so the check below failed
+# on a font that was, in fact, correctly installed (2026-08-23). Bare -f
+# rebuilds the user caches properly.
+info "rebuilding the font cache"
+fc-cache -f >/dev/null
+
+fc-list 2>/dev/null | grep -qi 'symbols nerd font' \
+  || die "installed, but fontconfig does not see it — check ${FONT_DIR}"
+
+mkdir -p "$(dirname "$STAMP")"
+printf '%s\n' "$tag" > "$STAMP"
+ok "Symbols Nerd Font ${tag} installed"
+
+printf '\nRestart waybar and any terminal to pick up the new glyphs:\n'
+printf '  pkill waybar && waybar &\n'

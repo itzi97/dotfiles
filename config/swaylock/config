@@ -60,7 +60,7 @@ text-clear-color=8ec07c
 indicator-idle-visible=no
 hide-keyboard-layout
 
-font=JetBrainsMono Nerd Font
+font=JetBrains Mono
 font-size=20
 
 # Fail closed. If swaylock cannot render for any reason it must still lock the
