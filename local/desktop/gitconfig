@@ -11,5 +11,13 @@
 # is no leftover ~/.gitconfig on that machine when it does — on the ThinkPad
 # one existed and silently overrode the managed config for three days.
 
+# Same noreply address as the ThinkPad — it's tied to the GitHub account, not
+# the machine. See local/thinkpad/gitconfig for the full reasoning.
+#
+# IMPORTANT for the desktop migration: GitHub's "block command line pushes
+# that expose my email" is now ON. Until this machine is migrated and this
+# file is linked, pushes from it will be REJECTED, because the old stow repo
+# still configures itzimr97@pm.me. That rejection is the feature working, not
+# a broken remote.
 [user]
-	email = itzimr97@pm.me
+	email = 56316427+itzi97@users.noreply.github.com

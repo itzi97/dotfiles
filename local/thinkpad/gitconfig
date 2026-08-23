@@ -14,7 +14,25 @@
 # email address, which matters if ~/.dotfiles ever goes public.
 
 [user]
-	email = itzimr97@pm.me
+	# GitHub's noreply address, NOT itzimr97@pm.me.
+	#
+	# Commit emails in public repositories are harvested at scale, and that
+	# feeds adversaries #1 and #2 in 04-privacy/threat-model.md — the two
+	# listed as realistic and constant. This keeps the real address off every
+	# commit while GitHub still attributes the work: contribution graph, PR
+	# authorship and profile links all continue to work, because GitHub maps
+	# the numeric ID back to the account.
+	#
+	# The NAME is deliberately still the full one (see config/git/config).
+	# Truncating it would have bought nothing — the username and the old
+	# address already encode it, and public commits under a real name are a
+	# portfolio asset six months from graduating. The email is the field that
+	# actually gets scraped; the name is the field that gets read by humans.
+	#
+	# Paired with "Block command line pushes that expose my email" on GitHub,
+	# which turns a misconfigured machine into a rejected push rather than a
+	# permanent public commit.
+	email = 56316427+itzi97@users.noreply.github.com
 
 # --- signing (not enabled yet) ---------------------------------------------
 # When you set up commit signing, it belongs here rather than in the shared
