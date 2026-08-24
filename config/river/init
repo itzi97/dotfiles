@@ -56,37 +56,73 @@ try() {
 mod="Super"
 
 # --- environment ------------------------------------------------------------
-# Set before anything spawns, or the children inherit the wrong values.
-
-# PATH first, and this one is load-bearing.
 #
-# river is started by the display manager, which does NOT necessarily read the
-# profile files that put ~/.local/bin on PATH. Every `spawn` below inherits
-# river's PATH, so without this, `spawn river-cheatsheet` and
-# `spawn river-wallpaper` fail SILENTLY — the keybinding fires, river tries to
-# exec something it cannot find, and nothing happens or is logged.
+# READ THIS BEFORE ADDING AN `export` HERE. It will not do what you expect.
 #
-# A terminal inside river hides the problem: fish adds ~/.local/bin itself via
-# fish_add_path, so testing the script by hand works fine while the binding
-# does not. Found 2026-08-23.
-case ":$PATH:" in
-  *":$HOME/.local/bin:"*) ;;
-  *) export PATH="$HOME/.local/bin:$PATH" ;;
-esac
-
-export XDG_CURRENT_DESKTOP=river          # portals key off this
-export XDG_SESSION_TYPE=wayland
-export QT_QPA_PLATFORM=wayland
-export QT_QPA_PLATFORMTHEME=qt6ct         # or Qt apps render in default grey
-export MOZ_ENABLE_WAYLAND=1
-export _JAVA_AWT_WM_NONREPARENTING=1      # IntelliJ draws a grey box without this
-export ELECTRON_OZONE_PLATFORM_HINT=auto  # Signal, Obsidian, Proton Mail
+# An earlier version of this file exported PATH, QT_QPA_PLATFORMTHEME,
+# MOZ_ENABLE_WAYLAND, ELECTRON_OZONE_PLATFORM_HINT and friends, with a comment
+# claiming "set before anything spawns, or the children inherit the wrong
+# values". That comment was wrong, and measurably so. Inside a river session:
+#
+#   $ echo "QT_QPA_PLATFORMTHEME=[$QT_QPA_PLATFORMTHEME]"
+#   QT_QPA_PLATFORMTHEME=[]
+#   $ echo "MOZ_ENABLE_WAYLAND=[$MOZ_ENABLE_WAYLAND]"
+#   MOZ_ENABLE_WAYLAND=[]
+#
+# WHY. river executes this file as a CHILD process. `riverctl map ... spawn X`
+# does not run X from this script — it asks river, the PARENT, to spawn it.
+# X therefore inherits *river's* environment, which a child cannot modify.
+# Exports here reach only the processes this file starts itself: the autostart
+# block at the bottom. Nothing launched from a keybinding, from fuzzel, or from
+# an app launched by another app sees them.
+#
+# The same mistake explains a bug that was blamed on PATH. `spawn
+# river-cheatsheet` failed silently while running river-cheatsheet in a
+# terminal worked — attributed to the display manager not reading profile
+# files, "fixed" by exporting PATH here, and it kept failing. It was never a
+# PATH-resolution problem this file could solve. The bindings now use absolute
+# paths (see the utilities section) and the exports are gone.
+#
+# WHERE THESE BELONG: bin/river-session, the wrapper that sets them and then
+# `exec river`. Setting them before river starts is the only place they can
+# reach river's children. Verified empty here on 2026-08-23.
+#
+# XDG_CURRENT_DESKTOP is deliberately NOT set either. river-classic's own
+# session file already supplies it, and better than this file did:
+#   /usr/share/wayland-sessions/river.desktop: DesktopNames=river;wlroots
+# so the value in effect is `river;wlroots`, not the `river` this file used to
+# force. That matters — `wlr.portal` declares `UseIn=wlroots;sway;...;river;`
+# and the portal searches BOTH names for a config, so the two-name value is
+# strictly more useful. Overriding it here narrowed it for no benefit.
 
 # Portals and systemd user services need these to reach the session.
 # Without this, screen sharing silently produces a black frame.
 if command -v dbus-update-activation-environment >/dev/null 2>&1; then
   dbus-update-activation-environment --systemd \
     WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE
+fi
+
+# The systemd user manager needs the SAME variables, separately.
+#
+# dbus-update-activation-environment --systemd populates the environment that
+# D-BUS-ACTIVATED services get. It does NOT reach units systemd starts itself,
+# and xdg-desktop-portal.service is ordered after graphical-session.target —
+# a target river never reaches, because nothing tells systemd the graphical
+# session has begun. The symptom is the portal failing to activate at all:
+#
+#   Could not activate remote peer 'org.freedesktop.portal.Desktop':
+#   startup job failed
+#
+# which costs GTK4 dark mode, Flatpak file pickers and — the one that matters
+# on this machine — screen sharing. Observed 2026-08-23.
+#
+# river-session.target (config/systemd/river-session.target) BindsTo
+# graphical-session.target, so starting it starts the graphical session
+# properly and stops it cleanly when river exits. Same pattern sway uses.
+if command -v systemctl >/dev/null 2>&1; then
+  systemctl --user import-environment \
+    WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE PATH 2>/dev/null || true
+  systemctl --user start river-session.target 2>/dev/null || true
 fi
 
 # --- core keybinds ----------------------------------------------------------
@@ -228,8 +264,34 @@ riverctl map normal "$mod" V spawn 'cliphist list | fuzzel --dmenu | cliphist de
 #
 # General rule this keeps proving: bind to LETTERS. Symbols move with the
 # layout and the function row moves with the hardware.
-riverctl map normal "$mod"+Shift H spawn river-cheatsheet
-riverctl map normal "$mod" W spawn river-wallpaper
+#
+# ABSOLUTE PATHS, not bare names. These two are the only bindings that call
+# something outside /usr/bin, and both were broken in this file until
+# 2026-08-24: `spawn river-cheatsheet` resolves against RIVER's PATH, which
+# this script cannot change (see the environment section), and river's PATH
+# comes from the display manager without ~/.local/bin on it. The binding fired
+# and silently exec'd nothing.
+#
+# It was diagnosed as working, because running river-cheatsheet in a terminal
+# succeeds — fish adds ~/.local/bin via fish_add_path, so the shell finds what
+# river cannot. bin/river-session now puts ~/.local/bin on river's PATH, but
+# these stay absolute: a binding that works without depending on the wrapper
+# being installed is worth more than the symmetry.
+riverctl map normal "$mod"+Shift H spawn "$HOME/.local/bin/river-cheatsheet"
+riverctl map normal "$mod" W spawn "$HOME/.local/bin/river-wallpaper"
+
+# Super+Shift+I — pause the auto-lock for 60 minutes, or resume it now.
+#
+# For the case this was written for: stepping away from a working session on a
+# machine you can see, where a lock screen every five minutes is friction
+# rather than security. It EXPIRES on its own — the risk being managed is not
+# "someone walks up right now", it is forgetting on a Tuesday and carrying an
+# unlocking laptop to campus on Wednesday (04-privacy/threat-model.md,
+# adversary #3).
+#
+# `river-idle stop 0` from a terminal pauses it indefinitely, deliberately
+# requiring more effort than a keypress.
+riverctl map normal "$mod"+Shift I spawn "$HOME/.local/bin/river-idle toggle"
 
 # --- input ------------------------------------------------------------------
 # Touchpad. Device names are machine-specific, so match rather than hardcode:
@@ -271,6 +333,9 @@ riverctl border-width 2
 # Float things that are dialogs pretending to be windows.
 try riverctl rule-add -app-id 'scratchpad'  float
 try riverctl rule-add -app-id 'pavucontrol' float
+# waybar's cpu/memory modules open btop with this app-id; a monitor you opened
+# by clicking the bar should appear over the work, not retile it.
+try riverctl rule-add -app-id 'floatterm'   float
 try riverctl rule-add -app-id 'blueman-manager' float
 try riverctl rule-add -app-id 'org.kde.polkit-kde-authentication-agent-1' float
 try riverctl rule-add -app-id '*' ssd        # server-side decorations: river draws
@@ -285,7 +350,31 @@ rivertile -view-padding 6 -outer-padding 6 -main-ratio 0.55 &
 # --- autostart --------------------------------------------------------------
 # Everything Plasma used to do. Each line is guarded so a missing package
 # degrades one feature instead of aborting the session.
-run() { command -v "$1" >/dev/null 2>&1 && "$@" & }
+#
+# run() is SINGLETON. Starting river a second time inside one login — or
+# restarting it after a crash — otherwise stacks a second copy of every
+# daemon, and the tray ones announce themselves on the same D-Bus object:
+#
+#   Status Notifier Item with bus name ':1.642' and object path
+#   '/org/ayatana/NotificationItem/nm_applet' is already registered
+#
+# waybar then shows one applet and ignores the other, so the wifi menu you
+# click is not necessarily the process you think it is. Observed 2026-08-23.
+#
+# pgrep -x matches the executable name exactly and -u restricts to this user,
+# so a system daemon of the same name elsewhere does not suppress ours.
+#
+# CAVEAT, so this is not mistaken for more than it is: -x matches comm, which
+# for an interpreted script is the INTERPRETER ("python3", "bash"), not the
+# script. So this deduplicates the compiled daemons — waybar, swaync,
+# nm-applet, wl-paste — and does nothing for blueman-applet, which is Python.
+# That is no worse than before and covers the one that actually misbehaved.
+# Tested against a mock daemon: three consecutive calls, one process.
+run() {
+  command -v "$1" >/dev/null 2>&1 || return 0
+  pgrep -x -u "$(id -u)" "$1" >/dev/null 2>&1 && return 0
+  "$@" &
+}
 
 # Secret Service — Signal, Element and anything using libsecret need this.
 # gnome-keyring rather than kwallet: it works outside a Plasma session without
@@ -326,19 +415,18 @@ run blueman-applet
 run river-wallpaper --restore   # re-applies the last choice; silent if none
 run wl-paste --watch cliphist store
 
-# Idle: dim at 4min, lock at 5, screen off at 6, suspend at 15.
-if command -v swayidle >/dev/null 2>&1; then
-  swayidle -w \
-    timeout 300 'swaylock -f' \
-    timeout 360 'wlr-randr --output "*" --off' \
-    resume       'wlr-randr --output "*" --on' \
-    timeout 900 'systemctl suspend' \
-    before-sleep 'swaylock' &
-    # NOTE: before-sleep intentionally has NO -f. swayidle waits for the
-    # command to exit before allowing suspend; a backgrounded swaylock exits
-    # at once and the machine sleeps unlocked. The timeout lines above DO use
-    # -f, because there swayidle must stay responsive rather than block.
-fi
+# Idle: lock at 5 min, screen off at 6, suspend at 15.
+#
+# The swayidle invocation used to be inline here. It now lives in
+# bin/river-idle, which owns the whole idle policy — because the timings are
+# needed in two places, not one: at session start, and again whenever the
+# timers are re-armed after being paused. Two copies of "how long until the
+# screen locks" would drift, and the direction they drift in is "the laptop
+# stopped locking and nobody noticed".
+#
+# Pause it with Super+Shift+I, or by clicking the bar indicator. Both call the
+# same script, so they cannot disagree about the state.
+[ -x "$HOME/.local/bin/river-idle" ] && "$HOME/.local/bin/river-idle" start >/dev/null 2>&1
 
 # The scratchpad terminal, parked on tag 10 and left there.
 # Spawned while tag 10 is focused because river assigns new views to the

@@ -1,0 +1,198 @@
+#!/usr/bin/env bash
+#
+# river-idle — own the session's idle timers, and let them be suspended
+# deliberately and temporarily.
+#
+#   river-idle start          # arm the timers (config/river/init calls this)
+#   river-idle stop [MINS]    # suspend them, re-arming automatically after MINS
+#   river-idle toggle [MINS]  # whichever is not currently true
+#   river-idle status         # `active` | `inhibited (Nm left)` — for waybar
+#
+# Default suspension is 60 minutes. `river-idle stop 0` means "until I say
+# otherwise", and is deliberately more effort to type.
+#
+# WHY THIS EXISTS RATHER THAN JUST USING waybar's idle_inhibitor
+#
+# waybar's module speaks zwp_idle_inhibit_manager_v1, which asks the COMPOSITOR
+# not to report the seat as idle. Whether that reaches swayidle depends on
+# river implementing the protocol and on swayidle using an idle source that
+# honours it. That may well be true — but it is a chain of assumptions, and
+# "the screen locked while I was presenting" is a bad way to discover a broken
+# link. This script stops swayidle itself, which cannot fail to work.
+#
+# It also fixes three things the bar toggle cannot:
+#   - it is bindable to a key (Super+Shift+I), not mouse-only
+#   - it EXPIRES, so a laptop that leaves the house cannot be left permanently
+#     unlocked because a toggle was clicked before a lecture three days ago
+#     (04-privacy/threat-model.md, adversary #3: device theft)
+#   - it says out loud what it did, via notify-send
+#
+# THE TIMER DEFINITION LIVES HERE, ONCE. config/river/init used to inline the
+# swayidle invocation; a second copy in this script would be two sources of
+# truth for how long until the screen locks, and they would diverge.
+
+set -Eeuo pipefail
+
+STATE_DIR="${XDG_RUNTIME_DIR:-/tmp}/river-idle"
+REARM_PID="${STATE_DIR}/rearm.pid"
+UNTIL="${STATE_DIR}/inhibited-until"
+# Bumped on every stop, deleted on every start. A pending re-arm compares the
+# token it was born with against this file and does nothing if they differ —
+# see cancel_rearm.
+GENERATION="${STATE_DIR}/generation"
+mkdir -p "$STATE_DIR"
+
+DEFAULT_MINS=60
+
+note() { command -v notify-send >/dev/null 2>&1 && notify-send "$@" 2>/dev/null || true; }
+
+# --- the canonical idle policy ----------------------------------------------
+# dim/lock at 5 min, screen off at 6, suspend at 15.
+#
+# `before-sleep` intentionally has NO -f. swayidle waits for the command to
+# exit before allowing suspend, and a backgrounded swaylock exits immediately —
+# the machine would then sleep UNLOCKED, which is the whole failure this line
+# exists to prevent. The timeout lines above DO use -f, because there swayidle
+# must stay responsive rather than block.
+start_swayidle() {
+  swayidle -w \
+    timeout 300 'swaylock -f' \
+    timeout 360 'wlr-randr --output "*" --off' \
+    resume       'wlr-randr --output "*" --on' \
+    timeout 900 'systemctl suspend' \
+    before-sleep 'swaylock' \
+    >/dev/null 2>&1 &
+  disown
+}
+
+running() { pgrep -x -u "$(id -u)" swayidle >/dev/null 2>&1; }
+
+cancel_rearm() {
+  # TWO mechanisms, and the one that matters is the generation token.
+  #
+  # Killing the sleeping subshell is a courtesy. It cannot be relied on: the
+  # subshell inherits its parent's /proc/PID/cmdline, so identifying it by
+  # matching this script's name breaks the moment the script is invoked under
+  # a different name — via a symlink, or a copy. That is not hypothetical; it
+  # is how this bug was found (2026-08-24), and because the name usually DOES
+  # match, it would have passed every casual test and leaked in the field.
+  #
+  # So the pending re-arm also checks a generation token before acting. Delete
+  # the token and any sleeper still out there becomes a no-op, whether it was
+  # killed or not. Correctness no longer depends on winning a race with a PID.
+  rm -f "$GENERATION"
+
+  [[ -s "$REARM_PID" ]] || return 0
+  local pid; pid="$(cat "$REARM_PID")"
+  if [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" 2>/dev/null; then
+    # Still guard the kill — a stale PID file after a reboot can name a
+    # process that now belongs to something else entirely.
+    if tr '\0' ' ' < "/proc/$pid/cmdline" 2>/dev/null | grep -q "$(basename "$0")"; then
+      kill "$pid" 2>/dev/null || true
+    fi
+  fi
+  rm -f "$REARM_PID"
+}
+
+cmd_start() {
+  cancel_rearm
+  rm -f "$UNTIL"
+  if running; then
+    echo "idle timers already active"
+    return 0
+  fi
+  command -v swayidle >/dev/null 2>&1 || { echo "swayidle is not installed" >&2; exit 1; }
+  start_swayidle
+  echo "idle timers armed — locks after 5 min"
+}
+
+cmd_stop() {
+  local mins="${1:-$DEFAULT_MINS}"
+  [[ "$mins" =~ ^[0-9]+$ ]] || { echo "minutes must be a number, got '$mins'" >&2; exit 2; }
+
+  cancel_rearm
+  pkill -x -u "$(id -u)" swayidle 2>/dev/null || true
+
+  if (( mins > 0 )); then
+    date -d "+${mins} minutes" +%s > "$UNTIL" 2>/dev/null || \
+      echo $(( $(date +%s) + mins * 60 )) > "$UNTIL"
+    # Re-arm in the background.
+    #
+    # A plain subshell, NOT `setsid`: setsid forks, so `$!` would record
+    # setsid's PID rather than the sleeping shell's, and cancel_rearm would
+    # then kill a process that is not the one holding the timer — leaving the
+    # re-arm to fire later against a session that had already been re-armed.
+    # The subshell is disowned, so it survives this script exiting and ignores
+    # SIGHUP when the terminal closes.
+    local tok; tok="$(date +%s)-$$"
+    printf '%s\n' "$tok" > "$GENERATION"
+    ( sleep $((mins * 60))
+      # Only re-arm if this is still the current generation. If `start` ran in
+      # the meantime, or another `stop` superseded this one, the token is gone
+      # or different and this exits silently.
+      [[ -s "$GENERATION" ]] || exit 0
+      [[ "$(cat "$GENERATION")" == "$tok" ]] || exit 0
+      "$0" start
+    ) >/dev/null 2>&1 &
+    echo $! > "$REARM_PID"
+    disown
+    echo "idle timers suspended for ${mins} min"
+    note -u low "Screen lock paused" "Auto-lock resumes in ${mins} minutes."
+  else
+    echo 'until-further-notice' > "$UNTIL"
+    echo "idle timers suspended INDEFINITELY — remember to re-arm"
+    note -u normal "Screen lock OFF" "No auto-lock until you re-enable it. This laptop leaves the house."
+  fi
+}
+
+cmd_status() {
+  if running; then
+    echo "active"
+    return 0
+  fi
+  if [[ -s "$UNTIL" ]]; then
+    local u; u="$(cat "$UNTIL")"
+    if [[ "$u" =~ ^[0-9]+$ ]]; then
+      local left=$(( (u - $(date +%s) + 59) / 60 ))
+      (( left < 0 )) && left=0
+      echo "inhibited (${left}m left)"
+      return 0
+    fi
+    echo "inhibited (no expiry)"
+    return 0
+  fi
+  # swayidle absent and no record of a deliberate choice. Say so — this is the
+  # state where the machine silently never locks and nobody decided that.
+  echo "OFF (unexpected)"
+}
+
+# waybar's custom-module contract: one line of JSON. Kept here rather than in
+# waybar's config so the bar and the keybinding cannot disagree about state —
+# they call the same code.
+#
+# No jq: this is three fields and jq would be a dependency for string
+# concatenation. The only value that could contain a quote is the minute count,
+# which is digits by construction.
+cmd_waybar() {
+  local s; s="$(cmd_status)"
+  case "$s" in
+    active)
+      printf '{"text":"󰾪","alt":"active","class":"active","tooltip":"Auto-lock ON — screen locks after 5 min\\nClick: pause for 60 min"}\n' ;;
+    inhibited*)
+      printf '{"text":"󰅶","alt":"inhibited","class":"inhibited","tooltip":"Auto-lock PAUSED — %s\\nClick: resume now"}\n' "${s#inhibited }" ;;
+    *)
+      # swayidle is not running and nobody asked for that. Loud on purpose:
+      # a machine that silently never locks is the failure this whole script
+      # is arranged around.
+      printf '{"text":"󰀦","alt":"broken","class":"broken","tooltip":"swayidle is NOT running and no pause was requested.\\nThis machine will not auto-lock. Click to fix."}\n' ;;
+  esac
+}
+
+case "${1:-toggle}" in
+  start)  cmd_start ;;
+  stop)   cmd_stop "${2:-}" ;;
+  toggle) if running; then cmd_stop "${2:-}"; else cmd_start; fi ;;
+  status) cmd_status ;;
+  waybar) cmd_waybar ;;
+  *) echo "usage: river-idle {start|stop [mins]|toggle [mins]|status|waybar}" >&2; exit 2 ;;
+esac

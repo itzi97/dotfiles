@@ -27,9 +27,78 @@ parse() {
       s/^riverctl map(-pointer)? +(normal|locked) +//;
       s/"\$mod"/Super/g;
     ' \
-  | awk '{
+  | awk '
+    # --- keycap rendering ---------------------------------------------------
+    # Modifier names and XF86 keysyms are what the CONFIG has to say; they are
+    # not what a reference document should show. "XF86AudioRaiseVolume" tells
+    # you nothing you did not already know from the action column, and reading
+    # "Super+Shift+Return" is slower than seeing the three keys.
+    #
+    # Glyphs come from two places, and the distinction matters for fallback:
+    #   ⇧ ⌃ ⌥ ⏎ ␣ ⇥ ⎋ ← ↓ ↑ →  are plain Unicode, in JetBrains Mono already
+    #   󰖳 󰝝 󰝞 󰝟 󰃠 󰃞 󰐥 ...    are Nerd Font, via bin/install-nerd-font
+    # If the Nerd Font is ever missing you get boxes for the second set and a
+    # perfectly readable sheet from the first. Nothing here degrades to blank.
+    function keycap(k) {
+      if (k == "Super")    return "󰖳"
+      if (k == "Shift")    return "⇧"
+      if (k == "Control")  return "⌃"
+      if (k == "Alt" || k == "Mod1") return "⌥"
+      if (k == "Return")   return "⏎"
+      if (k == "Space")    return "␣"
+      if (k == "Tab")      return "⇥"
+      if (k == "Escape")   return "⎋"
+      if (k == "BackSpace") return "⌫"
+      if (k == "Delete")   return "⌦"
+      if (k == "Left")     return "←"
+      if (k == "Down")     return "↓"
+      if (k == "Up")       return "↑"
+      if (k == "Right")    return "→"
+      if (k == "Print")    return "󰄀"
+      # Punctuation keysyms are lowercase in XKB ("comma", not "Comma") and
+      # the config uses them that way. Matching only the capitalised form let
+      # "comma" and "period" through untranslated — caught in testing.
+      lk = tolower(k)
+      if (lk == "period") return "."
+      if (lk == "comma")  return ","
+      if (lk == "slash")  return "/"
+      if (lk == "minus")  return "-"
+      if (lk == "equal")  return "="
+      if (lk == "grave")  return "`"
+
+      # Laptop function row. These are the bindings you reach for without
+      # looking, so showing what is printed on the keycap beats the keysym.
+      if (k == "XF86AudioRaiseVolume")  return "󰝝"
+      if (k == "XF86AudioLowerVolume")  return "󰝞"
+      if (k == "XF86AudioMute")         return "󰝟"
+      if (k == "XF86AudioMicMute")      return "󰍭"
+      if (k == "XF86AudioPlay")         return "󰐊"
+      if (k == "XF86AudioNext")         return "󰒭"
+      if (k == "XF86AudioPrev")         return "󰒮"
+      if (k == "XF86MonBrightnessUp")   return "󰃠"
+      if (k == "XF86MonBrightnessDown") return "󰃞"
+      if (k == "XF86PowerOff")          return "󰐥"
+
+      # Mouse buttons, from map-pointer lines.
+      if (k == "BTN_LEFT")   return "󰍽 L"
+      if (k == "BTN_RIGHT")  return "󰍽 R"
+      if (k == "BTN_MIDDLE") return "󰍽 M"
+
+      return k
+    }
+
+    # Modifiers arrive joined: "Super+Shift". Split, cap each, rejoin with the
+    # same separator so the result reads as keys rather than as a token.
+    function caps(spec,   parts, i, n, out) {
+      n = split(spec, parts, "+")
+      out = ""
+      for (i = 1; i <= n; i++)
+        out = out (i > 1 ? " + " : "") keycap(parts[i])
+      return out
+    }
+    {
       mods = $1; key = $2; $1 = ""; $2 = "";
-      combo = (mods == "None") ? key : mods "+" key;
+      combo = (mods == "None") ? keycap(key) : caps(mods) " + " keycap(key);
 
       action = $0;
       gsub(/^ +/, "", action);
@@ -56,19 +125,69 @@ parse() {
       if (action ~ /brightnessctl set 5%\+/) action = "brightness up";
       if (action ~ /brightnessctl set 5%-/) action = "brightness down";
 
-      printf "%-26s  %s\n", combo, action;
+      # riverctl verbs are not English. "main-ratio -0.05" and "zoom" are
+      # precise and mean nothing to someone who opened this sheet BECAUSE
+      # they could not remember what the binding did. Translate to the effect,
+      # not the command — the command is in the init if you want it.
+      if (action == "toggle-fullscreen")  action = "fullscreen";
+      if (action == "toggle-float")       action = "float / tile";
+      if (action == "close")              action = "close window";
+      if (action == "exit")               action = "quit river";
+      if (action == "zoom")               action = "promote to main area";
+      if (action == "focus-view next")    action = "focus next window";
+      if (action == "focus-view previous") action = "focus previous window";
+      if (action == "swap next")          action = "swap with next";
+      if (action == "swap previous")      action = "swap with previous";
+      if (action == "main-ratio +0.05")   action = "grow main area";
+      if (action == "main-ratio -0.05")   action = "shrink main area";
+      if (action == "main-count +1")      action = "more windows in main";
+      if (action == "main-count -1")      action = "fewer windows in main";
+      if (action ~ /^main-location /) {
+        sub(/^main-location /, "", action);
+        action = "main area to the " action;
+      }
+      if (action == "set-focused-tags all tags")        action = "show all tags";
+      if (action == "toggle-focused-tags scratchpad tag") action = "toggle scratchpad";
+      if (action == "set-view-tags scratchpad tag")     action = "send window to scratchpad";
+      if (action == "move-view")          action = "move window (drag)";
+      if (action == "resize-view")        action = "resize window (drag)";
+
+      # Bare program names: say what the program IS here.
+      if (action == "fuzzel")           action = "launcher";
+      if (action == "kitty")            action = "terminal";
+      if (action == "swaylock")         action = "lock screen";
+      if (action == "wlogout")          action = "power menu";
+      if (action ~ /river-wallpaper/)   action = "wallpaper picker";
+      if (action ~ /river-cheatsheet/)  action = "this cheat sheet";
+      if (action ~ /river-idle/)        action = "pause / resume auto-lock";
+
+      # Padded to a column and separated by a rule.
+      #
+      # The padding is BEST EFFORT, not a guarantee: printf "%-Ns" pads by
+      # characters, and several of these glyphs occupy two terminal cells, so
+      # rows carrying icons sit a cell or two short. The │ is what actually
+      # makes the two columns readable — without it, ragged padding looks
+      # broken rather than approximate.
+      printf "%-30s │ %s\n", combo, action;
     }'
 
   # The per-tag bindings are generated by a shell loop in init, so grep cannot
   # see them. Described here rather than listed nine times.
-  cat <<'TAGS'
-Super+1..9                  focus tag
-Super+Shift+1..9            move window to tag
-Super+Control+1..9          toggle tag into view
-Super+0                     show all tags
-TAGS
+  #
+  # Fed through the SAME printf as everything else. Hand-writing the padded
+  # strings put these four rows a couple of cells out of line with the parsed
+  # ones — the one part of the sheet whose alignment I controlled completely
+  # was the only part that was visibly wrong (2026-08-23).
+  #
+  # Super+0 is NOT here: it is a real `riverctl map` line and the parser
+  # already picks it up. Listing it again produced two near-identical rows.
+  printf '%s\t%s\n' \
+    '󰖳 + 1..9'     'focus tag' \
+    '󰖳 + ⇧ + 1..9' 'move window to tag' \
+    '󰖳 + ⌃ + 1..9' 'toggle tag into view' \
+  | awk -F'\t' '{ printf "%-30s │ %s\n", $1, $2 }'
 }
 
 parse \
   | sort \
-  | fuzzel --dmenu --prompt 'keys ❯ ' --lines 20 --width 60 >/dev/null 2>&1 || true
+  | fuzzel --dmenu --prompt '󰌌  keys ❯ ' --lines 20 --width 64 >/dev/null 2>&1 || true

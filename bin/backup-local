@@ -1,8 +1,14 @@
 #!/usr/bin/env bash
 #
 # backup-local — restic snapshot of the things I cannot re-download.
-# ADR-0014. Desktop only (for now); the Hetzner repo will reuse this script
-# with RESTIC_REPOSITORY pointed at sftp:.
+#
+# ADR-0014 (tool + local target), ADR-0017 (off-site target: a Hetzner Storage
+# Box over SFTP, NOT the Cloud VPS's own disk — see that ADR for why the
+# earlier sftp:hetzner:/srv/backups path was a placeholder that could not work).
+#
+# Runs on any machine. The snapshot tag derives from the hostname so two hosts
+# can share one repository safely; see the TAG comment below, which is the
+# load-bearing part of this script.
 #
 #   backup-local            # snapshot, then prune to the retention policy
 #   backup-local --dry-run  # show what would be sent, change nothing
@@ -48,8 +54,26 @@ command -v restic >/dev/null 2>&1 || die "restic is not installed"
 
 # The drive being unmounted is the realistic failure, and restic would happily
 # create a brand-new empty repo in the empty mountpoint if we did not check.
-mountpoint -q "$(dirname "$REPO")" \
-  || die "$(dirname "$REPO") is not mounted — refusing to write a backup to the root filesystem"
+#
+# LOCAL REPOS ONLY. `mountpoint` on a remote repository string is nonsense:
+# dirname "sftp:hetzner:/srv/backups/desktop" is "sftp:hetzner:/srv/backups",
+# which is not a path, so the check fails and the script dies. This file's own
+# header says the Hetzner repo "will reuse this script with RESTIC_REPOSITORY
+# pointed at sftp:" — it could not have. Found 2026-08-24, before that path ran
+# for the first time.
+# A local restic repo is a filesystem path; every remote form carries a scheme
+# ("sftp:", "rest:", "s3:", "rclone:"). Match on the leading slash rather than
+# enumerating schemes, so a backend restic adds later does not fall through to
+# the wrong branch.
+case "$REPO" in
+  /*|./*|../*)
+    mountpoint -q "$(dirname "$REPO")" \
+      || die "$(dirname "$REPO") is not mounted — refusing to write a backup to the root filesystem"
+    ;;
+  *)
+    info "remote repository (${REPO%%:*}) — the mountpoint check does not apply"
+    ;;
+esac
 
 export RESTIC_REPOSITORY="$REPO"
 export RESTIC_PASSWORD_FILE="$PASSWORD_FILE"
@@ -89,8 +113,16 @@ EXCLUDE_ARGS=(--exclude-file "$EXCLUDES")
 if [[ "${RESTIC_OFFSITE:-0}" == "1" ]]; then
   [[ -f "$EXCLUDES_OFFSITE" ]] || die "RESTIC_OFFSITE=1 but no ${EXCLUDES_OFFSITE}"
   EXCLUDE_ARGS+=(--exclude-file "$EXCLUDES_OFFSITE")
-  TAG="offsite"
-  info "off-site mode: ~/work will NOT be sent"
+  # KEEP THE HOSTNAME IN THE TAG.
+  #
+  # This line used to read `TAG="offsite"`, which reintroduced precisely the
+  # data-loss bug the comment on TAG above says it avoids: both machines would
+  # tag their off-site snapshots "offsite", and `restic forget --tag offsite
+  # --prune` at the bottom of this script would then apply one retention policy
+  # across two hosts — deleting the ThinkPad's snapshots because the desktop
+  # had newer ones. Suffix, do not replace. Found 2026-08-24.
+  TAG="${TAG}-offsite"
+  info "off-site mode: ~/work will NOT be sent; tag is ${TAG}"
 fi
 
 restic backup \

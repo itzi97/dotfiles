@@ -32,3 +32,36 @@ zathura-pdf-mupdf         # mupdf backend — lighter and faster than poppler
 # `ls` outright — scripts and muscle memory that expect real ls behaviour keep
 # getting real ls. Icons need a Nerd Font; see the note in config.fish.
 eza
+
+# btop: process/resource monitor. Not a preference — waybar's cpu and memory
+# modules open it on click (config/waybar/config.jsonc), so on the ThinkPad it
+# is a hard dependency of the bar. A comment in that file used to claim btop
+# "is already installed", which was an assumption, not a check: it was in no
+# package list at all. Found 2026-08-24.
+btop
+
+# --- what the scripts in bin/ actually need -------------------------------
+# Each of these was invoked by a committed script while appearing in no package
+# list, which makes a rebuild fail at the point of use rather than at install
+# time. Audited 2026-08-24.
+
+# notify-send. bin/backup-local, bin/backup-verify and bin/pkgwatch all use it
+# to escalate a failure to the desktop, and all three guard it with
+# `command -v` — so without libnotify they degrade to a silent failure, which
+# is the exact outcome those scripts exist to prevent.
+libnotify
+
+# wl-clipboard (wl-copy/wl-paste). neovim's clipboard integration uses it on
+# every Wayland session, and config/river/init pipes cliphist through it. Both
+# packages/bundles/river.txt and a comment in config/fish assumed it was
+# "already installed" — true on a KDE spin, but an assumption rather than a
+# declaration, and a rebuild does not honour assumptions.
+wl-clipboard
+
+# PyYAML is NOT here: it is python3-pyyaml on Fedora and python-yaml on Arch,
+# so it fails this file's "identical on both distros" rule. Both are already
+# declared — fedora.txt and cachyos.txt respectively. Verified 2026-08-24.
+#
+# Likewise NOT here, because they are part of the base install on both distros
+# and declaring them buys nothing: coreutils (shuf), util-linux (mountpoint),
+# procps-ng (pgrep/pkill), fontconfig (fc-cache), python3 itself.

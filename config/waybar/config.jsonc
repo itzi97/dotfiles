@@ -18,13 +18,22 @@
   // river/window supplies the title of whichever is focused.
   "modules-left": ["river/tags", "wlr/taskbar", "river/window"],
   "modules-center": [],
+  // Ordered by how often you look at it, left to right: machine load first
+  // (glanceable, ignorable), then the things you interact with, then the
+  // clock, then power. The power button is last because it is the only one
+  // where a mis-click costs you unsaved work.
   "modules-right": [
+    "cpu",
+    "memory",
+    "temperature",
+    "custom/idle",
     "tray",
     "wireplumber",
     "backlight",
     "battery",
     "custom/notification",
-    "clock"
+    "clock",
+    "custom/power"
   ],
 
   "river/tags": {
@@ -51,6 +60,69 @@
     "format": "{}",
     "max-length": 60,
     "tooltip": false
+  },
+
+  "cpu": {
+    "interval": 5,
+    "format": "󰻠 {usage}%",
+    "tooltip": true,
+    // btop rather than top: it is already installed and readable at a glance,
+    // which is the point of clicking a load indicator.
+    "on-click": "kitty --class floatterm -e btop"
+  },
+
+  "memory": {
+    "interval": 10,
+    "format": "󰍛 {percentage}%",
+    // Absolute numbers belong in the tooltip. 62% means nothing without
+    // knowing the machine has 16G; "9.9G/16.0G" answers it directly.
+    "tooltip-format": "{used:0.1f}G / {total:0.1f}G   swap {swapPercentage}%",
+    "on-click": "kitty --class floatterm -e btop"
+  },
+
+  "temperature": {
+    "interval": 10,
+    // NO thermal-zone or hwmon-path set, deliberately.
+    //
+    // Both are machine-specific: thermal zone 0 is the CPU package on some
+    // ThinkPads and the ACPI skin sensor on others, and hwmon numbering moves
+    // between boots because it depends on driver probe order. Pinning either
+    // one from a dotfiles repo gives a number that is confidently wrong on
+    // any other machine, which is worse than no number.
+    //
+    // Left unset, waybar picks the first available zone. If it reports
+    // something implausible, find the right one and pin it in
+    // local/thinkpad/ — not here:
+    //   for z in /sys/class/thermal/thermal_zone*; do \
+    //     printf '%s %s %s\n' "$z" "$(cat $z/type)" "$(cat $z/temp)"; done
+    "critical-threshold": 82,
+    "format": "{icon} {temperatureC}°C",
+    "format-critical": "󰸁 {temperatureC}°C",
+    "format-icons": ["󰜗", "󰔏", "󰸁"]
+  },
+
+  "custom/idle": {
+    // NOT waybar's built-in `idle_inhibitor` module, deliberately.
+    //
+    // That module speaks zwp_idle_inhibit_manager_v1, which asks the
+    // COMPOSITOR not to report the seat as idle. Whether that reaches swayidle
+    // depends on river implementing the protocol and swayidle honouring it —
+    // a chain of assumptions, and "the screen locked mid-presentation" is a
+    // poor way to discover a broken link. bin/river-idle stops swayidle
+    // itself, which cannot silently fail to work.
+    //
+    // It also gives three things the built-in cannot: a keybinding
+    // (Super+Shift+I), an automatic expiry so a pause cannot be left on for
+    // days, and a distinct BROKEN state for "swayidle isn't running and nobody
+    // asked for that" — which the built-in would render identically to
+    // "everything is fine".
+    "exec": "$HOME/.local/bin/river-idle waybar",
+    "return-type": "json",
+    "interval": 30,
+    "format": "{}",
+    "on-click": "$HOME/.local/bin/river-idle toggle",
+    // Right-click pauses indefinitely. Deliberately the awkward one.
+    "on-click-right": "$HOME/.local/bin/river-idle stop 0"
   },
 
   "tray": {
@@ -136,5 +208,15 @@
       "on-scroll-up": "shift_up",
       "on-scroll-down": "shift_down"
     }
+  },
+
+  "custom/power": {
+    // Same wlogout menu as Super+Shift+P, for when the mouse is already up
+    // here. Left-click only — no scroll or right-click action, because an
+    // accidental brush against the corner of the screen should not offer to
+    // shut the machine down.
+    "format": "󰐥",
+    "tooltip-format": "Session menu (Super+Shift+P)",
+    "on-click": "wlogout -b 3"
   }
 }

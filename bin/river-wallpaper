@@ -75,13 +75,52 @@ fi
 
 # Menu shows "category/filename" rather than a bare basename — with a few
 # hundred images from a collection, the folder is most of the information.
-choice="$(printf '%s\n' "${images[@]}" \
-  | while read -r p; do
-      label="$(basename "$(dirname "$p")")/$(basename "$p")"
-      printf '%s\t%s\n' "$label" "$p"
-    done \
-  | fuzzel --dmenu --prompt 'wallpaper ❯ ' --lines 15 --width 60 \
-  | cut -f2)"
+#
+# ONLY the label is sent to fuzzel, and the path is recovered from a lookup
+# table afterwards.
+#
+# The previous version piped "label<TAB>path" to fuzzel and pulled the path
+# back with `cut -f2`. That works, but fuzzel displays the whole line: the tab
+# renders as whitespace and every entry in the menu carried its full absolute
+# path next to the label, which is the opposite of what the comment above
+# claimed. Trimming the display needs `--with-nth`, which older fuzzel builds
+# do not have, and this repo does not get to assume a flag it has not checked.
+# A lookup table needs no flag at all.
+declare -A _by_label=()
+_labels=()
+for p in "${images[@]}"; do
+  # Label is the path RELATIVE TO ITS COLLECTION ROOT, not just the parent
+  # directory. Gruvbox collections nest as <collection>/<variant>/<file>, so
+  # the immediate parent is usually "dark" — which labelled two different
+  # images from two different collections identically as "dark/forest.png" and
+  # left the disambiguator to invent "(2)". Relative paths carry the collection
+  # name, which is the part that tells them apart.
+  label="$p"
+  for d in "${existing[@]}"; do
+    if [[ "$p" == "$d"/* ]]; then
+      label="${p#"$d"/}"
+      break
+    fi
+  done
+  # Collections do repeat filenames across categories, and two identical
+  # labels would make one image unselectable. Disambiguate rather than
+  # silently dropping one.
+  if [[ -n "${_by_label[$label]:-}" ]]; then
+    n=2
+    while [[ -n "${_by_label["${label} (${n})"]:-}" ]]; do n=$((n + 1)); done
+    label="${label} (${n})"
+  fi
+  _by_label["$label"]="$p"
+  _labels+=("$label")
+done
 
-[[ -n "${choice:-}" ]] || exit 0
+picked="$(printf '%s\n' "${_labels[@]}" \
+  | fuzzel --dmenu --prompt 'wallpaper ❯ ' --lines 15 --width 60)" || picked=""
+
+[[ -n "${picked:-}" ]] || exit 0
+choice="${_by_label[$picked]:-}"
+# An empty lookup means fuzzel returned something that was not on the list —
+# it echoes free text when nothing matches. Treat it as a cancel, not as a
+# path, or `apply` gets an empty string and the state file gets truncated.
+[[ -n "$choice" ]] || exit 0
 apply "$choice"

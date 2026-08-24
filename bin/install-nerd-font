@@ -41,8 +41,20 @@ MODE=install
 installed_version() { cat "$STAMP" 2>/dev/null || true; }
 
 if [[ "$MODE" == check ]]; then
-  if fc-list 2>/dev/null | grep -qi 'symbols nerd font'; then
-    ok "Symbols Nerd Font present (version $(installed_version || echo unknown))"
+  # Test the FILES, not fc-list.
+  #
+  # fc-list is unreliable immediately after a cache rebuild, and bootstrap.sh
+  # gates the whole install on this check — so an fc-list miss meant hitting
+  # GitHub and re-downloading the font on EVERY bootstrap run. The files
+  # either exist or they don't; that is the question being asked.
+  # Glob for *any* ttf rather than naming files: asset filenames have changed
+  # across releases of this project before, and a check that hardcodes them
+  # would start reporting "not installed" for a perfectly good font.
+  shopt -s nullglob
+  ttfs=("$FONT_DIR"/*.[tT][tT][fF] "$FONT_DIR"/*.[oO][tT][fF])
+  shopt -u nullglob
+  if (( ${#ttfs[@]} > 0 )) && [[ -s "$STAMP" ]]; then
+    ok "Symbols Nerd Font present (${#ttfs[@]} files, version $(installed_version))"
     exit 0
   fi
   echo "Symbols Nerd Font NOT installed" >&2
@@ -70,7 +82,10 @@ asset_url="$(printf '%s' "$release_json" \
 [[ -n "$asset_url" ]] || die "no symbols-only asset in release ${tag} — asset naming may have changed; check https://github.com/${REPO}/releases/latest"
 
 have="$(installed_version)"
-if [[ "$MODE" != force && "$have" == "$tag" ]] && fc-list 2>/dev/null | grep -qi 'symbols nerd font'; then
+shopt -s nullglob
+present=("$FONT_DIR"/*.[tT][tT][fF] "$FONT_DIR"/*.[oO][tT][fF])
+shopt -u nullglob
+if [[ "$MODE" != force && "$have" == "$tag" ]] && (( ${#present[@]} > 0 )); then
   ok "already at ${tag} — nothing to do"
   exit 0
 fi
@@ -104,6 +119,21 @@ else
 fi
 
 info "installing to ${FONT_DIR}"
+
+# GUARD IN CODE, NOT IN A COMMENT.
+#
+# FONT_DIR is built from XDG_DATA_HOME, which this script does not control. The
+# `:-` default covers unset and empty, and `set -u` covers an unset HOME — but
+# that is a chain of three assumptions protecting an `rm -rf`, and on
+# 2026-08-18 this repo deleted a 562 MB directory because a destructive step's
+# only protection was a sentence above it. Assert the shape of the path
+# instead: it must be absolute, and it must end in the directory this script
+# owns. Nothing else is ever a legitimate target.
+case "$FONT_DIR" in
+  /*/fonts/NerdFontsSymbolsOnly) ;;
+  *) die "refusing to rm -rf an unexpected path: '${FONT_DIR}'
+This should be <data-dir>/fonts/NerdFontsSymbolsOnly. Check XDG_DATA_HOME." ;;
+esac
 rm -rf "$FONT_DIR"
 mkdir -p "$FONT_DIR"
 unzip -q -o "$tmp/font.zip" -d "$FONT_DIR" -x 'README*' 'LICENSE*'
@@ -130,8 +160,23 @@ fi
 info "rebuilding the font cache"
 fc-cache -f >/dev/null
 
-fc-list 2>/dev/null | grep -qi 'symbols nerd font' \
-  || die "installed, but fontconfig does not see it — check ${FONT_DIR}"
+# Verification is ADVISORY, not fatal.
+#
+# fc-list run immediately after fc-cache in the same script does not reliably
+# report the new font, while the identical commands typed by hand a second
+# later do (observed twice, 2026-08-23). Rather than guess at the cause,
+# accept that this check has a race in it — and note that dying here would
+# undo nothing: the files are installed, the fallback rule is in place, and
+# the icons work. A hard failure on a successful install is worse than a
+# warning, especially since bootstrap.sh treats a non-zero exit as a failed
+# task.
+if fc-list 2>/dev/null | grep -qi 'symbols nerd font'; then
+  ok "fontconfig sees the font"
+else
+  printf '\033[33mwarn:\033[0m fc-list did not report the font yet. This is usually a\n' >&2
+  printf '      cache timing artefact, not a failure. Confirm with:\n' >&2
+  printf '        fc-cache -f && fc-list | grep -i nerd\n' >&2
+fi
 
 mkdir -p "$(dirname "$STAMP")"
 printf '%s\n' "$tag" > "$STAMP"

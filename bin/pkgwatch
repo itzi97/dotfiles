@@ -50,6 +50,17 @@ new()  { printf '  \033[33mNEW\033[0m     %s\n' "$*"; }
 bad()  { printf '  \033[31mUNKNOWN\033[0m %s\n' "$*"; }
 die()  { printf '\033[31merror:\033[0m %s\n' "$*" >&2; exit 1; }
 
+# warn() — added 2026-08-24. It was CALLED and never DEFINED.
+#
+# Two lines in the Last-Modified-only branch below call `warn`. With
+# `set -Eeuo pipefail`, an undefined function is a command-not-found: exit 127,
+# the loop aborts, and every watchlist entry after the failing one is never
+# checked. The documented exit contract (0 / 10 / 1) never happens either, so
+# the monthly timer would record a failure that looks like nothing at all —
+# for a check whose entire purpose is noticing that a password vault has an
+# update. bash -n does not catch this; only running the branch does.
+warn() { printf '  \033[33mwarn\033[0m    %s\n' "$*" >&2; }
+
 [[ -f "$CONF" ]] || die "no watchlist at $CONF"
 mkdir -p "$STATE_DIR"
 

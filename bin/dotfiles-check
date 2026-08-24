@@ -89,7 +89,13 @@ while read -r f; do
   head -c2 "$f" | grep -q '^#!' || continue
   if bash -n "$f" 2>/dev/null; then ok "${f#$BASEDIR/}"
   else fail "${f#$BASEDIR/} — bash -n reports a syntax error"; fi
-done < <(find "$BASEDIR/bin" "$BASEDIR" -maxdepth 1 -type f 2>/dev/null | sort -u)
+done < <(find "$BASEDIR/bin" "$BASEDIR/hooks" "$BASEDIR" -maxdepth 1 -type f 2>/dev/null | sort -u)
+
+# hooks/ is included above deliberately. It was not, until 2026-08-24, and
+# hooks/pre-commit is the script with the WORST failure mode in the repo: a
+# syntax error there makes every `git commit` fail, and the check that would
+# have caught it is this one. Its executable bit was already checked twenty
+# lines below, which made the omission easy to miss.
 
 # ------------------------------------------------------------ executable bits
 hdr "executable bits"
@@ -246,6 +252,129 @@ for t in "$BASEDIR"/toolboxes/*.txt; do
   fi
 done
 
+# ------------------------------------------------- invoked but never declared
+#
+# 03-conventions/dotfiles.md: "If it's part of the setup, it goes in a package
+# list." Nothing enforced that until now, and an audit on 2026-08-24 found
+# three live violations — btop (waybar's cpu/memory modules open it on click),
+# wireplumber (wpctl, behind every volume binding and the waybar audio module)
+# and playerctl — plus two "already installed" comments standing in for
+# declarations. All would surface as a broken feature on a rebuilt machine,
+# never as an install error.
+#
+# SCOPE IS DELIBERATELY NARROW, because a noisy check gets switched off. Only
+# two kinds of site are scanned:
+#   1. `command -v X` in bin/ — the author explicitly naming a dependency.
+#   2. The first word of a `spawn '...'` in river's init and of an "on-click"
+#      in waybar's config — the places a keybinding or a click reaches out to
+#      something that has to exist.
+hdr "external commands are declared in a package list"
+
+DECLARED="$(mktemp)"
+trap 'rm -f "$DECLARED"' EXIT
+cat "$BASEDIR"/packages/*.txt "$BASEDIR"/packages/bundles/*.txt 2>/dev/null \
+  | sed -e 's/#.*//' -e 's/[[:space:]]//g' -e '/^$/d' | sort -u > "$DECLARED"
+
+# Binaries whose package has a DIFFERENT name. Without this map the check
+# reports river-classic's own `riverctl` as undeclared and is useless.
+provider() {
+  case "$1" in
+    river|riverctl|rivertile)  echo river-classic ;;
+    swaync|swaync-client)      echo SwayNotificationCenter ;;
+    nm-applet)                 echo network-manager-applet ;;
+    blueman-applet|blueman-manager) echo blueman ;;
+    wpctl)                     echo wireplumber ;;
+    wl-copy|wl-paste)          echo wl-clipboard ;;
+    notify-send)               echo libnotify ;;
+    nvim)                      echo neovim ;;
+    fd)                        echo fd-find ;;
+    *)                         echo "$1" ;;
+  esac
+}
+
+# Membership test that does not care how the lists below are wrapped.
+#
+# The obvious `case "$LIST" in *" $cmd "*)` is subtly wrong for any entry that
+# sits at the end of a line: the character after it is a newline, not a space,
+# so the pattern never matches. That is why 'nvidia-smi' — which WAS in the
+# optional list — still got reported. Collapsing the whitespace first makes
+# the list's line breaks purely cosmetic, which is what they were meant to be.
+in_list() {
+  local needle="$1" list="$2"
+  # shellcheck disable=SC2086  # unquoted on purpose: collapses all whitespace
+  case " $(echo $list) " in *" $needle "*) return 0 ;; esac
+  return 1
+}
+
+# Part of the base install on both distros. Declaring these buys nothing and
+# would make the check read as noise.
+BASE_CMDS=" sh bash test true false printf echo cat head tail cut tr sort uniq
+ comm wc grep sed awk find xargs stat cmp mktemp basename dirname readlink
+ chmod mkdir cp mv rm ln ls date sleep kill env install tee shuf mountpoint
+ pgrep pkill fc-cache fc-list python3 systemctl systemd-run dbus-update-activation-environment
+ gsettings hostname sha256sum id ps which command sudo git ssh scp tar gzip
+ unzip curl "
+
+# waybar's OWN action verbs, not programs. An "on-click" may name an internal
+# action instead of a shell command — wlr/taskbar takes "activate" and "close",
+# clock takes "mode", "shift_up" and "shift_down". Looking for a package called
+# "close" is a category error.
+WAYBAR_ACTIONS=" activate close fullscreen minimize maximize mode
+ shift_up shift_down shift_reset tz_up tz_down up down "
+
+# Probes, not dependencies. `command -v dnf` asks "which distro is this",
+# and `command -v conda` asks "is there a leftover conda to warn about" —
+# answering "no" is a valid, expected outcome. Declaring these would be wrong:
+# the whole point is that they may be absent.
+OPTIONAL_CMDS=" dnf dnf5 pacman apt apt-get yay paru conda mamba nvidia-smi
+ lspci lsblk flatpak snap zypper toolbox docker "
+
+undeclared=0
+while read -r cmd; do
+  [[ -n "$cmd" ]] || continue
+  in_list "$cmd" "$BASE_CMDS"      && continue
+  in_list "$cmd" "$OPTIONAL_CMDS"  && continue
+  in_list "$cmd" "$WAYBAR_ACTIONS" && continue
+  # This repo's own scripts. They are checked by the link and executable-bit
+  # sections; they are not packages and never will be.
+  [[ -e "$BASEDIR/bin/$cmd" ]] && continue
+  pkg="$(provider "$cmd")"
+  grep -qxF "$pkg" "$DECLARED" && continue
+  fail "'$cmd' is invoked by this repo but neither it nor '$pkg' is in any package list"
+  undeclared=$((undeclared + 1))
+done < <(
+  {
+    # COMMENT LINES ARE STRIPPED FIRST, in every one of these.
+    #
+    # Without that, the check reads prose. The first version of this section
+    # reported 'X' (from a comment in this very file reading "`command -v X`
+    # in bin/"), plus 'terminal', 'onto', 'close', 'activate', 'mode' and
+    # 'it.' — all from English sentences in comments that happened to contain
+    # the word "spawn". Thirteen findings, four of them real. A check that
+    # cries wolf nine times out of thirteen is a check that gets deleted.
+
+    # 1. explicit dependency guards in bin/ — the author naming a requirement.
+    grep -rh --include='*' -v '^[[:space:]]*#' "$BASEDIR/bin" 2>/dev/null \
+      | grep -oE 'command -v [A-Za-z0-9_.-]+' | awk '{print $3}'
+
+    # 2. what a keybinding reaches for. First word after `spawn`, skipping
+    #    $-expansions and absolute paths — those are this repo's own scripts.
+    grep -rhv '^[[:space:]]*#' "$BASEDIR/config/river" 2>/dev/null \
+      | grep -oE "spawn +'?\"?[A-Za-z0-9_.-]+" | sed -E "s/spawn +'?\"?//"
+
+    # 3. what a bar click reaches for. JSONC comments start with // at the
+    #    start of a line here, so the same strip applies.
+    grep -rhv '^[[:space:]]*//' "$BASEDIR/config/waybar" 2>/dev/null \
+      | grep -oE '"on-click[^"]*": *"[A-Za-z0-9_.-]+' | sed -E 's/.*": *"//'
+
+    # 4. `kitty -e <cmd>` — the module opens a program INSIDE a terminal, so
+    #    the dependency is the word after -e, not kitty.
+    grep -rhv '^[[:space:]]*//' "$BASEDIR/config/waybar" 2>/dev/null \
+      | grep -oE ' -e +[A-Za-z0-9_.-]+' | awk '{print $2}'
+  } | sort -u
+)
+((undeclared)) || ok "every external command this repo invokes is declared"
+
 # ------------------------------------------------------------------- secrets
 hdr "secrets"
 # High-signal patterns only. A scanner that flags every line containing the
@@ -269,10 +398,20 @@ done
 ((hits)) || ok "no private keys or provider tokens found"
 
 # Belt and braces: the two files that must never be committed.
+#
+# The `ok` line is conditional on having found nothing. It used to be
+# unconditional, so a repo that DID contain config/restic/password printed
+# both "FAIL config/restic/password exists in the repo" and "ok no password or
+# key file present in the repo" — and the reassuring line came second, which is
+# the one a person skims. Fixed 2026-08-24.
+forbidden_found=0
 for forbidden in "config/restic/password" ".ssh/id_ed25519"; do
-  [[ -e "$BASEDIR/$forbidden" ]] && fail "$forbidden exists in the repo — it must not"
+  if [[ -e "$BASEDIR/$forbidden" ]]; then
+    fail "$forbidden exists in the repo — it must not"
+    forbidden_found=1
+  fi
 done
-((QUIET)) || ok "no password or key file present in the repo"
+((forbidden_found)) || ok "no password or key file present in the repo"
 
 # ---------------------------------------------------------------------- done
 echo

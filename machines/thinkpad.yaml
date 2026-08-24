@@ -48,6 +48,25 @@
       mode: 755
     ~/.config/waybar/config.jsonc:  config/waybar/config.jsonc
     ~/.config/waybar/style.css:     config/waybar/style.css
+    # The session wrapper. Sets the environment river's children need and then
+    # execs river — config/river/init CANNOT do this, because it runs as
+    # river's child and `spawn` inherits river's environment, not init's.
+    # Verified 2026-08-23: every toolkit variable init exported read empty
+    # inside the session.
+    #
+    # The matching session entry (config/river/river-session.desktop) is NOT
+    # linked here — SDDM does not read ~/.local/share, so it needs a root
+    # install to /usr/local/share/wayland-sessions. See the header of
+    # bin/river-session for the command.
+    ~/.local/bin/river-session:
+      path: bin/river-session
+      mode: 755
+    # Owns the whole idle policy — the swayidle timings live here and nowhere
+    # else, because they are needed both at session start and on every re-arm
+    # after a pause. Bound to Super+Shift+I and driven by waybar's custom/idle.
+    ~/.local/bin/river-idle:
+      path: bin/river-idle
+      mode: 755
     ~/.local/bin/river-cheatsheet:
       path: bin/river-cheatsheet
       mode: 755
@@ -58,6 +77,17 @@
       path: bin/install-nerd-font
       mode: 755
     ~/.config/kanshi/config:        config/kanshi/config
+    # KDE colour scheme DEFINITION. Note the split, which is the same one the
+    # gtk-3.0 note below draws: the repo owns the scheme *file* (a static asset,
+    # like the Nerd Font), the machine owns which scheme is *selected* — that
+    # lives in ~/.config/kdeglobals, which Plasma rewrites from System Settings
+    # and which therefore must never be a symlink into this repo.
+    #
+    # Applies to Dolphin, Ark, Okular, Gwenview and Plasma itself, in both
+    # sessions, because both read kdeglobals. Apply it with:
+    #   plasma-apply-colorscheme GruvboxDark
+    ~/.local/share/color-schemes/GruvboxDark.colors:
+      path: config/color-schemes/GruvboxDark.colors
     # Session theming — gruvbox everywhere it can be, Adwaita-dark for GTK
     # (see the note in gtk-3.0/settings.ini for why not gruvbox there).
     ~/.config/fuzzel/fuzzel.ini:    config/fuzzel/fuzzel.ini
@@ -66,6 +96,17 @@
     ~/.config/swaylock/config:      config/swaylock/config
     ~/.config/wlogout/layout:       config/wlogout/layout
     ~/.config/wlogout/style.css:    config/wlogout/style.css
+    # Portal backend selection. XDG_CURRENT_DESKTOP=river means
+    # xdg-desktop-portal looks for river-portals.conf and finds nothing —
+    # Fedora ships sway-portals.conf and hyprland-portals.conf but no river
+    # one, because river-classic is not a distro-blessed session. Without it
+    # the portal has no idea which implementation to load.
+    ~/.config/xdg-desktop-portal/river-portals.conf:
+      path: config/xdg-desktop-portal/river-portals.conf
+    # Starting this target is what tells systemd the graphical session has
+    # begun, which is what xdg-desktop-portal.service is ordered after.
+    ~/.config/systemd/user/river-session.target:
+      path: config/systemd/river-session.target
 
 # GTK settings.ini is deliberately NOT linked.
 #

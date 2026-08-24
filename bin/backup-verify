@@ -12,10 +12,20 @@ set -Eeuo pipefail
 REPO="${RESTIC_REPOSITORY:-/mnt/backup-local/restic}"
 PASSWORD_FILE="${RESTIC_PASSWORD_FILE:-$HOME/.config/restic/password}"
 
-# Must match backup-local's tag derivation. The repo can hold snapshots from
-# more than one machine, and verifying the wrong host's snapshot against this
-# host's files would fail for the most confusing possible reason.
+# Must match backup-local's tag derivation EXACTLY, including the off-site
+# suffix. The repo can hold snapshots from more than one machine, and verifying
+# the wrong host's snapshot against this host's files would fail for the most
+# confusing possible reason.
+#
+# The suffix is not optional: backup-local tags off-site snapshots
+# "<host>-offsite" so that `restic forget --prune` cannot apply one machine's
+# retention policy to another's snapshots. Without the same branch here, a
+# verification run against the off-site repo would search for tag "thinkpad",
+# find nothing, and die claiming it could not read the latest snapshot — a
+# false failure on a healthy backup. Added 2026-08-24, alongside the
+# backup-local fix that created the mismatch.
 TAG="${RESTIC_TAG:-$(hostname -s 2>/dev/null || echo unknown)}"
+[[ "${RESTIC_OFFSITE:-0}" == "1" ]] && TAG="${TAG}-offsite"
 
 info() { printf '\033[36m==>\033[0m %s\n' "$*"; }
 die()  {
@@ -29,7 +39,19 @@ trap 'die "unexpected error on line $LINENO"' ERR
 export RESTIC_REPOSITORY="$REPO"
 export RESTIC_PASSWORD_FILE="$PASSWORD_FILE"
 
-mountpoint -q "$(dirname "$REPO")" || die "$(dirname "$REPO") is not mounted"
+# Local repos only — same reasoning as backup-local: `mountpoint` on
+# "sftp:hetzner-box:/home/restic/thinkpad" is meaningless and would kill the
+# off-site verification run before it started. Off-site snapshots need
+# verifying at least as much as local ones; ADR-0017's whole argument is that
+# the remote copy is the one that survives the flat burning down.
+case "$REPO" in
+  /*|./*|../*)
+    mountpoint -q "$(dirname "$REPO")" || die "$(dirname "$REPO") is not mounted"
+    ;;
+  *)
+    info "remote repository (${REPO%%:*}) — the mountpoint check does not apply"
+    ;;
+esac
 
 info "checking repository structure"
 restic check
@@ -70,7 +92,17 @@ snap_epoch="$(restic snapshots --tag "$TAG" --latest 1 --json 2>/dev/null \
 candidate=""
 scanned=0
 while read -r f; do
-  ((scanned++))
+  # `scanned=$((scanned + 1))`, NOT `((scanned++))`.
+  #
+  # `((expr))` exits 1 when expr evaluates to 0, and post-increment returns the
+  # OLD value — so on the first iteration `((scanned++))` evaluates to 0, exits
+  # 1, and under `set -e` with the ERR trap above the script dies with
+  # "unexpected error on line 73" and fires a critical notification.
+  #
+  # This script therefore never verified anything: it died on the first file it
+  # looked at, every run, and the failure looked exactly like a real backup
+  # problem. Found 2026-08-24 by running it against mocks.
+  scanned=$((scanned + 1))
   [[ -f "$f" && -s "$f" ]] || continue
   case "$f" in
     "$HOME"/Documents/*|"$HOME"/Pictures/*|"$HOME"/Videos/*|"$HOME"/Music/*|"$HOME"/work/*) ;;

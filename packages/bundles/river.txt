@@ -74,8 +74,24 @@ slurp                     # region selection
 swappy                    # annotate and save — optional, but the reason
                           # screenshots are useful for coursework
 
+# --- audio and media keys ---------------------------------------------
+# wpctl comes from wireplumber, and the volume/mute keybindings in
+# config/river/init plus waybar's `wireplumber` module both call it. Present on
+# a KDE spin already — declared anyway, because "it came with the desktop
+# environment" stops being true the moment a rebuild installs a minimal system
+# and this bundle on top. Audited 2026-08-24.
+wireplumber
+
+# playerctl — bound to XF86AudioMedia in config/river/init. The binding is
+# already wrapped in `|| true` so a missing playerctl costs one key rather
+# than the session, which is why this went unnoticed.
+playerctl
+
 # --- clipboard --------------------------------------------------------
-# wl-clipboard is already installed (nvim uses wl-copy); cliphist adds history.
+# cliphist adds history on top of wl-clipboard. wl-clipboard itself moved to
+# packages/common.txt on 2026-08-24: this file used to note it was "already
+# installed (nvim uses wl-copy)", which is an observation about the current
+# machine, not a declaration that survives a rebuild.
 cliphist
 
 # --- tray applets -----------------------------------------------------
@@ -88,11 +104,41 @@ xdg-desktop-portal-wlr    # SCREEN SHARING. Presentations are a stated use of
                           # this machine; without this, sharing shows a blank
 xdg-desktop-portal-gtk    # file picker dialogs (already installed, listed for
                           # completeness — a rebuild must not omit it)
-qt6ct                     # Qt apps outside Plasma otherwise ignore the theme
-                          # entirely and render in default grey
+# qt6ct — FALLBACK ONLY on this machine, and bin/river-session probes before
+# using it.
+#
+# The original note here said "Qt apps outside Plasma otherwise ignore the
+# theme entirely and render in default grey". That is true where Plasma is not
+# installed. Here it is: this is the Fedora KDE spin, and forcing
+# QT_QPA_PLATFORMTHEME=qt6ct actively BREAKS the KDE apps — Dolphin, Ark,
+# Okular and Gwenview read ~/.config/kdeglobals for colours, icons and fonts,
+# and qt6ct overrides that with a config nothing has filled in. Dolphin then
+# renders grey in river while looking correct in Plasma, from identical files.
+#
+# plasma-integration's `kde` platform theme is preferred instead, keeping
+# kdeglobals as one source of truth across both sessions. qt6ct earns its place
+# only for a future machine running river with no Plasma underneath.
+qt6ct
+
+# --- session prerequisites Plasma happened to supply ------------------
+# These two were listed under "deliberately NOT here" on the grounds that they
+# are "already installed". That was an observation about this machine on this
+# day, not a declaration — and both are load-bearing enough that discovering
+# them missing on a rebuilt system is a bad afternoon. Promoted 2026-08-24.
+#
+# polkit-kde-authentication-agent provides the binary config/river/init execs
+# at /usr/libexec/polkit-kde-authentication-agent-1. WITHOUT AN AGENT, anything
+# needing authorisation fails with no prompt and no error at all.
+polkit-kde
+# gnome-keyring — Secret Service provider. Signal, Element and everything using
+# libsecret store their credentials through it. Chosen over kwallet precisely
+# because it does not assume a Plasma session is running; see the note in
+# config/river/init.
+gnome-keyring
 
 # --- deliberately NOT here --------------------------------------------
-# polkit-kde        already installed; provides the auth agent binary that
-#                   config/river/init launches. Not re-declared here.
-# gnome-keyring     already installed; Secret Service provider for Signal et al.
-# kitty, fish, nvim already in common.txt — this bundle assumes them
+# kitty, fish, nvim, wl-clipboard, btop, libnotify
+#                   all in packages/common.txt — wanted on every machine, not
+#                   just the ones running river. This bundle assumes them.
+# pipewire          base install on both distros; wireplumber above is the part
+#                   this session actually calls (wpctl), so only it is declared.

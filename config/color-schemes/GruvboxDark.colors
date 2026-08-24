@@ -1,0 +1,152 @@
+# ~/.dotfiles/config/color-schemes/GruvboxDark.colors
+#
+# Linked to ~/.local/share/color-schemes/GruvboxDark.colors.
+# Apply with:  plasma-apply-colorscheme GruvboxDark
+#
+# Same gruvbox dark palette as config/waybar/style.css, config/river/init's
+# border colours, kitty, fuzzel, swaync and zathura:
+#
+#   bg0_h #1d2021   bg0 #282828   bg1 #3c3836   bg2 #504945   bg3 #665c54
+#   fg1  #ebdbb2    fg4 #a89984   gray #928374
+#   red  #fb4934    green #b8bb26 yellow #fabd2f  blue #83a598
+#   aqua #8ec07c    purple #d3869b orange #fe8019
+#
+# Selection is #d79921 — the same accent as the focused window border and the
+# focused waybar tag. One accent in the session, not three.
+#
+# This changes PLASMA TOO, because both sessions read ~/.config/kdeglobals.
+# That is the intent: one source of truth. It is not a river-only theme.
+
+[ColorEffects:Disabled]
+Color=56,56,56
+ColorAmount=0
+ColorEffect=0
+ContrastAmount=0.65
+ContrastEffect=1
+IntensityAmount=0.1
+IntensityEffect=2
+
+[ColorEffects:Inactive]
+ChangeSelectionColor=true
+Color=112,111,110
+ColorAmount=0.025
+ColorEffect=2
+ContrastAmount=0.1
+ContrastEffect=2
+Enable=false
+IntensityAmount=0
+IntensityEffect=0
+
+[Colors:Button]
+BackgroundAlternate=80,73,69
+BackgroundNormal=60,56,54
+DecorationFocus=215,153,33
+DecorationHover=215,153,33
+ForegroundActive=250,189,47
+ForegroundInactive=146,131,116
+ForegroundLink=131,165,152
+ForegroundNegative=251,73,52
+ForegroundNeutral=254,128,25
+ForegroundNormal=235,219,178
+ForegroundPositive=184,187,38
+ForegroundVisited=211,134,155
+
+[Colors:Complementary]
+BackgroundAlternate=60,56,54
+BackgroundNormal=29,32,33
+DecorationFocus=215,153,33
+DecorationHover=215,153,33
+ForegroundActive=250,189,47
+ForegroundInactive=146,131,116
+ForegroundLink=131,165,152
+ForegroundNegative=251,73,52
+ForegroundNeutral=254,128,25
+ForegroundNormal=235,219,178
+ForegroundPositive=184,187,38
+ForegroundVisited=211,134,155
+
+[Colors:Header]
+BackgroundAlternate=60,56,54
+BackgroundNormal=40,40,40
+DecorationFocus=215,153,33
+DecorationHover=215,153,33
+ForegroundActive=250,189,47
+ForegroundInactive=146,131,116
+ForegroundLink=131,165,152
+ForegroundNegative=251,73,52
+ForegroundNeutral=254,128,25
+ForegroundNormal=235,219,178
+ForegroundPositive=184,187,38
+ForegroundVisited=211,134,155
+
+[Colors:Selection]
+BackgroundAlternate=215,153,33
+BackgroundNormal=215,153,33
+DecorationFocus=215,153,33
+DecorationHover=215,153,33
+ForegroundActive=40,40,40
+ForegroundInactive=40,40,40
+ForegroundLink=29,32,33
+ForegroundNegative=124,20,10
+ForegroundNeutral=101,50,0
+ForegroundNormal=40,40,40
+ForegroundPositive=42,45,10
+ForegroundVisited=40,40,40
+
+[Colors:Tooltip]
+BackgroundAlternate=60,56,54
+BackgroundNormal=40,40,40
+DecorationFocus=215,153,33
+DecorationHover=215,153,33
+ForegroundActive=250,189,47
+ForegroundInactive=146,131,116
+ForegroundLink=131,165,152
+ForegroundNegative=251,73,52
+ForegroundNeutral=254,128,25
+ForegroundNormal=235,219,178
+ForegroundPositive=184,187,38
+ForegroundVisited=211,134,155
+
+[Colors:View]
+BackgroundAlternate=40,40,40
+BackgroundNormal=29,32,33
+DecorationFocus=215,153,33
+DecorationHover=215,153,33
+ForegroundActive=250,189,47
+ForegroundInactive=146,131,116
+ForegroundLink=131,165,152
+ForegroundNegative=251,73,52
+ForegroundNeutral=254,128,25
+ForegroundNormal=235,219,178
+ForegroundPositive=184,187,38
+ForegroundVisited=211,134,155
+
+[Colors:Window]
+BackgroundAlternate=60,56,54
+BackgroundNormal=40,40,40
+DecorationFocus=215,153,33
+DecorationHover=215,153,33
+ForegroundActive=250,189,47
+ForegroundInactive=146,131,116
+ForegroundLink=131,165,152
+ForegroundNegative=251,73,52
+ForegroundNeutral=254,128,25
+ForegroundNormal=235,219,178
+ForegroundPositive=184,187,38
+ForegroundVisited=211,134,155
+
+[General]
+ColorScheme=GruvboxDark
+Name=Gruvbox Dark
+shadeSortColumn=true
+
+[KDE]
+contrast=4
+
+[WM]
+activeBackground=60,56,54
+activeBlend=215,153,33
+activeForeground=235,219,178
+inactiveBackground=40,40,40
+inactiveBlend=80,73,69
+inactiveForeground=146,131,116

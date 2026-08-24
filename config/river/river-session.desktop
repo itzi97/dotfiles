@@ -1,0 +1,46 @@
+[Desktop Entry]
+# Installed to /usr/local/share/wayland-sessions/river-session.desktop as root:
+#
+#   sudo install -Dm644 ~/.dotfiles/config/river/river-session.desktop \
+#     /usr/local/share/wayland-sessions/river-session.desktop
+#
+# NOT linked by dotbot. SDDM builds its session list before any user has logged
+# in, so it does not read ~/.local/share — a dotbot link into a per-user
+# directory would produce a session entry nobody ever sees, which is precisely
+# the "looked configured, did nothing" failure this repo keeps hitting.
+# /usr/local/share is the standard location for locally-added sessions and is
+# not touched by package updates.
+#
+# WHY A WRAPPER AT ALL: the packaged river.desktop runs `river` directly, and
+# river's own init file cannot set environment variables for the session (it
+# runs as river's child; see the environment section of config/river/init).
+# bin/river-session sets them and then execs river.
+#
+# DesktopNames is copied from the packaged river.desktop deliberately.
+# xdg-desktop-portal searches for a config file per name, and wlr.portal
+# declares UseIn=wlroots;sway;Wayfire;river;phosh;Hyprland; — so both names
+# are load-bearing. config/xdg-desktop-portal/river-portals.conf matches the
+# first of them.
+#
+# Exec/TryExec are ABSOLUTE, and the home directory is spelled out.
+#
+# A bare `Exec=river-session` would be the same class of bug as the old
+# `spawn river-cheatsheet`: SDDM's PATH is roughly
+# /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin — it does not include
+# ~/.local/bin, so TryExec would fail, and a .desktop whose TryExec fails is
+# HIDDEN. The result is a session entry that never appears in the login list
+# and no error anywhere explaining why.
+#
+# `~` and `$HOME` do not expand in a .desktop Exec key either, so the path
+# cannot be written portably. This file is installed per machine as root, so
+# the hardcoded path is honest rather than clever. On a machine with a
+# different username, change it during install.
+#
+# If the entry does not appear at the login screen, check TryExec first:
+#   test -x /home/itziar/.local/bin/river-session && echo ok || echo "not executable"
+Name=River Classic (dotfiles session)
+Comment=A dynamic tiling Wayland compositor, with the dotfiles session environment
+DesktopNames=river;wlroots
+Exec=/home/itziar/.local/bin/river-session
+TryExec=/home/itziar/.local/bin/river-session
+Type=Application

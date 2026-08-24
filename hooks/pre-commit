@@ -27,9 +27,32 @@ set -Eeuo pipefail
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 CHECK="${REPO_ROOT}/bin/dotfiles-check"
 
+# FAIL CLOSED. This used to `exit 0` with a yellow "skipping" line.
+#
+# That is the failure mode this whole repo keeps relearning: a guard that
+# quietly does nothing while reporting success. The comment above says the
+# secrets scan has "exactly one useful moment", and it is this one — so the
+# state where the scanner is missing is precisely the state where a commit
+# must not sail through. A dropped executable bit, a bad checkout, or a
+# half-finished rebase would each have silently disarmed it, and the yellow
+# line scrolls past above the commit message editor.
+#
+# Blocking is safe because the escape hatch already exists and is one flag
+# away. Changed 2026-08-24.
 [[ -x "$CHECK" ]] || {
-  printf '\033[33mpre-commit:\033[0m bin/dotfiles-check missing or not executable — skipping\n' >&2
-  exit 0
+  cat >&2 <<'MSG'
+
+pre-commit REFUSED: bin/dotfiles-check is missing or not executable.
+
+  The secrets scan cannot run, so this commit is not being checked for keys
+  or tokens. That check has one useful moment and this is it — a GitHub
+  Action runs after the key is already on their servers.
+
+  Fix:      chmod +x bin/dotfiles-check
+  Bypass:   git commit --no-verify     (only if you are certain)
+
+MSG
+  exit 1
 }
 
 printf '\033[36m==>\033[0m pre-commit: running dotfiles-check\n'

@@ -1,0 +1,142 @@
+#!/usr/bin/env bash
+#
+# river-session — set the session environment, then become river.
+#
+# WHY THIS EXISTS
+#
+# config/river/init cannot set environment variables for the session. river
+# executes init as a CHILD, and `riverctl map ... spawn X` asks river — the
+# PARENT — to spawn X. X inherits river's environment, and a child process
+# cannot reach up and modify its parent's. So every `export` in init reaches
+# only the handful of daemons init starts itself, and nothing you launch from a
+# keybinding or from fuzzel.
+#
+# That was not a theory. Inside a river session on 2026-08-23, with init
+# exporting all of these:
+#
+#   QT_QPA_PLATFORMTHEME=[]
+#   MOZ_ENABLE_WAYLAND=[]
+#   ELECTRON_OZONE_PLATFORM_HINT=[]
+#
+# The variables have to be in place BEFORE river starts. That means a wrapper,
+# and a session entry that runs the wrapper instead of running river directly.
+#
+# INSTALLING THE SESSION ENTRY — needs root, once per machine:
+#
+#   sudo install -Dm644 ~/.dotfiles/config/river/river-session.desktop \
+#     /usr/local/share/wayland-sessions/river-session.desktop
+#
+# It goes in /usr/local, not ~/.local: SDDM reads its session list before any
+# user has logged in, so a per-user directory is not on its search path.
+# /usr/local/share is the standard place for locally-added sessions and takes
+# precedence over the packaged /usr/share entry.
+#
+# Confirm SDDM actually reads that directory on this machine before trusting
+# it — the default is usually both, but it is a config value, not a law:
+#
+#   grep -rn 'SessionDir' /usr/share/sddm/sddm.conf.d/ /etc/sddm.conf* 2>/dev/null
+#
+# If /usr/local/share/wayland-sessions is missing from SessionDir, add it there
+# rather than editing the packaged river.desktop, which an update will replace.
+
+set -u
+
+# --- PATH -------------------------------------------------------------------
+# The display manager does not read the profile files that add ~/.local/bin,
+# and river's PATH is what every `spawn` resolves against. Without this,
+# `spawn river-cheatsheet` execs nothing, silently. (The bindings in init use
+# absolute paths as well, deliberately belt-and-braces — see the comment
+# there.)
+case ":${PATH:-}:" in
+  *":$HOME/.local/bin:"*) ;;
+  *) PATH="$HOME/.local/bin:${PATH:-/usr/local/bin:/usr/bin:/bin}" ;;
+esac
+export PATH
+
+# --- session identity -------------------------------------------------------
+# XDG_CURRENT_DESKTOP is NOT set here. The .desktop file's DesktopNames field
+# supplies it, and the display manager sets it from there before exec'ing this
+# script — `river;wlroots`, which is better than either name alone:
+# xdg-desktop-portal searches for a config per name, and wlr.portal declares
+#   UseIn=wlroots;sway;Wayfire;river;phosh;Hyprland;
+# so both names are meaningful. Hardcoding one here would narrow it for
+# nothing, which is what the old init did.
+#
+# Set only as a fallback, for the case where this is run by hand from a TTY.
+: "${XDG_CURRENT_DESKTOP:=river;wlroots}"
+: "${XDG_SESSION_TYPE:=wayland}"
+export XDG_CURRENT_DESKTOP XDG_SESSION_TYPE
+
+# --- toolkits ---------------------------------------------------------------
+# Each of these fixes a specific ugly failure, named so a future reader can
+# decide whether it still applies rather than cargo-culting the list.
+export QT_QPA_PLATFORM=wayland            # else Qt apps go through XWayland
+
+# QT_QPA_PLATFORMTHEME — `kde` if Plasma's integration plugin is here, else qt6ct.
+#
+# This is NOT a preference. Dolphin, Ark, Okular, Gwenview and every other KDE
+# Frameworks app reads ~/.config/kdeglobals for its colour scheme, icons and
+# fonts. Setting qt6ct OVERRIDES that, so those apps stop following kdeglobals
+# and fall back to qt6ct's own config — which nothing has ever filled in. The
+# result is Dolphin rendering grey inside river while looking correct in
+# Plasma, from the same config files.
+#
+# packages/bundles/river.txt justified qt6ct with "Qt apps outside Plasma
+# otherwise ignore the theme entirely". True on a machine with no Plasma. This
+# is the Fedora KDE spin: plasma-integration is right there, kdeglobals is
+# already coherent, and Plasma remains the default session — so `kde` keeps ONE
+# source of truth for both sessions instead of two that drift.
+#
+# qt6ct stays as the fallback for a machine where Plasma is not installed. Both
+# are probed rather than assumed, because a platform theme naming a plugin that
+# is not present makes Qt fall back to none at all, silently.
+# GLOB the plugin name, do not spell it.
+#
+# The first version of this probe tested for KDEPlasmaPlatformTheme.so. The
+# actual file on Fedora 44 is KDEPlasmaPlatformTheme6.so — Qt-major-versioned —
+# so the test failed, the branch fell through to qt6ct, and Dolphin kept
+# rendering grey. Nothing errored: bootstrap.sh reported success because the
+# symlink was fine, and the only symptom was a file manager that looked wrong.
+# Spelling a filename I had not listed is what caused it (2026-08-24).
+_qt_theme_present() {
+  local d
+  for d in /usr/lib64/qt6/plugins/platformthemes \
+           /usr/lib/qt6/plugins/platformthemes \
+           /usr/lib64/qt5/plugins/platformthemes; do
+    [ -d "$d" ] || continue
+    # nullglob is not set here, so test the expansion rather than trusting it.
+    for f in "$d"/$1; do [ -e "$f" ] && return 0; done
+  done
+  return 1
+}
+
+if _qt_theme_present 'KDEPlasmaPlatformTheme*.so'; then
+  export QT_QPA_PLATFORMTHEME=kde
+elif _qt_theme_present 'libqt6ct.so' && command -v qt6ct >/dev/null 2>&1; then
+  export QT_QPA_PLATFORMTHEME=qt6ct
+fi
+export MOZ_ENABLE_WAYLAND=1               # Firefox native Wayland
+export _JAVA_AWT_WM_NONREPARENTING=1      # IntelliJ draws a grey box without it
+export ELECTRON_OZONE_PLATFORM_HINT=auto  # Signal, Obsidian, Proton Mail
+
+# --- become river -----------------------------------------------------------
+# `exec`, so river takes over PID 1 of the session. Without exec, this script
+# stays as river's parent and the display manager's session lifetime tracks
+# the wrapper rather than the compositor — logout then leaves a stray process
+# and, worse, waits on it.
+#
+# river-classic provides the `river` binary; ADR-notes and
+# packages/bundles/river.txt explain why it is river-classic and not `river`
+# 0.4.x, which is a different architecture entirely.
+if ! command -v river >/dev/null 2>&1; then
+  # No compositor to exec. Say so somewhere a post-mortem can find it, because
+  # a session that dies instantly just bounces you back to the login screen
+  # with no explanation at all.
+  mkdir -p "${XDG_STATE_HOME:-$HOME/.local/state}/river"
+  printf '%s river-session: `river` not found on PATH (%s)\n' \
+    "$(date -Is)" "$PATH" \
+    >> "${XDG_STATE_HOME:-$HOME/.local/state}/river/session.log"
+  exit 127
+fi
+
+exec river "$@"

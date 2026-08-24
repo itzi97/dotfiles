@@ -1,0 +1,21 @@
+# ~/.dotfiles/config/systemd/river-session.target
+#
+# Linked to ~/.config/systemd/user/river-session.target.
+#
+# river never tells systemd that a graphical session has started, so
+# graphical-session.target is never reached — and xdg-desktop-portal.service
+# is ordered after it. The portal therefore fails to activate at all:
+#
+#   Could not activate remote peer 'org.freedesktop.portal.Desktop':
+#   startup job failed
+#
+# BindsTo implies Requires, so starting this target starts
+# graphical-session.target with it, and tears it down when this stops.
+# Same mechanism sway-session.target uses.
+
+[Unit]
+Description=river session
+Documentation=man:systemd.special(7)
+BindsTo=graphical-session.target
+Wants=graphical-session-pre.target
+After=graphical-session-pre.target

@@ -11,12 +11,17 @@
  */
 
 * {
-  /* JetBrains Mono for text, Symbols Nerd Font Mono for the icons.
+  /* JetBrains Mono for text, Symbols Nerd Font for the icons.
      Fedora packages no Nerd Font at all, so bin/install-nerd-font fetches the
      symbols-only set (~1MB) into ~/.local/share/fonts. Text font stays the
-     packaged one; only the glyphs come from outside the repos. If the symbols
-     font is missing you get boxes where icons should be, not a broken bar. */
-  font-family: "JetBrains Mono", "Symbols Nerd Font Mono", monospace;
+     packaged one; only the glyphs come from outside the repos.
+
+     "Symbols Nerd Font", NOT "...Mono": the Mono variant force-fits every
+     glyph into a fixed monospace cell, which sits the icons visibly lower
+     than the text beside them in a GTK bar. Mono is correct in a terminal,
+     where the cell grid is the point; wrong here. Fixed 2026-08-23 after the
+     icons rendered but sat below the baseline. */
+  font-family: "JetBrains Mono", "Symbols Nerd Font", monospace;
   font-size: 13px;
   min-height: 0;
   border: none;
@@ -80,15 +85,56 @@ window#waybar.empty #window {
 }
 
 /* --- right side ---------------------------------------------------------- */
+#cpu,
+#memory,
+#temperature,
+#custom-idle,
 #tray,
 #wireplumber,
 #backlight,
 #battery,
 #custom-notification,
-#clock {
+#clock,
+#custom-power {
   padding: 0 10px;
   color: #ebdbb2;
 }
+
+/* Machine stats are ambient information, not alerts. They sit in the muted
+   gray so a glance at the bar goes to the clock and the battery first, and
+   these are only there when you go looking. They change colour when they
+   stop being ambient — see #temperature.critical below. */
+#cpu,
+#memory,
+#temperature {
+  color: #928374;
+  padding: 0 6px;              /* tighter: three numbers in a row */
+}
+
+#temperature.critical {
+  color: #282828;
+  background: #fe8019;
+  font-weight: bold;
+}
+
+/* Auto-lock indicator (bin/river-idle).
+   `.active` is the normal state and is deliberately dim — it should not draw
+   the eye. `.inhibited` takes the accent, because a laptop that is not going
+   to lock itself is a thing you want to notice you left switched on
+   (04-privacy/threat-model.md, adversary #3: device theft).
+   `.broken` means swayidle is not running and nobody asked for that — red,
+   because it is the same outcome as an unlocked laptop arrived at by accident
+   rather than by choice. */
+#custom-idle.active    { color: #504945; }
+#custom-idle.inhibited { color: #d79921; }
+#custom-idle.broken {
+  color: #282828;
+  background: #fb4934;
+  font-weight: bold;
+}
+
+#custom-power { color: #928374; }
+#custom-power:hover { color: #fb4934; }
 
 #tray > .passive { -gtk-icon-effect: dim; }
 #tray > .needs-attention { -gtk-icon-effect: highlight; }
