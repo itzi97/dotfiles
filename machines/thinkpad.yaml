@@ -1,5 +1,36 @@
 # Fedora ThinkPad — college machine. Reliability over elegance.
-# No Hyprland, no gaming config. Applied after install.conf.yaml.
+# Applied after install.conf.yaml. Bundles: see machines/thinkpad.bundles.
+#
+# (The header said "no Hyprland, no gaming config" until 2026-08-24. The
+# Hyprland half is still true. The gaming half stopped being true when ADR-0015
+# accepted gaming as a secondary use of this machine, and thinkpad.bundles has
+# listed `gaming` since.)
+#
+# ---------------------------------------------------------------------------
+# `mode: 755` DOES NOTHING IN DOTBOT. Do not add it expecting an effect.
+#
+# Verified 2026-08-24 against the vendored dotbot in dotbot/src/dotbot/plugins/
+# link.py. The link plugin reads exactly these keys:
+#
+#   backup · canonicalize-path · create · exclude · force · glob · if
+#   ignore-missing · link · path · prefix · relative · relink · type
+#
+# No `mode`, and no `chmod` call anywhere in the file. Unknown keys are ignored
+# silently, which is how config/river/init came to be committed 644 while this
+# file confidently declared 755 — river execs that file directly, so the result
+# would have been a session with no keybindings at all, discovered at a login
+# screen.
+#
+# WHAT ACTUALLY CARRIES THE BIT: git, on the source file in this repo. dotbot
+# symlinks; a symlink has no mode of its own.
+#
+# SO WHY KEEP THESE LINES? Because bin/dotfiles-check reads them. Every entry
+# declaring `mode: 755` is checked to confirm the source really is executable
+# in the repo, and fails the commit if it is not. The key is an assertion aimed
+# at the linter, not an instruction aimed at dotbot. Kept deliberately, and
+# documented here so the next reader does not "discover" it is a no-op and
+# delete the annotations the linter depends on.
+# ---------------------------------------------------------------------------
 
 - defaults:
     link:

@@ -51,6 +51,23 @@ btop
 # is the exact outcome those scripts exist to prevent.
 libnotify
 
+# --- the agent browser (ADR-0020) ------------------------------------------
+# Chromium holds the Claude in Chrome extension, in a dedicated profile that is
+# signed into nothing. Same package name on Fedora and Arch, hence this file —
+# though the BINARY differs: Fedora ships /usr/bin/chromium-browser, Arch ships
+# /usr/bin/chromium. Both use ~/.config/chromium.
+#
+# Chromium rather than google-chrome deliberately: this is the distro's own
+# package, so it patches with `dnf`/`pacman` and adds no vendor repo. Verified
+# connecting to a Claude session on 2026-08-24 before being adopted — Chrome
+# and Edge are the only officially supported browsers, so this is a choice that
+# has to be re-verified if it ever stops working, not assumed.
+#
+# NOT the default browser. Firefox is. See ADR-0020 — if Chromium takes the
+# default, every link opened from river or a chat client lands in the browser
+# an agent drives, and the isolation is gone without anyone deciding it.
+chromium
+
 # wl-clipboard (wl-copy/wl-paste). neovim's clipboard integration uses it on
 # every Wayland session, and config/river/init pipes cliphist through it. Both
 # packages/bundles/river.txt and a comment in config/fish assumed it was

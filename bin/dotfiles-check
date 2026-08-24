@@ -108,11 +108,21 @@ done
 # Anything a dotbot config declares with `mode: 755` must ALSO be executable
 # in the repo.
 #
-# `mode` is not a documented dotbot link option — it may be silently ignored.
-# What actually carries the bit is git, on the source file. config/river/init
-# was committed 644 while thinkpad.yaml said mode: 755, and river execs its
-# init directly: the result would have been a session with no keybindings at
-# all, discovered at a login screen (2026-08-23).
+# `mode` IS NOT A DOTBOT OPTION — confirmed 2026-08-24 by reading the vendored
+# dotbot/src/dotbot/plugins/link.py. It reads backup, canonicalize-path,
+# create, exclude, force, glob, if, ignore-missing, link, path, prefix,
+# relative, relink and type. There is no `mode` and no `chmod` in the file;
+# unknown keys are ignored without a word.
+#
+# What actually carries the bit is git, on the source file — a symlink has no
+# mode of its own. config/river/init was committed 644 while thinkpad.yaml
+# confidently said mode: 755, and river execs its init directly: the result
+# would have been a session with no keybindings at all, discovered at a login
+# screen (2026-08-23).
+#
+# This section is therefore the ONLY thing that gives those `mode:` lines any
+# effect at all. They are assertions aimed at this linter, and the machine
+# profiles say so.
 while read -r src; do
   [[ -n "$src" ]] || continue
   if [[ -x "$BASEDIR/$src" ]]; then ok "$src (declared mode 755, is executable)"
