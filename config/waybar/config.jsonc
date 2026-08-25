@@ -9,7 +9,9 @@
 {
   "layer": "top",
   "position": "top",
-  "height": 30,
+  // 34, not 30: the instrument wells sit inside 4px vertical margins, and at
+  // 30 the cluster read as squished (first-feedback, 2026-08-25).
+  "height": 34,
   "spacing": 6,
 
   // wlr/taskbar is here because river/window is TEXT ONLY — waybar has no
@@ -28,6 +30,7 @@
     "temperature",
     "custom/idle",
     "tray",
+    "custom/mic",
     "wireplumber",
     "backlight",
     "battery",
@@ -65,6 +68,9 @@
   "cpu": {
     "interval": 5,
     "format": "󰻠 {usage}%",
+    // Pressure states, same semantics as battery's: orange = attend soon,
+    // red = act now. Ambient gray the rest of the time.
+    "states": { "warning": 80, "critical": 92 },
     "tooltip": true,
     // btop rather than top: it is already installed and readable at a glance,
     // which is the point of clicking a load indicator.
@@ -74,6 +80,7 @@
   "memory": {
     "interval": 10,
     "format": "󰍛 {percentage}%",
+    "states": { "warning": 80, "critical": 92 },
     // Absolute numbers belong in the tooltip. 62% means nothing without
     // knowing the machine has 16G; "9.9G/16.0G" answers it directly.
     "tooltip-format": "{used:0.1f}G / {total:0.1f}G   swap {swapPercentage}%",
@@ -130,6 +137,17 @@
     // tray module they run invisibly and you cannot pick a wifi network.
     "icon-size": 16,
     "spacing": 6    // the bar's element gap; the tray had a private one
+  },
+
+  "custom/mic": {
+    // Whether the microphone is live or muted, from the same script the
+    // mute key uses — bar and key cannot disagree. Live = fg, muted =
+    // receded gray, mirroring the volume module's pattern.
+    "exec": "$HOME/.local/bin/osd mic-status",
+    "return-type": "json",
+    "interval": 3,
+    "format": "{}",
+    "on-click": "$HOME/.local/bin/osd mic-mute"
   },
 
   "wireplumber": {

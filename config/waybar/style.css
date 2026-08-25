@@ -42,6 +42,17 @@ window#waybar {
 }
 
 /* --- tags ---------------------------------------------------------------- */
+/* The workspace strip is a framed cell row — same well treatment as the
+   right-side instrument cluster, so the bar's two ends match. The active
+   cell's accent block reads as the lit key on the panel. Applies to both
+   sessions' modules (river #tags, hyprland #workspaces). */
+#tags,
+#workspaces {
+  background: #1d2021;
+  border: 1px solid #3c3836;
+  margin: 4px 0 4px 6px;
+}
+
 /* Hover FIRST. These selectors tie on specificity, so source order decides:
    with hover last, mousing over the focused tag repainted it bg2 and the
    accent vanished under the cursor. State rules below outrank hover because
@@ -128,12 +139,21 @@ window#waybar.empty #window {
   padding: 0;
 }
 
-/* --- right side ---------------------------------------------------------- */
+/* --- right side: the instrument cluster ----------------------------------- */
+/* Retro pass (2026-08-25, still ADR-0021 grammar): each of the five groups —
+   stats · idle+tray · hardware readouts · notifications+clock · power — sits
+   in an inset WELL: bg0_h ground sunk into the bar with a bg1 bezel, gauge-
+   cluster style. Groups are separated by gaps of bar ground, which replaces
+   the earlier thin dividers. No new hues: wells and bezels come from the bg
+   ladder, and structure is carried by shape, not colour. Contiguous modules
+   share the well; the group head opens it (left bezel + gap), the group tail
+   closes it (right bezel). */
 #cpu,
 #memory,
 #temperature,
 #custom-idle,
 #tray,
+#custom-mic,
 #wireplumber,
 #backlight,
 #battery,
@@ -142,21 +162,30 @@ window#waybar.empty #window {
 #custom-power {
   padding: 0 9px;
   color: #ebdbb2;
+  background: #1d2021;
+  border-top: 1px solid #3c3836;
+  border-bottom: 1px solid #3c3836;
+  margin-top: 4px;
+  margin-bottom: 4px;
 }
 
-/* Discrete dividers between the right side's five groups: stats · idle+tray ·
-   hardware readouts · notifications+clock · power. A quiet bar needs its
-   structure carried by SOMETHING, and with hue retired from module identity
-   (ADR-0021) that job falls to edges: 1px bg2, the micro-edge colour tooltips
-   already use, on the first module of each group. Spends no meaning — bg2
-   stays "passive edge" — where re-colouring modules would have reopened the
-   rainbow this bar just retired. */
+/* Group heads: open the well. (custom-mic heads the hardware readouts.) */
+#cpu,
 #custom-idle,
-#wireplumber,
+#custom-mic,
 #custom-notification,
 #custom-power {
-  border-left: 1px solid #504945;
-  margin-left: 3px;            /* micro step: air between rule and glyph */
+  border-left: 1px solid #3c3836;
+  margin-left: 9px;
+}
+
+/* Group tails: close the well. (custom-power is a one-module well: both.) */
+#temperature,
+#tray,
+#battery,
+#clock,
+#custom-power {
+  border-right: 1px solid #3c3836;
 }
 
 /* Machine stats are ambient information, not alerts: muted, tighter, and only
@@ -172,6 +201,21 @@ window#waybar.empty #window {
 /* Red, not orange: it is NAMED critical, and battery.critical already renders
    red. Two alarms that both mean "act now" get one colour. */
 #temperature.critical {
+  color: #282828;
+  background: #fb4934;
+  font-weight: bold;
+}
+
+/* CPU/RAM pressure — the stats stop being ambient exactly when they stop
+   being ambient information. Thresholds live in the module configs (80/92);
+   same orange/red semantics as battery. */
+#cpu.warning,
+#memory.warning {
+  color: #fe8019;
+}
+
+#cpu.critical,
+#memory.critical {
   color: #282828;
   background: #fb4934;
   font-weight: bold;
@@ -197,11 +241,19 @@ window#waybar.empty #window {
 #tray > .needs-attention { -gtk-icon-effect: highlight; }
 
 /* Interactive readouts sit in fg and RECEDE via state, not hue: muted audio
-   drops to gray rather than lit audio being permanently aqua. */
+   drops to gray rather than lit audio being permanently aqua. The mic
+   follows the same pattern — live is ordinary fg, muted recedes. */
 #wireplumber.muted { color: #928374; }
+#custom-mic.muted  { color: #928374; }
 
-/* Battery: fg at rest — the icon already narrates charge and charging.
-   Colour appears only when the state needs eyes on it. */
+/* Battery: fg at rest; the accent while CHARGING — a deliberate stretch of
+   the accent's meaning from "current/selected" to "actively filling",
+   chosen by preference 2026-08-25 over a strict icon-only reading and over
+   reintroducing green. One hue still means one family of things: this is
+   the amber readout family (clock, today, charging), not an alarm. */
+#battery.charging { color: #d79921; }
+
+/* Color appears otherwise only when the state needs eyes on it. */
 #battery.warning:not(.charging) { color: #fe8019; }
 
 /* Critical battery is the one thing on this bar allowed to be annoying.
@@ -213,8 +265,13 @@ window#waybar.empty #window {
 }
 
 #clock {
-  color: #ebdbb2;
-  font-weight: bold;             /* the thing a glance goes to first */
+  /* The bar's one amber readout. Grammar-legal by the same argument as the
+     calendar's "today": the accent means CURRENT, and this is the current
+     time. Deliberately the only accent at rest on the whole bar — the
+     instrument cluster stays monochrome so this, the focused workspace and
+     the idle-inhibit warning are the only things that glow. */
+  color: #d79921;
+  font-weight: bold;
 }
 
 tooltip {

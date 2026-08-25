@@ -8,10 +8,13 @@
 # Bound to the hardware keys in config/hypr/hyprland.conf.
 #
 # TWO DISPLAY PATHS, in order:
-#   1. wob — the amber overlay bar (config/hypr/wob.ini), fed through a named
-#      pipe the session's exec-once creates. The retro gauge.
+#   1. wob — the amber overlay gauges, fed through named pipes the session's
+#      exec-once lines create. TWO instances: volume writes to wob-vol.sock
+#      (horizontal, bottom centre), brightness to wob-bri.sock (vertical,
+#      right edge). Geometry distinguishes them — wob has no icons, and a
+#      second hue would break the ADR-0021 grammar.
 #   2. notify-send fallback — a self-replacing progress notification through
-#      swaync. Used when the pipe is absent (wob not installed, or a session
+#      swaync. Used when a pipe is absent (wob not installed, or a session
 #      that never started it — river, currently), so the same script works
 #      everywhere and a missing OSD daemon degrades to a poorer display,
 #      never to silent keys.
@@ -31,13 +34,15 @@
 set -euo pipefail
 
 RUNDIR="${XDG_RUNTIME_DIR:-/tmp}"
-WOBSOCK="${RUNDIR}/wob.sock"
+VOLSOCK="${RUNDIR}/wob-vol.sock"
+BRISOCK="${RUNDIR}/wob-bri.sock"
 IDF="${RUNDIR}/osd.notif-id"
 
-# $1 value 0-100, $2 optional wob style name (e.g. "muted")
+# $1 socket, $2 value 0-100, $3 optional wob style name (e.g. "muted")
 bar() {
-  [[ -p "$WOBSOCK" ]] || return 1
-  timeout 0.1 bash -c "printf '%s\n' '$1${2:+ $2}' > '$WOBSOCK'" 2>/dev/null
+  local sock="$1"
+  [[ -p "$sock" ]] || return 1
+  timeout 0.1 bash -c "printf '%s\n' '$2${3:+ $3}' > '$sock'" 2>/dev/null
 }
 
 # $1 summary, $2 value 0-100 (or -1 for no progress hint)
@@ -62,9 +67,9 @@ show_volume() {
   out="$(wpctl get-volume @DEFAULT_AUDIO_SINK@)"
   pct="$(awk '{printf "%d", $2 * 100}' <<< "$out")"
   if [[ "$out" == *MUTED* ]]; then
-    bar "$pct" muted || notify "󰝟  muted" "$pct"
+    bar "$VOLSOCK" "$pct" muted || notify "󰝟  muted" "$pct"
   else
-    bar "$pct" || notify "󰕾  ${pct}%" "$pct"
+    bar "$VOLSOCK" "$pct" || notify "󰕾  ${pct}%" "$pct"
   fi
 }
 
@@ -72,7 +77,7 @@ show_brightness() {
   # brightnessctl -m: device,class,current,percent%,max — field 4.
   local pct
   pct="$(brightnessctl -m | cut -d, -f4 | tr -d '%')"
-  bar "$pct" || notify "󰃠  ${pct}%" "$pct"
+  bar "$BRISOCK" "$pct" || notify "󰃠  ${pct}%" "$pct"
 }
 
 case "${1:-}" in
@@ -98,7 +103,16 @@ case "${1:-}" in
   bright-down)
     brightnessctl set 5%- >/dev/null
     show_brightness ;;
+  mic-status)
+    # waybar custom-module contract: one line of JSON. Lives here so the bar
+    # indicator and the mic-mute key cannot disagree about state — same
+    # single-source rule as river-idle's waybar subcommand.
+    if wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | grep -q MUTED; then
+      printf '{"text":"󰍭","class":"muted","tooltip":"Microphone MUTED — click to unmute"}\n'
+    else
+      printf '{"text":"󰍬","class":"live","tooltip":"Microphone live — click to mute"}\n'
+    fi ;;
   *)
-    echo "usage: osd {volume-up|volume-down|volume-mute|mic-mute|bright-up|bright-down}" >&2
+    echo "usage: osd {volume-up|volume-down|volume-mute|mic-mute|bright-up|bright-down|mic-status}" >&2
     exit 2 ;;
 esac

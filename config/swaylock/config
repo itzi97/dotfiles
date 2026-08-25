@@ -33,6 +33,14 @@ color=282828
 indicator-radius=90
 indicator-thickness=8
 
+# Show the ring even when idle. Without this a locked screen is a flat dark
+# rectangle indistinguishable from a dead one — "I can't even tell it's
+# locked" (2026-08-25). The shoulder-surfer concern that removed it applies
+# to TYPING feedback revealing password length, not to an empty resting
+# ring; the highlight flashes are unchanged. Bare flag, per the parse rules
+# documented above.
+indicator-idle-visible
+
 # Caps lock shown on the ring. Three failed unlocks because caps was on is a
 # rite of passage nobody needs twice.
 indicator-caps-lock

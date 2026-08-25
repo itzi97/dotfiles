@@ -13,7 +13,9 @@
 {
   "layer": "top",
   "position": "top",
-  "height": 30,
+  // 34, not 30: the instrument wells sit inside 4px vertical margins, and at
+  // 30 the cluster read as squished (first-feedback, 2026-08-25).
+  "height": 34,
   "spacing": 6,
 
   "modules-left": ["hyprland/workspaces", "wlr/taskbar", "hyprland/window"],
@@ -28,6 +30,7 @@
     "temperature",
     "custom/idle",
     "tray",
+    "custom/mic",
     "wireplumber",
     "backlight",
     "battery",
@@ -66,6 +69,9 @@
   "cpu": {
     "interval": 5,
     "format": "󰻠 {usage}%",
+    // Pressure states, same semantics as battery's: orange = attend soon,
+    // red = act now. Ambient gray the rest of the time.
+    "states": { "warning": 80, "critical": 92 },
     "tooltip": true,
     "on-click": "kitty --class floatterm -e btop"
   },
@@ -73,6 +79,7 @@
   "memory": {
     "interval": 10,
     "format": "󰍛 {percentage}%",
+    "states": { "warning": 80, "critical": 92 },
     "tooltip-format": "{used:0.1f}G / {total:0.1f}G   swap {swapPercentage}%",
     "on-click": "kitty --class floatterm -e btop"
   },
@@ -102,6 +109,17 @@
   "tray": {
     "icon-size": 16,
     "spacing": 6
+  },
+
+  "custom/mic": {
+    // Whether the microphone is live or muted, from the same script the
+    // mute key uses — bar and key cannot disagree. Live = fg, muted =
+    // receded gray, mirroring the volume module's pattern.
+    "exec": "$HOME/.local/bin/osd mic-status",
+    "return-type": "json",
+    "interval": 3,
+    "format": "{}",
+    "on-click": "$HOME/.local/bin/osd mic-mute"
   },
 
   "wireplumber": {
