@@ -404,12 +404,20 @@ PATTERNS=(
   'xox[baprs]-[A-Za-z0-9-]{10,}'
   '-----BEGIN CERTIFICATE-----'
 )
+# `-e "$pat"`, NOT a bare "$pat" — the certificate pattern begins with
+# dashes, and bare, grep parsed it as OPTIONS, errored into the suppressed
+# stderr, and `|| true` turned that into "no matches". That pattern had
+# never scanned anything since the day it was written, and nothing said so
+# (found 2026-08-25 when a reimplementation of this check DID match it).
+# This file is excluded because it must contain the patterns themselves —
+# with -e working, the scan would otherwise always flag its own source.
 hits=0
 for pat in "${PATTERNS[@]}"; do
   while read -r line; do
     [[ -n "$line" ]] || continue
     fail "possible secret: $line"; hits=$((hits+1))
-  done < <(grep -rnE --exclude-dir=.git --exclude-dir=dotbot "$pat" "$BASEDIR" 2>/dev/null || true)
+  done < <(grep -rnE --exclude-dir=.git --exclude-dir=dotbot \
+             --exclude=dotfiles-check -e "$pat" "$BASEDIR" 2>/dev/null || true)
 done
 ((hits)) || ok "no private keys or provider tokens found"
 

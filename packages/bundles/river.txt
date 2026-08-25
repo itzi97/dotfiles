@@ -68,6 +68,16 @@ wlr-randr                 # one-off output tweaks when kanshi isn't the answer
 # Nothing handles these for you here; the keybinds in config/river/init call them.
 brightnessctl
 
+# --- on-screen display -------------------------------------------------
+# wob — the amber overlay gauges bin/osd feeds (tier 2 of its display
+# chain; ADR-0023 era). Session-agnostic: currently started by
+# config/hypr/hyprland.conf, adoptable by river's init unchanged. Tier 1
+# (swayosd) is deliberately NOT here — it comes from the erikreider/swayosd
+# COPR, which dnf cannot enable from a package list; bin/osd degrades
+# through wob to plain notifications when it is absent, so a rebuild
+# without the COPR still answers every key.
+wob
+
 # --- screenshots ------------------------------------------------------
 grim                      # capture
 slurp                     # region selection

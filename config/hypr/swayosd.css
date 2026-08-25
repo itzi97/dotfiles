@@ -1,0 +1,59 @@
+/* ~/.config/hypr/swayosd.css  (linked via the ~/.config/hypr directory link)
+ *
+ * SwayOSD skinned as an amber instrument readout — the icon-bearing OSD that
+ * replaced the bare wob gauges (feedback 2026-08-25: the gauges needed to say
+ * WHAT they measure, and wob cannot draw icons). Selectors match SwayOSD's
+ * own default stylesheet (data/style/style.scss, verified upstream): the
+ * defaults are a 999px-radius translucent pill; every radius here is 0 on
+ * purpose — same hard-edged bezel language as the wob gauges, waybar wells,
+ * and everything else in ADR-0021's world.
+ *
+ * Muted states use SwayOSD's :disabled dimming — receding, not recoloring,
+ * same pattern as the bar's muted modules.
+ */
+
+window#osd {
+  border-radius: 0;
+  border: 2px solid #504945;
+  background: rgba(29, 32, 33, 0.92);   /* bg0_h, near-solid */
+}
+
+window#osd #container {
+  margin: 12px 15px;
+}
+
+window#osd image,
+window#osd label {
+  color: #ebdbb2;
+  font-family: "JetBrains Mono", "Symbols Nerd Font", monospace;
+  font-size: 13px;
+}
+
+window#osd progressbar:disabled,
+window#osd image:disabled {
+  opacity: 0.5;
+}
+
+window#osd progressbar,
+window#osd segmentedprogress {
+  min-height: 8px;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+}
+
+window#osd trough,
+window#osd segment {
+  min-height: inherit;
+  border-radius: 0;
+  border: none;
+  background: #3c3836;                  /* bezel-ground, like the well borders */
+}
+
+window#osd progress,
+window#osd segment.active {
+  min-height: inherit;
+  border-radius: 0;
+  border: none;
+  background: #d79921;                  /* the value is current: accent */
+}

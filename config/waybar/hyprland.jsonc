@@ -19,7 +19,10 @@
   "spacing": 6,
 
   "modules-left": ["hyprland/workspaces", "wlr/taskbar", "hyprland/window"],
-  "modules-center": [],
+  // The now-playing readout, dead center — Spotify, Firefox (YouTube), and
+  // any real Navidrome client all speak MPRIS. Fuller controls with album
+  // art live in the swaync control center's mpris widget (click the bell).
+  "modules-center": ["mpris"],
   // Ordered by how often you look at it, left to right: machine load first
   // (glanceable, ignorable), then the things you interact with, then the
   // clock, then power. The power button is last because it is the only one
@@ -64,6 +67,18 @@
     "format": "{title}",
     "max-length": 60,
     "tooltip": false
+  },
+
+  "mpris": {
+    // Built-in click handling targets the player being SHOWN (unlike a bare
+    // playerctl call, which targets whichever player was last active):
+    // left = play/pause, middle = previous, right = next. Scroll seeks.
+    "format": "{status_icon} {artist} — {title}",
+    "format-stopped": "",
+    "status-icons": { "playing": "󰐊", "paused": "󰏤", "stopped": "󰓛" },
+    "artist-len": 20,
+    "title-len": 30,
+    "tooltip-format": "{player}: {artist} — {title}\nleft: play/pause · middle: prev · right: next"
   },
 
   "cpu": {

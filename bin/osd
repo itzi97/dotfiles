@@ -7,17 +7,20 @@
 #
 # Bound to the hardware keys in config/hypr/hyprland.conf.
 #
-# TWO DISPLAY PATHS, in order:
-#   1. wob — the amber overlay gauges, fed through named pipes the session's
-#      exec-once lines create. TWO instances: volume writes to wob-vol.sock
-#      (horizontal, bottom centre), brightness to wob-bri.sock (vertical,
-#      right edge). Geometry distinguishes them — wob has no icons, and a
-#      second hue would break the ADR-0021 grammar.
-#   2. notify-send fallback — a self-replacing progress notification through
-#      swaync. Used when a pipe is absent (wob not installed, or a session
-#      that never started it — river, currently), so the same script works
-#      everywhere and a missing OSD daemon degrades to a poorer display,
-#      never to silent keys.
+# THREE DISPLAY TIERS, best available wins:
+#   1. swayosd — icon-bearing overlay (erikreider/swayosd COPR — the
+#      upstream author's own builds; he also wrote swaync). The client both
+#      ADJUSTS and DISPLAYS, including the mic as an overlay. Skinned amber
+#      by config/hypr/swayosd.css. Detected by the RUNNING SERVER, not the
+#      binary: a client with no server errors uselessly, and pgrep needs no
+#      entry in dotfiles-check's lists.
+#   2. wob — the icon-less amber gauges on named pipes (wob-vol.sock
+#      horizontal bottom, wob-bri.sock vertical right). Kept armed as the
+#      escape hatch: swayosd rides a COPR, and if it dies the keys drop to
+#      this tier at the next keypress with nothing to reconfigure.
+#   3. notify-send — progress notification through swaync. The floor: a
+#      session with no OSD daemon at all (river, currently) still answers
+#      every key.
 #
 # THE timeout GUARD IS NOT DECORATION: opening a FIFO for writing BLOCKS
 # until a reader exists. If wob has died, a bare `echo > pipe` would hang
@@ -37,6 +40,11 @@ RUNDIR="${XDG_RUNTIME_DIR:-/tmp}"
 VOLSOCK="${RUNDIR}/wob-vol.sock"
 BRISOCK="${RUNDIR}/wob-bri.sock"
 IDF="${RUNDIR}/osd.notif-id"
+
+# Tier 1 alive? ("swayosd-server" is 14 chars — inside pgrep's 15-char comm
+# window, so -x matches the full name.)
+SWAYOSD=0
+pgrep -x -u "$(id -u)" swayosd-server >/dev/null 2>&1 && SWAYOSD=1
 
 # $1 socket, $2 value 0-100, $3 optional wob style name (e.g. "muted")
 bar() {
@@ -82,15 +90,21 @@ show_brightness() {
 
 case "${1:-}" in
   volume-up)
+    (( SWAYOSD )) && exec swayosd-client --output-volume raise
     wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+
     show_volume ;;
   volume-down)
+    (( SWAYOSD )) && exec swayosd-client --output-volume lower
     wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
     show_volume ;;
   volume-mute)
+    (( SWAYOSD )) && exec swayosd-client --output-volume mute-toggle
     wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
     show_volume ;;
   mic-mute)
+    # The overlay mic toggle — tier 1 shows it like any other gauge. The
+    # notification below is only the no-OSD floor.
+    (( SWAYOSD )) && exec swayosd-client --input-volume mute-toggle
     wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
     if wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | grep -q MUTED; then
       notify "󰍭  mic muted" -1
@@ -98,9 +112,11 @@ case "${1:-}" in
       notify "󰍬  mic on" -1
     fi ;;
   bright-up)
+    (( SWAYOSD )) && exec swayosd-client --brightness raise
     brightnessctl set 5%+ >/dev/null
     show_brightness ;;
   bright-down)
+    (( SWAYOSD )) && exec swayosd-client --brightness lower
     brightnessctl set 5%- >/dev/null
     show_brightness ;;
   mic-status)

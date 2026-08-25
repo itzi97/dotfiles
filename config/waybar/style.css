@@ -188,6 +188,24 @@ window#waybar.empty #window {
   border-right: 1px solid #3c3836;
 }
 
+/* --- center: the now-playing readout -------------------------------------- */
+/* Its own single-module well, dead center. Playing sits in ordinary fg —
+   music is ambient, not an alert; paused recedes to gray like every other
+   inactive state. The module vanishes entirely when nothing offers MPRIS,
+   taking its well with it. */
+#mpris {
+  padding: 0 12px;
+  color: #ebdbb2;
+  background: #1d2021;
+  border: 1px solid #3c3836;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+#mpris.paused {
+  color: #928374;
+}
+
 /* Machine stats are ambient information, not alerts: muted, tighter, and only
    there when you go looking. They take colour exclusively by entering a state
    that has earned it — see #temperature.critical. */
