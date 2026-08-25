@@ -3,9 +3,23 @@
 # Lock screen. Reached three ways: Super+Escape, the wlogout menu, and
 # swayidle after 5 minutes (see config/river/init).
 #
-# gruvbox dark, same palette as everything else in the session. The default
-# swaylock screen is grey-and-white and is the single most jarring thing in an
-# otherwise dark setup — it is also the screen you see most often.
+# HOW SWAYLOCK PARSES THIS FILE — the bug that emptied it (2026-08-24)
+#
+# Each line becomes `--<line>` and goes through getopt_long, and load_config()
+# STOPS AT THE FIRST LINE getopt rejects — everything after it is silently
+# ignored (verified in swaylock's main.c, load_config/parse_options). Three
+# lines in the previous version were rejected:
+#
+#   indicator                   not an option — an ambiguous prefix of six
+#                               indicator-* options, so getopt refuses it
+#   show-keyboard-layout=no     a no_argument flag; `=no` is rejected
+#   indicator-idle-visible=no   same
+#
+# `indicator` came FIRST, so every colour, the font and ignore-empty-password
+# below it never loaded — the lock screen was rendering swaylock's stock grey
+# while this file described gruvbox. The rule this leaves behind: flags appear
+# BARE or not at all; a flag's absence is how you say "no". All three deleted:
+# the indicator shows by default, and both =no values were already defaults.
 #
 # Colours are RRGGBB or RRGGBBAA. No leading '#'.
 
@@ -16,50 +30,56 @@
 color=282828
 
 # --- the indicator ---------------------------------------------------------
-indicator
 indicator-radius=90
 indicator-thickness=8
+
+# Caps lock shown on the ring. Three failed unlocks because caps was on is a
+# rite of passage nobody needs twice.
 indicator-caps-lock
 
-# Caps lock shown explicitly. Three failed unlocks because caps was on is a
-# rite of passage nobody needs twice.
-show-keyboard-layout=no
-
-# Idle state: dim ring, no text.
+# Idle state: dim ring, no text. Ring in bg2 — the same "passive edge" colour
+# as every unfocused border in the session.
 ring-color=504945
 inside-color=282828
 line-color=282828
 text-color=ebdbb2
 separator-color=00000000
 
-# Typing.
+# Typing: the accent — this ring is the focused surface now, the same
+# statement fuzzel's border and the focused window border make (ADR-0021).
 ring-ver-color=d79921
 inside-ver-color=282828
 line-ver-color=282828
 text-ver-color=ebdbb2
 
-# Keypress / backspace flashes — enough feedback to know it registered.
-key-hl-color=fabd2f
+# Keypress flash in fg — feedback, not a state, so it takes no state colour.
+# The old fabd2f is retired from chrome: a second yellow next to the accent
+# reads as a mistake. Backspace keeps orange — "attend soon" is roughly what
+# deleting your own input means.
+key-hl-color=ebdbb2
 bs-hl-color=fe8019
 
-# Wrong password.
+# Wrong password: act-now red, same as everything broken.
 ring-wrong-color=fb4934
 inside-wrong-color=282828
 line-wrong-color=282828
 text-wrong-color=fb4934
 
-# Cleared.
-ring-clear-color=8ec07c
+# Cleared: a quiet acknowledgement, not an event — bg3, one step up from the
+# idle ring. The old aqua was the only aqua on any chrome surface.
+ring-clear-color=665c54
 inside-clear-color=282828
 line-clear-color=282828
-text-clear-color=8ec07c
+text-clear-color=ebdbb2
 
 # --- behaviour -------------------------------------------------------------
 # Don't reveal the password length — a shoulder-surfer counting asterisks
 # learns something; a fixed-size ring tells them nothing.
-indicator-idle-visible=no
 hide-keyboard-layout
 
+# Mono variant is CORRECT here (and in kitty): the lock screen is not a GTK
+# surface, and the ring text is glyphs in a cell. 20 rather than the session's
+# 13: this is display type read at arm's length, not chrome.
 font=JetBrains Mono
 font-size=20
 
@@ -69,12 +89,12 @@ ignore-empty-password
 
 # `daemonize` is deliberately NOT set here.
 #
-# swayidle's `before-sleep 'swaylock -f'` waits for the command to EXIT before
+# swayidle's `before-sleep 'swaylock'` waits for the command to EXIT before
 # letting systemd suspend. A daemonizing swaylock exits immediately, so the
 # machine suspends while the lock screen is still starting — and the lid opens
 # onto an unlocked desktop. That is threat-model adversary #3 (device theft,
 # "the ThinkPad on campus is the exposed one") undone by a convenience flag.
 #
 # Callers that genuinely want backgrounding pass -f explicitly, which is
-# exactly what config/river/init's swayidle lines already do. Putting it in
+# exactly what bin/river-idle's timeout lines already do. Putting it in
 # the config file applies it everywhere, including where it must not.

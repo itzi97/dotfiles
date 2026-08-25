@@ -1,18 +1,21 @@
 /* ~/.config/swaync/style.css
  *
- * gruvbox dark. Same palette as waybar's style.css, kitty, neovim, zathura,
- * fuzzel and river's window borders:
+ * gruvbox dark, colour grammar per ADR-0021:
  *
- *   bg0 #282828   bg1 #3c3836   bg2 #504945
- *   fg  #ebdbb2   gray #928374
- *   red #fb4934   yellow #fabd2f  aqua #8ec07c  orange #fe8019
+ *   #d79921  selected / current / deliberately paused (DND on, clear-all hover)
+ *   #fb4934  act now (critical notifications, destructive hover)
+ *   #ebdbb2  content   #a89984  secondary   #928374  ambient   #504945  edges
  *
- * The accent is #d79921 everywhere in this session: focused window border,
- * focused waybar tag, fuzzel selection. Selection means one colour.
+ * Type scale: 11 small / 13 base / 15 title. Spacing in multiples of 3:
+ * 12 breathes (surface padding), 6 separates, 3 is micro. Same numbers as
+ * waybar, fuzzel and wlogout, so the surfaces read as one system.
  */
 
 * {
-  font-family: "JetBrains Mono", "Symbols Nerd Font", sans-serif;
+  /* Proportional "Symbols Nerd Font", not "...Mono" — the Mono variant sinks
+     glyphs below the GTK baseline. `monospace` last, matching waybar, so a
+     degraded machine degrades the same way everywhere. */
+  font-family: "JetBrains Mono", "Symbols Nerd Font", monospace;
   font-size: 13px;
 }
 
@@ -21,7 +24,7 @@
 
 .notification {
   background: #282828;
-  border: 2px solid #504945;
+  border: 2px solid #504945;   /* passive surface: bg2 edge, like the bar's */
   border-radius: 0;
   margin: 6px;
   padding: 0;
@@ -29,7 +32,7 @@
 
 .notification-content {
   background: transparent;
-  padding: 10px;
+  padding: 12px;
   color: #ebdbb2;
 }
 
@@ -45,6 +48,19 @@
 .time {
   color: #928374;
   font-size: 11px;
+}
+
+/* Progress bar in notifications — the bin/osd volume/brightness popups carry
+   an int:value hint and render through this. Accent on bg2: the bar shows
+   the CURRENT value, and current is what the accent means (ADR-0021). */
+.notification progressbar {
+  border-radius: 0;
+  background: #504945;
+  min-height: 6px;
+}
+
+.notification progressbar progress {
+  background: #d79921;
 }
 
 /* Critical notifications get the red border, and are the only ones that do.
@@ -71,9 +87,9 @@
 .notification-action {
   background: #3c3836;
   color: #ebdbb2;
-  border: 1px solid #504945;
+  border: 1px solid #504945;   /* micro-surface: 1px, like tooltips */
   border-radius: 0;
-  margin: 4px;
+  margin: 3px;
 }
 
 .notification-action:hover {
@@ -85,19 +101,19 @@
   background: #282828;
   border: 2px solid #504945;
   border-radius: 0;
-  padding: 10px;
+  padding: 12px;
   color: #ebdbb2;
 }
 
 .control-center .notification {
-  margin: 4px 0;
+  margin: 3px 0;
 }
 
 .widget-title {
   color: #ebdbb2;
-  font-size: 15px;
+  font-size: 15px;             /* title step of the scale */
   font-weight: bold;
-  padding: 6px 4px;
+  padding: 6px 3px;
 }
 
 .widget-title > button {
@@ -105,20 +121,22 @@
   color: #ebdbb2;
   border: 1px solid #504945;
   border-radius: 0;
-  padding: 4px 10px;
-  font-size: 12px;
+  padding: 3px 9px;
+  font-size: 11px;             /* small step: it's a secondary control */
 }
 
+/* Accent on hover: "clear all" is a deliberate act being offered. */
 .widget-title > button:hover {
   background: #d79921;
   color: #282828;
 }
 
-/* Do-not-disturb toggle. Off is quiet; on is the accent, so a glance at the
-   panel tells you why nothing has been popping up. */
+/* Do-not-disturb toggle. Off is quiet; on is the accent — the same statement
+   the idle-inhibit indicator makes: something is DELIBERATELY paused, and a
+   glance should keep telling you so. */
 .widget-dnd {
   color: #ebdbb2;
-  padding: 6px 4px;
+  padding: 6px 3px;
 }
 
 .widget-dnd > switch {
@@ -139,7 +157,7 @@
 /* --- media player --------------------------------------------------------- */
 .widget-mpris {
   background: #3c3836;
-  padding: 8px;
+  padding: 9px;
   margin: 6px 0;
 }
 
@@ -150,7 +168,7 @@
 
 .widget-mpris-subtitle {
   color: #a89984;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .widget-mpris > box > button:hover {

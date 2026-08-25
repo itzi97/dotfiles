@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+#
+# osd — adjust volume/brightness and show it on screen.
+#
+#   osd volume-up | volume-down | volume-mute | mic-mute
+#   osd bright-up | bright-down
+#
+# Bound to the hardware keys in config/hypr/hyprland.conf.
+#
+# TWO DISPLAY PATHS, in order:
+#   1. wob — the amber overlay bar (config/hypr/wob.ini), fed through a named
+#      pipe the session's exec-once creates. The retro gauge.
+#   2. notify-send fallback — a self-replacing progress notification through
+#      swaync. Used when the pipe is absent (wob not installed, or a session
+#      that never started it — river, currently), so the same script works
+#      everywhere and a missing OSD daemon degrades to a poorer display,
+#      never to silent keys.
+#
+# THE timeout GUARD IS NOT DECORATION: opening a FIFO for writing BLOCKS
+# until a reader exists. If wob has died, a bare `echo > pipe` would hang
+# this script — and the keybinding — forever. 100ms is more than a live wob
+# needs and short enough that a dead one just means falling through to the
+# notification.
+#
+# Mic mute has no meaningful percentage, so it always uses the notification
+# path — a full/empty bar would be lying about what it measures.
+#
+# The 5% step matches the waybar scroll bindings and river's keys — one step
+# size everywhere, or the keys and the bar drift apart in feel.
+
+set -euo pipefail
+
+RUNDIR="${XDG_RUNTIME_DIR:-/tmp}"
+WOBSOCK="${RUNDIR}/wob.sock"
+IDF="${RUNDIR}/osd.notif-id"
+
+# $1 value 0-100, $2 optional wob style name (e.g. "muted")
+bar() {
+  [[ -p "$WOBSOCK" ]] || return 1
+  timeout 0.1 bash -c "printf '%s\n' '$1${2:+ $2}' > '$WOBSOCK'" 2>/dev/null
+}
+
+# $1 summary, $2 value 0-100 (or -1 for no progress hint)
+notify() {
+  local summary="$1" value="$2"
+  local args=(-a osd -u low -t 1200)
+  (( value >= 0 )) && args+=(-h "int:value:${value}")
+  local id=""
+  [[ -s "$IDF" ]] && id="$(cat "$IDF")"
+  if [[ "$id" =~ ^[0-9]+$ ]] && (( id > 0 )); then
+    # A stale id (daemon restarted) makes -r create a fresh notification
+    # rather than fail, so this cannot get stuck.
+    notify-send -p -r "$id" "${args[@]}" "$summary" > "$IDF"
+  else
+    notify-send -p "${args[@]}" "$summary" > "$IDF"
+  fi
+}
+
+show_volume() {
+  # wpctl get-volume prints "Volume: 0.55" or "Volume: 0.55 [MUTED]".
+  local out pct
+  out="$(wpctl get-volume @DEFAULT_AUDIO_SINK@)"
+  pct="$(awk '{printf "%d", $2 * 100}' <<< "$out")"
+  if [[ "$out" == *MUTED* ]]; then
+    bar "$pct" muted || notify "󰝟  muted" "$pct"
+  else
+    bar "$pct" || notify "󰕾  ${pct}%" "$pct"
+  fi
+}
+
+show_brightness() {
+  # brightnessctl -m: device,class,current,percent%,max — field 4.
+  local pct
+  pct="$(brightnessctl -m | cut -d, -f4 | tr -d '%')"
+  bar "$pct" || notify "󰃠  ${pct}%" "$pct"
+}
+
+case "${1:-}" in
+  volume-up)
+    wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+
+    show_volume ;;
+  volume-down)
+    wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
+    show_volume ;;
+  volume-mute)
+    wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+    show_volume ;;
+  mic-mute)
+    wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+    if wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | grep -q MUTED; then
+      notify "󰍭  mic muted" -1
+    else
+      notify "󰍬  mic on" -1
+    fi ;;
+  bright-up)
+    brightnessctl set 5%+ >/dev/null
+    show_brightness ;;
+  bright-down)
+    brightnessctl set 5%- >/dev/null
+    show_brightness ;;
+  *)
+    echo "usage: osd {volume-up|volume-down|volume-mute|mic-mute|bright-up|bright-down}" >&2
+    exit 2 ;;
+esac

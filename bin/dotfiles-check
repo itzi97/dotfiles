@@ -336,8 +336,14 @@ WAYBAR_ACTIONS=" activate close fullscreen minimize maximize mode
 # and `command -v conda` asks "is there a leftover conda to warn about" —
 # answering "no" is a valid, expected outcome. Declaring these would be wrong:
 # the whole point is that they may be absent.
+#
+# wideriver is here because it is genuinely optional BY DESIGN: river's init
+# and river-cheatsheet probe for it and fall back to rivertile (ADR-0022).
+# It is also not a dnf package (built from source — unlike river-classic,
+# which IS an official Fedora package), so a package-list entry would break
+# bootstrap rather than document anything.
 OPTIONAL_CMDS=" dnf dnf5 pacman apt apt-get yay paru conda mamba nvidia-smi
- lspci lsblk flatpak snap zypper toolbox docker "
+ lspci lsblk flatpak snap zypper toolbox docker wideriver "
 
 undeclared=0
 while read -r cmd; do

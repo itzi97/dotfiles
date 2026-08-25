@@ -1,10 +1,10 @@
 # Fedora ThinkPad — college machine. Reliability over elegance.
 # Applied after install.conf.yaml. Bundles: see machines/thinkpad.bundles.
 #
-# (The header said "no Hyprland, no gaming config" until 2026-08-24. The
-# Hyprland half is still true. The gaming half stopped being true when ADR-0015
-# accepted gaming as a secondary use of this machine, and thinkpad.bundles has
-# listed `gaming` since.)
+# (The header said "no Hyprland, no gaming config" until 2026-08-24. Neither
+# half is true any more: the gaming half fell to ADR-0015, and the Hyprland
+# half fell to ADR-0023 on 2026-08-25 — a TRIAL third session, river retained,
+# see the hyprland block below for the containment rules.)
 #
 # ---------------------------------------------------------------------------
 # `mode: 755` DOES NOTHING IN DOTBOT. Do not add it expecting an effect.
@@ -138,6 +138,36 @@
     # begun, which is what xdg-desktop-portal.service is ordered after.
     ~/.config/systemd/user/river-session.target:
       path: config/systemd/river-session.target
+
+# hyprland — TRIAL third session (ADR-0023). river stays fully configured;
+# Plasma stays the SDDM default. Packages come from the sachesi/hyprland COPR,
+# enabled BY HAND, deliberately not by bootstrap: a package list cannot
+# express "enable this COPR first", and the trial must not complicate
+# bootstrap until it converts (at which point the COPR-enable step gets
+# scripted alongside a proper package entry).
+#
+# Unlike river, no session wrapper and no portal conf are linked, because
+# neither is needed: hyprland sets session env natively in its own config
+# (the whole reason bin/river-session exists does not apply), and
+# xdg-desktop-portal-hyprland ships hyprland-portals.conf under /usr/share
+# itself — Hyprland IS a distro-blessed session name even from a COPR.
+- link:
+    # Whole directory, nvim-style: hyprland reads hyprland.conf and writes
+    # nothing in here, so the repo owns everything under it.
+    ~/.config/hypr:                  config/hypr
+    # The hyprland-session bar. style.css is linked in the river block above
+    # and SHARED, so the two bars cannot drift on styling — only the module
+    # config differs (river/tags vs hyprland/workspaces).
+    ~/.config/waybar/hyprland.jsonc: config/waybar/hyprland.jsonc
+    ~/.local/bin/hypr-cheatsheet:
+      path: bin/hypr-cheatsheet
+      mode: 755
+    # Volume/brightness keys with an on-screen progress notification.
+    # Compositor-agnostic; currently bound only in hyprland.conf — river's
+    # keys still call wpctl/brightnessctl directly and can adopt this later.
+    ~/.local/bin/osd:
+      path: bin/osd
+      mode: 755
 
 # GTK settings.ini is deliberately NOT linked.
 #

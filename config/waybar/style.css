@@ -1,26 +1,30 @@
 /* ~/.config/waybar/style.css
  *
- * gruvbox dark, matching config/kitty/kitty.conf, config/river/init's border
- * colours, nvim's colourscheme and zathura. Same palette everywhere so the
- * light level doesn't jump when focus moves between windows.
+ * gruvbox dark, and one COLOUR GRAMMAR shared by every surface in the session
+ * (ADR-0021). A colour is a meaning, not a decoration:
  *
- *   bg0 #282828   bg1 #3c3836   bg2 #504945   bg3 #665c54
- *   fg  #ebdbb2   gray #928374
- *   red #fb4934   green #b8bb26  yellow #fabd2f
- *   blue #83a598  purple #d3869b aqua #8ec07c  orange #fe8019
+ *   #d79921  selected / focused / current / deliberately paused — the accent
+ *   #fb4934  act now: urgent, broken, critical, destructive
+ *   #fe8019  attend soon: warnings only
+ *   #ebdbb2  content        #a89984  secondary text
+ *   #928374  ambient chrome #504945  passive surface edges
+ *
+ * Aqua, green, blue and bright-yellow are deliberately NOT here. The old bar
+ * gave every module its own hue as an identity badge, which meant nothing
+ * receded — and a bar that is colourful at rest has no headroom left for
+ * saying something is wrong. Colour now only appears when a STATE deserves it,
+ * which is what lets the three state colours actually land.
+ *
+ * Spacing rhythm: multiples of 3 — 12 breathes, 6 separates, 3 is micro.
+ * Type: 13px, the session base size. The bar has no 11/15 roles.
  */
 
 * {
   /* JetBrains Mono for text, Symbols Nerd Font for the icons.
-     Fedora packages no Nerd Font at all, so bin/install-nerd-font fetches the
-     symbols-only set (~1MB) into ~/.local/share/fonts. Text font stays the
-     packaged one; only the glyphs come from outside the repos.
-
-     "Symbols Nerd Font", NOT "...Mono": the Mono variant force-fits every
-     glyph into a fixed monospace cell, which sits the icons visibly lower
-     than the text beside them in a GTK bar. Mono is correct in a terminal,
-     where the cell grid is the point; wrong here. Fixed 2026-08-23 after the
-     icons rendered but sat below the baseline. */
+     "Symbols Nerd Font", NOT "...Mono": the Mono variant force-fits glyphs
+     into a monospace cell and sits them below the GTK text baseline (fixed
+     2026-08-23). `monospace` last so a machine missing JetBrains Mono
+     degrades to another mono face and still reads as this session. */
   font-family: "JetBrains Mono", "Symbols Nerd Font", monospace;
   font-size: 13px;
   min-height: 0;
@@ -31,12 +35,25 @@
 window#waybar {
   background: #282828;
   color: #ebdbb2;
-  border-bottom: 2px solid #3c3836;
+  /* bg2, not bg1: every passive surface edge in the session (notifications,
+     wlogout buttons, tooltips) draws in #504945. The bar had the only bg1
+     edge, and a third border colour is a third meaning nobody assigned. */
+  border-bottom: 2px solid #504945;
 }
 
 /* --- tags ---------------------------------------------------------------- */
+/* Hover FIRST. These selectors tie on specificity, so source order decides:
+   with hover last, mousing over the focused tag repainted it bg2 and the
+   accent vanished under the cursor. State rules below outrank hover because
+   they come later, which is the intent — hover may embellish empty tags, but
+   never rewrites what a tag IS. */
+#tags button:hover {
+  background: #504945;
+  color: #ebdbb2;
+}
+
 #tags button {
-  padding: 0 8px;
+  padding: 0 9px;
   color: #928374;              /* an empty tag is barely there */
   background: transparent;
 }
@@ -47,7 +64,7 @@ window#waybar {
 
 #tags button.focused {
   color: #282828;
-  background: #d79921;         /* same yellow as the focused window border */
+  background: #d79921;         /* accent: same meaning as the window border */
   font-weight: bold;
 }
 
@@ -56,25 +73,52 @@ window#waybar {
   background: #fb4934;
 }
 
-/* Hover has to be visible or the bar feels dead under the cursor. */
-#tags button:hover {
+/* --- workspaces (hyprland session) ---------------------------------------- */
+/* This stylesheet is shared by both bars (config.jsonc and hyprland.jsonc).
+   hyprland/workspaces uses #workspaces with different state classes than
+   river/tags: .empty for empty persistent workspaces, .active for current.
+   Same grammar, same values, translated selectors. Hover first — same
+   source-order fix as #tags above. Harmless in the river session, where no
+   #workspaces widget exists. */
+#workspaces button:hover {
   background: #504945;
   color: #ebdbb2;
 }
 
+#workspaces button {
+  padding: 0 9px;
+  color: #ebdbb2;              /* occupied is the default state here */
+  background: transparent;
+}
+
+#workspaces button.empty {
+  color: #928374;              /* an empty workspace is barely there */
+}
+
+#workspaces button.active {
+  color: #282828;
+  background: #d79921;         /* accent: same meaning as the window border */
+  font-weight: bold;
+}
+
+#workspaces button.urgent {
+  color: #282828;
+  background: #fb4934;
+}
+
 /* --- taskbar and title --------------------------------------------------- */
 #taskbar button {
-  padding: 0 4px;
+  padding: 0 6px;
   background: transparent;
 }
 
 #taskbar button.active {
-  border-bottom: 2px solid #d79921;
+  border-bottom: 2px solid #d79921;   /* accent: this one is focused */
 }
 
 #window {
   color: #a89984;
-  padding: 0 10px;
+  padding: 0 12px;
   font-style: italic;
 }
 
@@ -96,35 +140,48 @@ window#waybar.empty #window {
 #custom-notification,
 #clock,
 #custom-power {
-  padding: 0 10px;
+  padding: 0 9px;
   color: #ebdbb2;
 }
 
-/* Machine stats are ambient information, not alerts. They sit in the muted
-   gray so a glance at the bar goes to the clock and the battery first, and
-   these are only there when you go looking. They change colour when they
-   stop being ambient — see #temperature.critical below. */
+/* Discrete dividers between the right side's five groups: stats · idle+tray ·
+   hardware readouts · notifications+clock · power. A quiet bar needs its
+   structure carried by SOMETHING, and with hue retired from module identity
+   (ADR-0021) that job falls to edges: 1px bg2, the micro-edge colour tooltips
+   already use, on the first module of each group. Spends no meaning — bg2
+   stays "passive edge" — where re-colouring modules would have reopened the
+   rainbow this bar just retired. */
+#custom-idle,
+#wireplumber,
+#custom-notification,
+#custom-power {
+  border-left: 1px solid #504945;
+  margin-left: 3px;            /* micro step: air between rule and glyph */
+}
+
+/* Machine stats are ambient information, not alerts: muted, tighter, and only
+   there when you go looking. They take colour exclusively by entering a state
+   that has earned it — see #temperature.critical. */
 #cpu,
 #memory,
 #temperature {
   color: #928374;
-  padding: 0 6px;              /* tighter: three numbers in a row */
+  padding: 0 6px;
 }
 
+/* Red, not orange: it is NAMED critical, and battery.critical already renders
+   red. Two alarms that both mean "act now" get one colour. */
 #temperature.critical {
   color: #282828;
-  background: #fe8019;
+  background: #fb4934;
   font-weight: bold;
 }
 
-/* Auto-lock indicator (bin/river-idle).
-   `.active` is the normal state and is deliberately dim — it should not draw
-   the eye. `.inhibited` takes the accent, because a laptop that is not going
-   to lock itself is a thing you want to notice you left switched on
-   (04-privacy/threat-model.md, adversary #3: device theft).
-   `.broken` means swayidle is not running and nobody asked for that — red,
-   because it is the same outcome as an unlocked laptop arrived at by accident
-   rather than by choice. */
+/* Auto-lock indicator (bin/river-idle) — the grammar's model citizen.
+   `.active` is the normal state and deliberately near-invisible.
+   `.inhibited` is the accent: a laptop that will not lock itself is a thing
+   you chose, and should keep noticing you chose (threat-model adversary #3).
+   `.broken` means swayidle is not running and nobody asked for that. */
 #custom-idle.active    { color: #504945; }
 #custom-idle.inhibited { color: #d79921; }
 #custom-idle.broken {
@@ -134,18 +191,17 @@ window#waybar.empty #window {
 }
 
 #custom-power { color: #928374; }
-#custom-power:hover { color: #fb4934; }
+#custom-power:hover { color: #fb4934; }   /* gateway to destructive actions */
 
 #tray > .passive { -gtk-icon-effect: dim; }
 #tray > .needs-attention { -gtk-icon-effect: highlight; }
 
-#wireplumber { color: #8ec07c; }
+/* Interactive readouts sit in fg and RECEDE via state, not hue: muted audio
+   drops to gray rather than lit audio being permanently aqua. */
 #wireplumber.muted { color: #928374; }
 
-#backlight { color: #fabd2f; }
-
-#battery { color: #b8bb26; }
-#battery.charging { color: #8ec07c; }
+/* Battery: fg at rest — the icon already narrates charge and charging.
+   Colour appears only when the state needs eyes on it. */
 #battery.warning:not(.charging) { color: #fe8019; }
 
 /* Critical battery is the one thing on this bar allowed to be annoying.
@@ -156,15 +212,13 @@ window#waybar.empty #window {
   font-weight: bold;
 }
 
-#custom-notification { color: #83a598; }
-
 #clock {
   color: #ebdbb2;
-  font-weight: bold;
+  font-weight: bold;             /* the thing a glance goes to first */
 }
 
 tooltip {
   background: #282828;
-  border: 1px solid #504945;
+  border: 1px solid #504945;     /* micro-surfaces edge at 1px, chrome at 2px */
   color: #ebdbb2;
 }

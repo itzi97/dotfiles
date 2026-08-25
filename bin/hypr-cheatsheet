@@ -1,0 +1,182 @@
+#!/usr/bin/env bash
+#
+# hypr-cheatsheet — searchable keybind reference for the HYPRLAND session,
+# parsed from the live config. Bound to Super+Shift+H in
+# config/hypr/hyprland.conf; the twin of bin/river-cheatsheet, same design,
+# same reasons: a cheat sheet that is a second copy of the bindings lies
+# within a fortnight, so this READS the config it documents.
+#
+# Renders through fuzzel dmenu with the picker convention (ADR-0021):
+# 64ch wide, "<glyph> <noun> ❯" prompt, grouped sections.
+
+set -euo pipefail
+
+CONF="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/hyprland.conf"
+[[ -r "$CONF" ]] || { echo "no hyprland config at $CONF" >&2; exit 1; }
+
+parse() {
+  # bind lines: `bind[flags] = MODS, KEY, DISPATCHER[, ARGS]`. Flags (bindm,
+  # bindl, bindle...) don't matter for the sheet — what the key does is the
+  # same whether it repeats or works when locked.
+  grep -E '^[[:space:]]*bind[a-z]* = ' "$CONF" \
+  | sed -E '
+      s/^[[:space:]]*bind[a-z]* = //;
+      s/\$mod/SUPER/g;
+    ' \
+  | awk -F', *' '
+    # --- keycap rendering ---------------------------------------------------
+    # Same glyph set as river-cheatsheet: plain Unicode arrows/modifiers from
+    # JetBrains Mono, Nerd Font glyphs from bin/install-nerd-font. A missing
+    # Nerd Font degrades to boxes on the second set, never to blank.
+    function keycap(k) {
+      if (k == "SUPER")    return "󰖳"
+      if (k == "SHIFT")    return "⇧"
+      if (k == "CTRL" || k == "CONTROL") return "⌃"
+      if (k == "ALT")      return "⌥"
+      if (k == "Return")   return "⏎"
+      if (k == "Space" || k == "space")    return "␣"
+      if (k == "Tab")      return "⇥"
+      if (k == "Escape")   return "⎋"
+      if (k == "Left")     return "←"
+      if (k == "Down")     return "↓"
+      if (k == "Up")       return "↑"
+      if (k == "Right")    return "→"
+      if (k == "Print")    return "󰄀"
+      lk = tolower(k)
+      if (lk == "period") return "."
+      if (lk == "comma")  return ","
+      if (lk == "minus")  return "-"
+      if (lk == "equal")  return "="
+
+      if (k == "XF86AudioRaiseVolume")  return "󰝝"
+      if (k == "XF86AudioLowerVolume")  return "󰝞"
+      if (k == "XF86AudioMute")         return "󰝟"
+      if (k == "XF86AudioMicMute")      return "󰍭"
+      if (k == "XF86AudioMedia")        return "󰐎"
+      if (k == "XF86AudioPlay")         return "󰐊"
+      if (k == "XF86MonBrightnessUp")   return "󰃠"
+      if (k == "XF86MonBrightnessDown") return "󰃞"
+
+      # Hyprland names mouse buttons by input event code.
+      if (k == "mouse:272") return "󰍽 L"
+      if (k == "mouse:273") return "󰍽 R"
+      if (k == "mouse:274") return "󰍽 M"
+
+      return k
+    }
+
+    function caps(spec,   parts, i, n, out) {
+      n = split(spec, parts, " ")
+      out = ""
+      for (i = 1; i <= n; i++)
+        out = out (i > 1 ? " + " : "") keycap(parts[i])
+      return out
+    }
+
+    # --- sections -----------------------------------------------------------
+    # Grouped like the river sheet; "tags" becomes "workspaces" because that
+    # is what Hyprland has (the model difference is documented in the config).
+    function section(a) {
+      if (a ~ /^screenshot/)                        return "7\tscreenshots"
+      if (a ~ /volume|mute|brightness|play/)        return "6\tmedia & hardware"
+      if (a == "terminal" || a == "launcher")       return "4\tapps & pickers"
+      if (a ~ /clipboard|wallpaper|cheat sheet/)    return "4\tapps & pickers"
+      if (a ~ /lock|power menu|quit/)               return "5\tsession"
+      if (a ~ /workspace|scratchpad/)               return "3\tworkspaces"
+      if (a ~ /main area|windows in main/)          return "2\tlayout"
+      return "1\twindows"
+    }
+    {
+      mods = $1; key = $2; disp = $3;
+      args = "";
+      for (i = 4; i <= NF; i++) args = args (i > 4 ? ", " : "") $i;
+
+      # The nine explicit workspace binds collapse into two hand-written
+      # rows below, same as the river sheet did for its tag loop — nine
+      # near-identical rows are noise, not reference.
+      if (key ~ /^[1-9]$/ && (disp == "workspace" || disp == "movetoworkspacesilent")) next;
+
+      combo = (mods == "") ? keycap(key) : caps(mods) " + " keycap(key);
+
+      action = disp;
+      if (args != "") action = disp " " args;
+      gsub(/"/, "", action);
+
+      # exec: name what the program IS, not the command line.
+      if (disp == "exec") {
+        action = args;
+        gsub(/"/, "", action);
+        if (action ~ /osd volume-up/)   action = "volume up";
+        else if (action ~ /osd volume-down/) action = "volume down";
+        else if (action ~ /osd volume-mute/) action = "mute";
+        else if (action ~ /osd mic-mute/)    action = "mic mute";
+        else if (action ~ /osd bright-up/)   action = "brightness up";
+        else if (action ~ /osd bright-down/) action = "brightness down";
+        else if (action ~ /cliphist/) action = "clipboard history";
+        else if (action ~ /grim.*swappy/) action = "screenshot region → annotate";
+        else if (action ~ /grim.*wl-copy/) action = "screenshot region → clipboard";
+        else if (action ~ /grim ~\/Pictures/) action = "screenshot screen → file";
+        else if (action ~ /wpctl set-volume.*%\+/) action = "volume up";
+        else if (action ~ /wpctl set-volume.*%-/) action = "volume down";
+        else if (action ~ /wpctl set-mute @DEFAULT_AUDIO_SINK/) action = "mute";
+        else if (action ~ /wpctl set-mute @DEFAULT_AUDIO_SOURCE/) action = "mic mute";
+        else if (action ~ /brightnessctl set 5%\+/) action = "brightness up";
+        else if (action ~ /brightnessctl set 5%-/) action = "brightness down";
+        else if (action ~ /playerctl play-pause/) action = "media play / pause";
+        else if (action == "kitty")            action = "terminal";
+        else if (action == "fuzzel")           action = "launcher";
+        else if (action == "swaylock")         action = "lock screen";
+        else if (action == "wlogout")          action = "power menu";
+        else if (action ~ /river-wallpaper/)   action = "wallpaper picker";
+        else if (action ~ /hypr-cheatsheet/)   action = "this cheat sheet";
+        else if (action ~ /river-idle/)        action = "pause / resume auto-lock";
+      }
+
+      # Dispatchers are not English; translate to the effect, same wording as
+      # the river sheet so both references read identically where the effect
+      # is identical.
+      if (action == "killactive")            action = "close window";
+      if (action == "exit")                  action = "quit hyprland";
+      if (action ~ /^fullscreen/)            action = "fullscreen";
+      if (action == "togglefloating")        action = "float / tile";
+      if (action == "movewindow")            action = "move window (drag)";
+      if (action == "resizewindow")          action = "resize window (drag)";
+      if (action ~ /^togglespecialworkspace/) action = "toggle scratchpad";
+      if (action ~ /^movetoworkspacesilent special/) action = "send window to scratchpad";
+      if (action == "layoutmsg cyclenext")   action = "focus next window";
+      if (action == "layoutmsg cycleprev")   action = "focus previous window";
+      if (action == "layoutmsg swapnext")    action = "swap with next";
+      if (action == "layoutmsg swapprev")    action = "swap with previous";
+      if (action == "layoutmsg mfact -0.05") action = "shrink main area";
+      if (action == "layoutmsg mfact +0.05") action = "grow main area";
+      if (action == "layoutmsg addmaster")   action = "more windows in main";
+      if (action == "layoutmsg removemaster") action = "fewer windows in main";
+      if (action ~ /^layoutmsg swapwithmaster/) action = "promote to main area";
+      if (action == "layoutmsg orientationtop")    action = "main area to the top";
+      if (action == "layoutmsg orientationright")  action = "main area to the right";
+      if (action == "layoutmsg orientationbottom") action = "main area to the bottom";
+      if (action == "layoutmsg orientationleft")   action = "main area to the left";
+
+      printf "%s\t%-30s │ %s\n", section(action), combo, action;
+    }' || true
+  # `|| true`: a config with no binds should still show the hand rows below,
+  # not abort under set -e + pipefail. Same guard as river-cheatsheet.
+
+  printf '%s\t%s\n' \
+    '󰖳 + 1..9'     'focus workspace' \
+    '󰖳 + ⇧ + 1..9' 'move window to workspace' \
+  | awk -F'\t' '{ printf "3\tworkspaces\t%-30s │ %s\n", $1, $2 }'
+}
+
+parse \
+  | sort -s -t'	' -k1,1n \
+  | awk -F'\t' '
+      $2 != prev {
+        line = "── " $2 " "
+        while (length(line) < 50) line = line "─"
+        print line
+        prev = $2
+      }
+      { print $3 }
+    ' \
+  | fuzzel --dmenu --prompt '󰌌 keys ❯ ' --lines 24 --width 64 >/dev/null 2>&1 || true

@@ -2,7 +2,12 @@
 #
 # river-cheatsheet — searchable keybind reference, parsed from the live config.
 #
-# Bound to Super+Shift+slash (i.e. Super+?) in config/river/init.
+# Bound to Super+Shift+H in config/river/init (H for Help; letters are
+# layout-stable where symbols are not — the full reasoning lives at the
+# binding). An earlier version of this header said Super+Shift+slash, which
+# was never true on the Spanish layout and is exactly the kind of drift this
+# script exists to prevent. The binding comment in init is the truth; this
+# line is a pointer to it.
 #
 # It READS ~/.config/river/init rather than maintaining its own list. A cheat
 # sheet that is a second copy of the bindings is a cheat sheet that lies within
@@ -18,13 +23,24 @@ INIT="${XDG_CONFIG_HOME:-$HOME/.config}/river/init"
 [[ -r "$INIT" ]] || { echo "no river init at $INIT" >&2; exit 1; }
 
 parse() {
-  # Static `riverctl map` lines. Fields: mode, modifiers, key, action...
-  # Field 1 is the MODIFIER set, field 2 is the key, the rest is the action.
-  # Treating field 1 as the key shifts every line by one and produces a cheat
-  # sheet that is confidently wrong — caught in testing, 2026-08-23.
-  grep -E '^riverctl map(-pointer)? +(normal|locked)' "$INIT" \
+  # The init binds layout keys inside an if/else on `command -v wideriver`,
+  # each branch in its own generator's vocabulary. Apply the SAME test here
+  # and drop the dormant branch, so the sheet documents the machine it is
+  # on rather than both possible machines at once.
+  local excl='send-layout-cmd wideriver'
+  command -v wideriver >/dev/null 2>&1 && excl='send-layout-cmd rivertile'
+
+  # `riverctl map` lines, INCLUDING indented ones and ones whose mode is a
+  # shell variable. The previous anchor was `^riverctl map +(normal|locked)`,
+  # which silently dropped the media-key binding — it lives inside a `for
+  # mode in normal locked` loop, so the line is indented and its mode field
+  # is literally `$mode`. A cheat sheet that omits a binding is confidently
+  # wrong in the worst way: nothing looks missing. Caught by running the
+  # parser against the real init rather than eyeballing it (2026-08-24).
+  grep -E '^[[:space:]]*riverctl map(-pointer)? +(\$mode|normal|locked)' "$INIT" \
+  | grep -vF "$excl" \
   | sed -E '
-      s/^riverctl map(-pointer)? +(normal|locked) +//;
+      s/^[[:space:]]*riverctl map(-pointer)? +(\$mode|normal|locked) +//;
       s/"\$mod"/Super/g;
     ' \
   | awk '
@@ -68,10 +84,13 @@ parse() {
 
       # Laptop function row. These are the bindings you reach for without
       # looking, so showing what is printed on the keycap beats the keysym.
+      # Codepoints are MDI names verified against the font table (2026-08-24):
+      # the media key is 󰐎 play-pause (F040E), not 󰐊 play.
       if (k == "XF86AudioRaiseVolume")  return "󰝝"
       if (k == "XF86AudioLowerVolume")  return "󰝞"
       if (k == "XF86AudioMute")         return "󰝟"
       if (k == "XF86AudioMicMute")      return "󰍭"
+      if (k == "XF86AudioMedia")        return "󰐎"
       if (k == "XF86AudioPlay")         return "󰐊"
       if (k == "XF86AudioNext")         return "󰒭"
       if (k == "XF86AudioPrev")         return "󰒮"
@@ -96,6 +115,25 @@ parse() {
         out = out (i > 1 ? " + " : "") keycap(parts[i])
       return out
     }
+
+    # --- sections -----------------------------------------------------------
+    # Grouped, not alphabetised. `| sort` ordered rows by glyph CODEPOINT,
+    # which opened the sheet with a stray screenshot binding and scattered
+    # the hardware keys to both ends — order that looks random is most of why
+    # the sheet read as unfinished. Classification is by the TRANSLATED
+    # action text, so it cannot drift from the wording it depends on.
+    # "promote to main area" lands in layout deliberately: it is the layout
+    # being rearranged, not a window property changing.
+    function section(a) {
+      if (a ~ /^screenshot/)                        return "7\tscreenshots"
+      if (a ~ /volume|mute|brightness|play/)        return "6\tmedia & hardware"
+      if (a == "terminal" || a == "launcher")       return "4\tapps & pickers"
+      if (a ~ /clipboard|wallpaper|cheat sheet/)    return "4\tapps & pickers"
+      if (a ~ /lock|power menu|quit river/)         return "5\tsession"
+      if (a ~ /tag|scratchpad/)                     return "3\ttags"
+      if (a ~ /main area|windows in main|monocle/)  return "2\tlayout"
+      return "1\twindows"
+    }
     {
       mods = $1; key = $2; $1 = ""; $2 = "";
       combo = (mods == "None") ? keycap(key) : caps(mods) " + " keycap(key);
@@ -103,15 +141,30 @@ parse() {
       action = $0;
       gsub(/^ +/, "", action);
       gsub(/^spawn +/, "", action);
-      gsub(/send-layout-cmd rivertile /, "", action);
+      gsub(/send-layout-cmd (rivertile|wideriver) /, "", action);
       gsub(/"/, "", action);
       gsub(/'\''/, "", action);
       gsub(/ +#.*$/, "", action);
+      # The looped media binding carries its own failure guard; the guard is
+      # plumbing, not part of what the key does.
+      gsub(/ +2>\/dev\/null.*$/, "", action);
+      gsub(/ +\|\| +true$/, "", action);
 
       # Shell variables the config uses; expand them to something readable
       # rather than showing a raw $name in a reference document.
       gsub(/\$scratch_tag/, "scratchpad tag", action);
       gsub(/\$all_tags/,    "all tags",       action);
+
+      # A $ in the KEY field marks a loop body the shell was going to fill
+      # in — the per-tag bindings ("$i"), which the hand-written rows at the
+      # bottom describe once instead of nine times. The old anchored grep
+      # excluded these lines by the accident of their indentation; now that
+      # indented lines are parsed on purpose (the media key lives in one),
+      # the exclusion has to be said out loud. The test is combo ONLY: a $
+      # in the action is usually legitimate shell ($HOME, $(slurp)) and
+      # testing it too silently dropped every screenshot and picker row —
+      # caught by counting rows before and after (2026-08-24).
+      if (combo ~ /\$/) next;
 
       # Long shell pipelines are noise in a cheat sheet; name them instead.
       if (action ~ /cliphist/) action = "clipboard history";
@@ -124,6 +177,7 @@ parse() {
       if (action ~ /wpctl set-mute @DEFAULT_AUDIO_SOURCE/) action = "mic mute";
       if (action ~ /brightnessctl set 5%\+/) action = "brightness up";
       if (action ~ /brightnessctl set 5%-/) action = "brightness down";
+      if (action ~ /playerctl play-pause/) action = "media play / pause";
 
       # riverctl verbs are not English. "main-ratio -0.05" and "zoom" are
       # precise and mean nothing to someone who opened this sheet BECAUSE
@@ -144,6 +198,17 @@ parse() {
       if (action == "main-count -1")      action = "fewer windows in main";
       if (action ~ /^main-location /) {
         sub(/^main-location /, "", action);
+        action = "main area to the " action;
+      }
+      # wideriver vocabulary (ADR-0022) — same effects, same English, so the
+      # sheet reads identically whichever generator is live.
+      if (action == "--ratio +0.05")      action = "grow main area";
+      if (action == "--ratio -0.05")      action = "shrink main area";
+      if (action == "--count +1")         action = "more windows in main";
+      if (action == "--count -1")         action = "fewer windows in main";
+      if (action == "--layout-toggle")    action = "monocle ⇄ tiling";
+      if (action ~ /^--layout /) {
+        sub(/^--layout /, "", action);
         action = "main area to the " action;
       }
       if (action == "set-focused-tags all tags")        action = "show all tags";
@@ -168,26 +233,47 @@ parse() {
       # rows carrying icons sit a cell or two short. The │ is what actually
       # makes the two columns readable — without it, ragged padding looks
       # broken rather than approximate.
-      printf "%-30s │ %s\n", combo, action;
-    }'
+      printf "%s\t%-30s │ %s\n", section(action), combo, action;
+    }' || true
+  # `|| true`: under set -e + pipefail, a grep that matches nothing would
+  # abort parse() here and take the hand-written tag rows below down with
+  # it. An init with no bindings should produce a sheet with the four rows
+  # that still apply, not an empty menu.
 
-  # The per-tag bindings are generated by a shell loop in init, so grep cannot
-  # see them. Described here rather than listed nine times.
+  # The per-tag bindings are generated by a shell loop in init, so the static
+  # parse cannot see them. Described here rather than listed nine times, and
+  # carrying their sort key and section by hand — they are tags rows.
   #
-  # Fed through the SAME printf as everything else. Hand-writing the padded
-  # strings put these four rows a couple of cells out of line with the parsed
-  # ones — the one part of the sheet whose alignment I controlled completely
-  # was the only part that was visibly wrong (2026-08-23).
+  # ALL FOUR binding families the loop generates. The Super+Shift+Ctrl row
+  # was missing until 2026-08-24: the loop defines four, the sheet listed
+  # three, and nothing about the sheet looked incomplete — same failure
+  # class as the media key above, caught the same way.
   #
   # Super+0 is NOT here: it is a real `riverctl map` line and the parser
   # already picks it up. Listing it again produced two near-identical rows.
   printf '%s\t%s\n' \
-    '󰖳 + 1..9'     'focus tag' \
-    '󰖳 + ⇧ + 1..9' 'move window to tag' \
-    '󰖳 + ⌃ + 1..9' 'toggle tag into view' \
-  | awk -F'\t' '{ printf "%-30s │ %s\n", $1, $2 }'
+    '󰖳 + 1..9'         'focus tag' \
+    '󰖳 + ⇧ + 1..9'     'move window to tag' \
+    '󰖳 + ⌃ + 1..9'     'toggle tag into view' \
+    '󰖳 + ⇧ + ⌃ + 1..9' 'toggle tag on window' \
+  | awk -F'\t' '{ printf "3\ttags\t%-30s │ %s\n", $1, $2 }'
 }
 
+# Stable numeric sort keeps each section's rows in config order — the order
+# the init file tells its own story in — rather than re-alphabetising them.
+# The final awk turns section changes into header rows; fuzzel renders them
+# as entries, which is fine: they are captioned separators, selecting one
+# does nothing (output is discarded), and typing still filters straight
+# through to the real rows.
 parse \
-  | sort \
-  | fuzzel --dmenu --prompt '󰌌  keys ❯ ' --lines 20 --width 64 >/dev/null 2>&1 || true
+  | sort -s -t'	' -k1,1n \
+  | awk -F'\t' '
+      $2 != prev {
+        line = "── " $2 " "
+        while (length(line) < 50) line = line "─"
+        print line
+        prev = $2
+      }
+      { print $3 }
+    ' \
+  | fuzzel --dmenu --prompt '󰌌 keys ❯ ' --lines 24 --width 64 >/dev/null 2>&1 || true

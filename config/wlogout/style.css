@@ -1,7 +1,17 @@
 /* ~/.config/wlogout/style.css
  *
- * Power menu, opened with Super+Shift+p. gruvbox dark, same palette as the
- * rest of the session.
+ * Power menu, opened with Super+Shift+p. gruvbox dark, colour grammar per
+ * ADR-0021: the accent (#d79921) marks whichever button holds focus, red
+ * (#fb4934) marks the two actions that destroy unsaved work. That is the
+ * entire vocabulary — the old five-hue scheme (aqua, blue, two yellows, two
+ * warm fills) had a per-button identity colour, and its generic d79921 hover
+ * rule was dead code: every button overrode it, so the session's accent
+ * never appeared on this surface at all.
+ *
+ * The glyphs in the layout file are MDI codepoints verified against the
+ * font's own table (lock F033E, logout F0343, sleep F04B2, power-sleep
+ * F0904, restart F0709, power F0425) — the same set waybar already draws
+ * from, so if the bar renders, this renders.
  *
  * Note the layout file locks and *then* suspends/hibernates. Suspending an
  * unlocked laptop means anyone who opens the lid is already past your login —
@@ -10,7 +20,11 @@
  */
 
 * {
-  font-family: "JetBrains Mono", "Symbols Nerd Font", sans-serif;
+  /* Proportional Symbols variant, monospace tail — same stack as waybar and
+     swaync, so every GTK surface degrades identically. 15px is the title
+     step of the session's 11/13/15 scale: six full-screen targets are
+     headline objects, not chrome. */
+  font-family: "JetBrains Mono", "Symbols Nerd Font", monospace;
   font-size: 15px;
   background-image: none;
   transition: 120ms;
@@ -27,55 +41,31 @@ window {
 button {
   color: #ebdbb2;
   background-color: #3c3836;
-  border: 2px solid #504945;
+  border: 2px solid #504945;   /* passive edge, like every resting surface */
   border-radius: 0;
-  margin: 10px;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 25%;
+  margin: 12px;                /* the breathing step of the spacing rhythm */
 }
 
+/* Focus is the accent — this menu is keyboard-driven (single-letter binds),
+   and "which one fires if I press Enter" is exactly what the accent exists
+   to answer. One fill for all hovers; only the border and text carry state. */
 button:focus,
 button:hover {
   background-color: #504945;
   border-color: #d79921;
-  color: #fbf1c7;
+  color: #ebdbb2;
   outline: none;
 }
 
-/* Destructive actions are visually distinct. Shutdown and reboot lose
-   unsaved work; lock and logout do not. The keybinds are single letters and
-   the menu is fullscreen, so a mis-hit is easy and worth guarding against. */
+/* Destructive actions are red, and red means only this. Shutdown and reboot
+   lose unsaved work; the other four do not. The keybinds are single letters
+   and the menu is fullscreen, so a mis-hit is easy and worth a colour that
+   is never decoration. */
 #shutdown:focus,
-#shutdown:hover {
-  background-color: #cc241d;
-  border-color: #fb4934;
-  color: #fbf1c7;
-}
-
+#shutdown:hover,
 #reboot:focus,
 #reboot:hover {
-  background-color: #d65d0e;
-  border-color: #fe8019;
-  color: #fbf1c7;
-}
-
-#lock:focus,
-#lock:hover,
-#suspend:focus,
-#suspend:hover {
   background-color: #504945;
-  border-color: #8ec07c;
-}
-
-#hibernate:focus,
-#hibernate:hover {
-  background-color: #504945;
-  border-color: #83a598;
-}
-
-#logout:focus,
-#logout:hover {
-  background-color: #504945;
-  border-color: #fabd2f;
+  border-color: #fb4934;
+  color: #fb4934;
 }

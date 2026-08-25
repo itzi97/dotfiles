@@ -9,8 +9,14 @@
 # CONTEXT (read this before changing anything structural)
 #
 #   river is a SECONDARY session. Plasma remains the default in SDDM, on
-#   purpose: river has no Fedora maintainer, no fallback mode, and this config
-#   is young. ADR-0002 established that pattern for Hyprland on the desktop;
+#   purpose: river has no fallback mode and this config is young. (An earlier
+#   version of this comment claimed river had no Fedora maintainer — false:
+#   river-classic is an official Fedora package, verified against
+#   packages.fedoraproject.org 2026-08-24. That packaging is part of why it
+#   beats Hyprland here: Fedora's hyprland package is ORPHANED, last built
+#   for F42, so Hyprland on this machine would mean a personal COPR for the
+#   most load-bearing component of the session.)
+#   ADR-0002 established the secondary-session pattern for Hyprland on the desktop;
 #   principle #2 requires it on the college machine. If you ever set river as
 #   the SDDM default, this stops being a low-risk experiment.
 #
@@ -158,26 +164,15 @@ riverctl map normal "$mod" K focus-view previous
 riverctl map normal "$mod"+Shift J swap next
 riverctl map normal "$mod"+Shift K swap previous
 
-# Resize the main area — h/l, xmonad style. This is the control you reach for
-# constantly in a main-and-stack layout, which is why xmonad gave it the home
-# keys and why it keeps them here.
-riverctl map normal "$mod" H send-layout-cmd rivertile "main-ratio -0.05"
-riverctl map normal "$mod" L send-layout-cmd rivertile "main-ratio +0.05"
-
-# How many views share the main area. xmonad used comma/period.
-riverctl map normal "$mod" comma  send-layout-cmd rivertile "main-count +1"
-riverctl map normal "$mod" period send-layout-cmd rivertile "main-count -1"
+# Resize the main area, main count, main location, layout toggle — h/l and
+# comma/period, xmonad style. These live in the LAYOUT section below, not
+# here: their command vocabulary depends on which layout generator is
+# installed, and the bindings must be created inside the same if/else that
+# picks it. A binding aimed at the wrong generator's namespace fires
+# successfully and does nothing, which is the worst kind of broken.
 
 # Promote the focused view to main — xmonad's Mod+Return.
 riverctl map normal "$mod" Return zoom
-
-# Where the main area sits. rivertile does the arranging; you pick the axis.
-# river has one layout generator at a time rather than xmonad's layout list,
-# so cycling main-location is the nearest thing to Mod+Space cycling layouts.
-riverctl map normal "$mod" Up    send-layout-cmd rivertile "main-location top"
-riverctl map normal "$mod" Right send-layout-cmd rivertile "main-location right"
-riverctl map normal "$mod" Down  send-layout-cmd rivertile "main-location bottom"
-riverctl map normal "$mod" Left  send-layout-cmd rivertile "main-location left"
 
 riverctl map normal "$mod" F toggle-fullscreen
 riverctl map normal "$mod" T toggle-float     # xmonad's Mod+t: sink back to tiling
@@ -249,7 +244,10 @@ riverctl map normal "$mod" Print spawn 'mkdir -p ~/Pictures/Screenshots && grim 
 # which is also closer to the Plasma habit.
 riverctl map normal "$mod" Escape spawn swaylock
 riverctl map normal "$mod"+Shift P spawn wlogout
-riverctl map normal "$mod" V spawn 'cliphist list | fuzzel --dmenu | cliphist decode | wl-copy'
+# Same picker convention as the cheat sheet and wallpaper menu: 64ch wide,
+# "<glyph> <noun> ❯" prompt. Bare `fuzzel --dmenu` was the one picker that
+# looked like a default.
+riverctl map normal "$mod" V spawn 'cliphist list | fuzzel --dmenu --width 64 --prompt "󰅍 clip ❯ " | cliphist decode | wl-copy'
 
 # Super+Shift+H — searchable keybind reference, parsed from THIS file so it
 # cannot drift out of date.
@@ -322,11 +320,15 @@ try riverctl set-repeat 50 300
 try riverctl xcursor-theme breeze_cursors 24
 
 # --- appearance -------------------------------------------------------------
-# gruvbox dark, matching kitty, neovim, zathura and waybar.
+# gruvbox dark, colour grammar per ADR-0021. The focused border IS the accent:
+# d79921 means "selected/focused/current" on every surface — waybar's focused
+# tag, fuzzel's selection, kitty's active tab, swaylock's typing ring. NOT
+# fabd2f: the palette's bright yellow is retired from chrome, because two
+# nearly-equal yellows adjacent read as a rendering mistake.
 riverctl background-color   0x282828
-riverctl border-color-focused   0xd79921   # gruvbox yellow
-riverctl border-color-unfocused 0x504945   # bg2
-riverctl border-color-urgent    0xfb4934   # bright red
+riverctl border-color-focused   0xd79921   # the accent
+riverctl border-color-unfocused 0x504945   # bg2 — passive edge, like the bar's
+riverctl border-color-urgent    0xfb4934   # act-now red
 riverctl border-width 2
 
 # --- rules ------------------------------------------------------------------
@@ -342,10 +344,75 @@ try riverctl rule-add -app-id '*' ssd        # server-side decorations: river dr
                                          # the border, apps don't draw their own
 
 # --- layout -----------------------------------------------------------------
-riverctl default-layout rivertile
-# Gaps. -view-padding is between windows, -outer-padding is against the screen
-# edge; equal values give visually even spacing.
-rivertile -view-padding 6 -outer-padding 6 -main-ratio 0.55 &
+# wideriver if installed, rivertile as the escape hatch (ADR-0022).
+#
+# WHY TWO GENERATORS. "One window → no gaps, no border" cannot be done with
+# rivertile or by river itself: rivertile(1) has no smart-gaps option and
+# riverctl(1)'s border-width is global with no per-view rule — both verified
+# against the river-classic man pages, 2026-08-24. wideriver does exactly it
+# (--smart-gaps + --border-width-smart-gaps 0), plus a real monocle layout.
+#
+# wideriver is NOT in the Fedora repos (verified: zero hits, all releases) —
+# it arrives the same out-of-repo way river-classic itself does. Which is why
+# this block DEGRADES: no wideriver means rivertile tiles exactly as before,
+# and only the layout keybindings in the wideriver branch go dormant. The
+# session must never fail to arrange windows because one binary is missing
+# (principle #1).
+#
+# Each branch binds its own layout keys with its own vocabulary, as literal
+# lines — bin/river-cheatsheet applies this same `command -v` test and shows
+# only the live branch.
+#
+# Gap value is 6 in both branches: the session's spacing unit (ADR-0021).
+if command -v wideriver >/dev/null 2>&1; then
+  riverctl default-layout wideriver
+
+  riverctl map normal "$mod" H send-layout-cmd wideriver "--ratio -0.05"
+  riverctl map normal "$mod" L send-layout-cmd wideriver "--ratio +0.05"
+  riverctl map normal "$mod" comma  send-layout-cmd wideriver "--count +1"
+  riverctl map normal "$mod" period send-layout-cmd wideriver "--count -1"
+  riverctl map normal "$mod" Up    send-layout-cmd wideriver "--layout top"
+  riverctl map normal "$mod" Right send-layout-cmd wideriver "--layout right"
+  riverctl map normal "$mod" Down  send-layout-cmd wideriver "--layout bottom"
+  riverctl map normal "$mod" Left  send-layout-cmd wideriver "--layout left"
+  # xmonad's Mod+Space at last: rivertile had nothing to toggle TO, wideriver
+  # has monocle. One key flips fullscreen-ish focus mode and back.
+  riverctl map normal "$mod" Space send-layout-cmd wideriver "--layout-toggle"
+
+  # Border colours passed here because wideriver re-asserts them on every
+  # layout change, overriding the riverctl lines in the appearance section
+  # (which remain: they are the rivertile branch's only border config).
+  # Same grammar values, so the override is invisible. Monocle border is 0
+  # wide; its colour is set only so no default solarized value ever wins.
+  # --stack even, not the dwindle default: even stacks are what rivertile
+  # trained the muscle memory for.
+  #
+  # KNOWN QUIRK at fractional scale (wideriver FAQ): stray pixels can appear
+  # in gaps when background-color is pure black. Ours is 0x282828 — already
+  # the workaround.
+  wideriver \
+    --layout left --layout-alt monocle --stack even \
+    --count-master 1 --ratio-master 0.55 \
+    --smart-gaps --inner-gaps 6 --outer-gaps 6 \
+    --border-width 2 --border-width-monocle 0 --border-width-smart-gaps 0 \
+    --border-color-focused 0xd79921 \
+    --border-color-focused-monocle 0x504945 \
+    --border-color-unfocused 0x504945 \
+    > "${STATE_DIR}/wideriver.log" 2>&1 &
+else
+  riverctl default-layout rivertile
+
+  riverctl map normal "$mod" H send-layout-cmd rivertile "main-ratio -0.05"
+  riverctl map normal "$mod" L send-layout-cmd rivertile "main-ratio +0.05"
+  riverctl map normal "$mod" comma  send-layout-cmd rivertile "main-count +1"
+  riverctl map normal "$mod" period send-layout-cmd rivertile "main-count -1"
+  riverctl map normal "$mod" Up    send-layout-cmd rivertile "main-location top"
+  riverctl map normal "$mod" Right send-layout-cmd rivertile "main-location right"
+  riverctl map normal "$mod" Down  send-layout-cmd rivertile "main-location bottom"
+  riverctl map normal "$mod" Left  send-layout-cmd rivertile "main-location left"
+
+  rivertile -view-padding 6 -outer-padding 6 -main-ratio 0.55 &
+fi
 
 # --- autostart --------------------------------------------------------------
 # Everything Plasma used to do. Each line is guarded so a missing package
@@ -412,7 +479,16 @@ run blueman-applet
 # reports), so it stays unstarted until those are known: see
 # `wlr-randr` inside a river session.
 [ -r "${XDG_CONFIG_HOME:-$HOME/.config}/kanshi/config" ] && run kanshi
-run river-wallpaper --restore   # re-applies the last choice; silent if none
+# ABSOLUTE PATH, and not through run(). This was `run river-wallpaper
+# --restore`, and it silently never ran: river's PATH has no ~/.local/bin
+# unless the session went through bin/river-session, and run()'s
+# `command -v || return 0` turns "not on PATH" into quiet success. The
+# bindings learned this lesson on 2026-08-24 (see the utilities section);
+# this line had not. Symptom: picking a wallpaper worked, but it was gone
+# after every relog. run()'s singleton guard is useless here anyway — the
+# script is a oneshot, not a daemon — and --restore is already silent and
+# non-fatal by design.
+[ -x "$HOME/.local/bin/river-wallpaper" ] && "$HOME/.local/bin/river-wallpaper" --restore
 run wl-paste --watch cliphist store
 
 # Idle: lock at 5 min, screen off at 6, suspend at 15.

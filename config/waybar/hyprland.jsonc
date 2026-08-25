@@ -1,0 +1,181 @@
+// ~/.config/waybar/hyprland.jsonc
+//
+// Bar for the HYPRLAND session (ADR-0023). Launched by hyprland.conf with:
+//   waybar -c ~/.config/waybar/hyprland.jsonc -s ~/.config/waybar/style.css
+//
+// config.jsonc stays the river session's bar. The two files differ ONLY in
+// modules-left — river/tags+river/window vs hyprland/workspaces+
+// hyprland/window — because tags and workspaces are different models with
+// different waybar modules. Everything else is deliberately identical, and
+// the stylesheet is shared, so a change to the right side or the styling
+// lands in both sessions at once. If you edit a right-side module here,
+// edit config.jsonc too — drift between the bars is a bug.
+{
+  "layer": "top",
+  "position": "top",
+  "height": 30,
+  "spacing": 6,
+
+  "modules-left": ["hyprland/workspaces", "wlr/taskbar", "hyprland/window"],
+  "modules-center": [],
+  // Ordered by how often you look at it, left to right: machine load first
+  // (glanceable, ignorable), then the things you interact with, then the
+  // clock, then power. The power button is last because it is the only one
+  // where a mis-click costs you unsaved work.
+  "modules-right": [
+    "cpu",
+    "memory",
+    "temperature",
+    "custom/idle",
+    "tray",
+    "wireplumber",
+    "backlight",
+    "battery",
+    "custom/notification",
+    "clock",
+    "custom/power"
+  ],
+
+  "hyprland/workspaces": {
+    // Nine fixed workspaces, mirroring the river bar's nine tags — the
+    // special (scratchpad) workspace is deliberately not shown, same as
+    // river's tag 10: it is an overlay, not a place you go.
+    "format": "{id}",
+    "persistent-workspaces": { "*": 9 },
+    "on-click": "activate"
+  },
+
+  "wlr/taskbar": {
+    "format": "{icon}",
+    "icon-size": 16,
+    "tooltip-format": "{title}",
+    "on-click": "activate",
+    "on-click-middle": "close",
+    // Only this output's windows, and only the visible workspace — otherwise
+    // the bar fills with every window you have open anywhere.
+    "all-outputs": false,
+    "active-first": true
+  },
+
+  "hyprland/window": {
+    "format": "{title}",
+    "max-length": 60,
+    "tooltip": false
+  },
+
+  "cpu": {
+    "interval": 5,
+    "format": "󰻠 {usage}%",
+    "tooltip": true,
+    "on-click": "kitty --class floatterm -e btop"
+  },
+
+  "memory": {
+    "interval": 10,
+    "format": "󰍛 {percentage}%",
+    "tooltip-format": "{used:0.1f}G / {total:0.1f}G   swap {swapPercentage}%",
+    "on-click": "kitty --class floatterm -e btop"
+  },
+
+  "temperature": {
+    "interval": 10,
+    // No thermal-zone pinned — same reasoning as config.jsonc: zone numbers
+    // are machine- and boot-specific; pin in local/thinkpad/ if ever needed.
+    "critical-threshold": 82,
+    "format": "{icon} {temperatureC}°C",
+    "format-critical": "󰸁 {temperatureC}°C",
+    "format-icons": ["󰜗", "󰔏", "󰸁"]
+  },
+
+  "custom/idle": {
+    // bin/river-idle is compositor-agnostic (swayidle + ext-idle-notify,
+    // which Hyprland implements) and is the SINGLE source of idle truth for
+    // both sessions — see the module comment in config.jsonc.
+    "exec": "$HOME/.local/bin/river-idle waybar",
+    "return-type": "json",
+    "interval": 30,
+    "format": "{}",
+    "on-click": "$HOME/.local/bin/river-idle toggle",
+    "on-click-right": "$HOME/.local/bin/river-idle stop 0"
+  },
+
+  "tray": {
+    "icon-size": 16,
+    "spacing": 6
+  },
+
+  "wireplumber": {
+    "format": "{icon} {volume}%",
+    "format-muted": "󰝟 muted",
+    "format-icons": ["󰕿", "󰖀", "󰕾"],
+    "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+    "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+",
+    "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-",
+    "tooltip-format": "{node_name}"
+  },
+
+  "backlight": {
+    "format": "{icon} {percent}%",
+    "format-icons": ["󰃞", "󰃟", "󰃠"],
+    "on-scroll-up": "brightnessctl set 5%+",
+    "on-scroll-down": "brightnessctl set 5%-"
+  },
+
+  "battery": {
+    "states": { "warning": 30, "critical": 15 },
+    "format": "{icon} {capacity}%",
+    "format-charging": "󰂄 {capacity}%",
+    "format-plugged": "󰚥 {capacity}%",
+    "format-icons": ["󰁺", "󰁼", "󰁾", "󰂀", "󰂂", "󰁹"],
+    "tooltip-format": "{timeTo}  ({power}W)"
+  },
+
+  "custom/notification": {
+    "tooltip": false,
+    "format": "{icon} {text}",
+    "format-icons": {
+      "notification": "󰂚<span foreground='#fb4934'><sup></sup></span>",
+      "none": "󰂚",
+      "dnd-notification": "󰂛<span foreground='#fb4934'><sup></sup></span>",
+      "dnd-none": "󰂛",
+      "inhibited-notification": "󰂚<span foreground='#fb4934'><sup></sup></span>",
+      "inhibited-none": "󰂚",
+      "dnd-inhibited-notification": "󰂛<span foreground='#fb4934'><sup></sup></span>",
+      "dnd-inhibited-none": "󰂛"
+    },
+    "return-type": "json",
+    "exec-if": "which swaync-client",
+    "exec": "swaync-client -swb",
+    "on-click": "swaync-client -t -sw",
+    "on-click-right": "swaync-client -d -sw",
+    "escape": true
+  },
+
+  "clock": {
+    "format": "{:%a %d %b  %H:%M}",
+    "tooltip-format": "<tt><small>{calendar}</small></tt>",
+    "calendar": {
+      "mode": "month",
+      "weeks-pos": "right",
+      "on-scroll": 1,
+      "format": {
+        "months":  "<span color='#ebdbb2'><b>{}</b></span>",
+        "days":    "<span color='#ebdbb2'>{}</span>",
+        "weeks":   "<span color='#928374'>W{}</span>",
+        "weekdays":"<span color='#a89984'><b>{}</b></span>",
+        "today":   "<span color='#d79921'><b><u>{}</u></b></span>"
+      }
+    },
+    "actions": {
+      "on-click-right": "mode",
+      "on-scroll-up": "shift_up",
+      "on-scroll-down": "shift_down"
+    }
+  },
+
+  "custom/power": {
+    "format": "󰐥",
+    "tooltip-format": "Session menu (Super+Shift+P)",
+    "on-click": "wlogout -b 3"
+  }
+}

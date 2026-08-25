@@ -114,8 +114,11 @@ for p in "${images[@]}"; do
   _labels+=("$label")
 done
 
+# Picker convention (ADR-0021): 64ch wide, "<glyph> <noun> ❯" prompt — same
+# as the cheat sheet and the clipboard binding, so the three pickers read as
+# one surface. 󰋩 is MDI image (F02E9), verified against the font table.
 picked="$(printf '%s\n' "${_labels[@]}" \
-  | fuzzel --dmenu --prompt 'wallpaper ❯ ' --lines 15 --width 60)" || picked=""
+  | fuzzel --dmenu --prompt '󰋩 wallpaper ❯ ' --lines 15 --width 64)" || picked=""
 
 [[ -n "${picked:-}" ]] || exit 0
 choice="${_by_label[$picked]:-}"
