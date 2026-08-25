@@ -50,7 +50,7 @@ window#waybar {
 #workspaces {
   background: #1d2021;
   border: 1px solid #3c3836;
-  margin: 4px 0 4px 6px;
+  margin: 6px 0 6px 6px;
 }
 
 /* Hover FIRST. These selectors tie on specificity, so source order decides:
@@ -165,8 +165,8 @@ window#waybar.empty #window {
   background: #1d2021;
   border-top: 1px solid #3c3836;
   border-bottom: 1px solid #3c3836;
-  margin-top: 4px;
-  margin-bottom: 4px;
+  margin-top: 6px;
+  margin-bottom: 6px;
 }
 
 /* Group heads: open the well. (custom-mic heads the hardware readouts.) */
@@ -193,13 +193,31 @@ window#waybar.empty #window {
    music is ambient, not an alert; paused recedes to gray like every other
    inactive state. The module vanishes entirely when nothing offers MPRIS,
    taking its well with it. */
-#mpris {
-  padding: 0 12px;
+#custom-media-prev,
+#mpris,
+#custom-media-next {
   color: #ebdbb2;
   background: #1d2021;
-  border: 1px solid #3c3836;
-  margin-top: 4px;
-  margin-bottom: 4px;
+  border-top: 1px solid #3c3836;
+  border-bottom: 1px solid #3c3836;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+#mpris {
+  padding: 0 12px;
+}
+
+/* Transport keys: one well with the readout — prev opens it, next closes
+   it. They hide with the readout when nothing plays (hide-empty-text). */
+#custom-media-prev {
+  padding: 0 9px;
+  border-left: 1px solid #3c3836;
+}
+
+#custom-media-next {
+  padding: 0 9px;
+  border-right: 1px solid #3c3836;
 }
 
 #mpris.paused {

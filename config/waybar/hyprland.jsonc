@@ -13,16 +13,16 @@
 {
   "layer": "top",
   "position": "top",
-  // 34, not 30: the instrument wells sit inside 4px vertical margins, and at
-  // 30 the cluster read as squished (first-feedback, 2026-08-25).
-  "height": 34,
+  // 38 with 6px well margins: at 34/4px the wells crowded the bar edges
+  // (second-feedback, 2026-08-25).
+  "height": 38,
   "spacing": 6,
 
   "modules-left": ["hyprland/workspaces", "wlr/taskbar", "hyprland/window"],
   // The now-playing readout, dead center — Spotify, Firefox (YouTube), and
   // any real Navidrome client all speak MPRIS. Fuller controls with album
   // art live in the swaync control center's mpris widget (click the bell).
-  "modules-center": ["mpris"],
+  "modules-center": ["custom/media-prev", "mpris", "custom/media-next"],
   // Ordered by how often you look at it, left to right: machine load first
   // (glanceable, ignorable), then the things you interact with, then the
   // clock, then power. The power button is last because it is the only one
@@ -66,6 +66,27 @@
   "hyprland/window": {
     "format": "{title}",
     "max-length": 60,
+    "tooltip": false
+  },
+
+  "custom/media-prev": {
+    // Visible transport keys flanking the readout (second-feedback: one
+    // button was not a controller). hide-empty-text drops them when no
+    // player is up, so the center well vanishes as a unit.
+    "exec": "playerctl status >/dev/null 2>&1 && echo 󰒮 || true",
+    "interval": 3,
+    "format": "{}",
+    "hide-empty-text": true,
+    "on-click": "playerctl previous",
+    "tooltip": false
+  },
+
+  "custom/media-next": {
+    "exec": "playerctl status >/dev/null 2>&1 && echo 󰒭 || true",
+    "interval": 3,
+    "format": "{}",
+    "hide-empty-text": true,
+    "on-click": "playerctl next",
     "tooltip": false
   },
 

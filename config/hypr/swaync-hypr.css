@@ -1,0 +1,36 @@
+/* ~/.config/hypr/swaync-hypr.css  (linked via the ~/.config/hypr directory link)
+ *
+ * GLASS variant of the swaync theme, Hyprland session only — launched via
+ * `swaync -s` in hyprland.conf. It IMPORTS the shared stylesheet and
+ * overrides just the surface backgrounds to translucent, so the two themes
+ * cannot drift: every rule except these backgrounds lives once, in
+ * config/swaync/style.css. river keeps the opaque original because river
+ * cannot blur, and translucency without blur is just worse legibility.
+ *
+ * The relative path resolves correctly from both the symlink view
+ * (~/.config/hypr/../swaync/) and the repo view (config/hypr/../swaync/) —
+ * the layouts mirror on purpose.
+ *
+ * Pairs with the swaync layerrules in hyprland.conf: blur with ignore_alpha,
+ * which is what makes this safe where the first attempt painted a frosted
+ * slab — the notification layer's fully-transparent expanse now stays
+ * unblurred, and only these semi-opaque cards get the glass.
+ */
+
+@import url("../swaync/style.css");
+
+.notification {
+  background: rgba(40, 40, 40, 0.82);      /* #282828 */
+}
+
+.control-center {
+  background: rgba(40, 40, 40, 0.82);
+}
+
+.notification-action {
+  background: rgba(60, 56, 54, 0.75);      /* #3c3836 */
+}
+
+.widget-mpris {
+  background: rgba(60, 56, 54, 0.75);
+}

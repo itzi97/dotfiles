@@ -295,6 +295,7 @@ provider() {
     blueman-applet|blueman-manager) echo blueman ;;
     wpctl)                     echo wireplumber ;;
     wl-copy|wl-paste)          echo wl-clipboard ;;
+    magick|convert)            echo ImageMagick ;;
     notify-send)               echo libnotify ;;
     nvim)                      echo neovim ;;
     fd)                        echo fd-find ;;

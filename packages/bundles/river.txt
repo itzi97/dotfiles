@@ -84,6 +84,13 @@ slurp                     # region selection
 swappy                    # annotate and save — optional, but the reason
                           # screenshots are useful for coursework
 
+# --- wallpaper previews ------------------------------------------------
+# bin/river-wallpaper renders a PNG thumbnail cache for fuzzel's per-entry
+# icons (fuzzel loads only PNG/SVG, and raw 4K JPEGs would be absurd).
+# The picker degrades to text-only without it, but previews were asked for
+# by name (2026-08-25), so it is declared rather than optional.
+ImageMagick
+
 # --- audio and media keys ---------------------------------------------
 # wpctl comes from wireplumber, and the volume/mute keybindings in
 # config/river/init plus waybar's `wireplumber` module both call it. Present on

@@ -1,54 +1,60 @@
 /* ~/.config/wlogout/style.css
  *
- * Power menu, opened with Super+Shift+p. gruvbox dark, colour grammar per
+ * Power menu, opened with Super+Shift+p. gruvbox dark, color grammar per
  * ADR-0021: the accent (#d79921) marks whichever button holds focus, red
- * (#fb4934) marks the two actions that destroy unsaved work. That is the
- * entire vocabulary — the old five-hue scheme (aqua, blue, two yellows, two
- * warm fills) had a per-button identity colour, and its generic d79921 hover
- * rule was dead code: every button overrode it, so the session's accent
- * never appeared on this surface at all.
+ * (#fb4934) marks the two actions that destroy unsaved work.
  *
- * The glyphs in the layout file are MDI codepoints verified against the
- * font's own table (lock F033E, logout F0343, sleep F04B2, power-sleep
- * F0904, restart F0709, power F0425) — the same set waybar already draws
- * from, so if the bar renders, this renders.
+ * ICON-DOMINANT BUTTONS (third-feedback 2026-08-25): wlogout labels are
+ * single-line — the "text" field ignores \n, so glyph-in-label could never
+ * give icon-over-word. The mechanism is per-button background-image: our own
+ * SVGs in icons/, tinted gruvbox cream from the same Material Design set the
+ * session's glyphs come from (committed assets, not the package's white
+ * PNGs — color grammar reaches the icons). Icon sits in the upper third,
+ * the label renders at its normal centered position beneath it. Destructive
+ * buttons swap to red icons on hover, matching their text.
  *
  * Note the layout file locks and *then* suspends/hibernates. Suspending an
  * unlocked laptop means anyone who opens the lid is already past your login —
- * on a machine that leaves the house (04-privacy/threat-model.md, adversary
- * #3: device theft) that is the whole point of having a lock screen at all.
+ * threat-model adversary #3.
  */
 
 * {
-  /* Proportional Symbols variant, monospace tail — same stack as waybar and
-     swaync, so every GTK surface degrades identically. 15px is the title
-     step of the session's 11/13/15 scale: six full-screen targets are
-     headline objects, not chrome. */
   font-family: "JetBrains Mono", "Symbols Nerd Font", monospace;
   font-size: 15px;
-  background-image: none;
-  transition: 120ms;
   box-shadow: none;
+  transition: 120ms;
 }
 
 window {
-  /* Semi-transparent so you can see you are still on your own desktop and
-     have not, say, switched to a stranger's machine. river has no blur, so
-     this stays dark enough to read against anything. */
+  /* Semi-transparent so you can see you are still on your own desktop; the
+     Hyprland session adds blur behind it via layerrule. */
   background-color: rgba(40, 40, 40, 0.92);
 }
 
 button {
   color: #ebdbb2;
   background-color: #3c3836;
-  border: 2px solid #504945;   /* passive edge, like every resting surface */
+  border: 2px solid #504945;
   border-radius: 0;
-  margin: 12px;                /* the breathing step of the spacing rhythm */
+  margin: 12px;
+  background-repeat: no-repeat;
+  background-position: center 28%;
+  /* 38%, and the SVGs carry a 256px intrinsic size — GTK rasterizes
+     background SVGs at intrinsic size and scales the bitmap, so the
+     original 24px-intrinsic files scaled up to mush (feedback 2026-08-25). */
+  background-size: 38%;
 }
+
+#lock      { background-image: url("icons/lock.svg"); }
+#logout    { background-image: url("icons/logout.svg"); }
+#suspend   { background-image: url("icons/suspend.svg"); }
+#hibernate { background-image: url("icons/hibernate.svg"); }
+#reboot    { background-image: url("icons/reboot.svg"); }
+#shutdown  { background-image: url("icons/shutdown.svg"); }
 
 /* Focus is the accent — this menu is keyboard-driven (single-letter binds),
    and "which one fires if I press Enter" is exactly what the accent exists
-   to answer. One fill for all hovers; only the border and text carry state. */
+   to answer. */
 button:focus,
 button:hover {
   background-color: #504945;
@@ -57,10 +63,8 @@ button:hover {
   outline: none;
 }
 
-/* Destructive actions are red, and red means only this. Shutdown and reboot
-   lose unsaved work; the other four do not. The keybinds are single letters
-   and the menu is fullscreen, so a mis-hit is easy and worth a colour that
-   is never decoration. */
+/* Destructive actions are red, and red means only this. Icon follows the
+   text into red on hover/focus — one meaning, every channel. */
 #shutdown:focus,
 #shutdown:hover,
 #reboot:focus,
@@ -69,3 +73,8 @@ button:hover {
   border-color: #fb4934;
   color: #fb4934;
 }
+
+#shutdown:focus,
+#shutdown:hover { background-image: url("icons/shutdown-red.svg"); }
+#reboot:focus,
+#reboot:hover   { background-image: url("icons/reboot-red.svg"); }

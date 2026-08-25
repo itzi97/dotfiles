@@ -52,11 +52,11 @@ parse() {
     #
     # Glyphs come from two places, and the distinction matters for fallback:
     #   ⇧ ⌃ ⌥ ⏎ ␣ ⇥ ⎋ ← ↓ ↑ →  are plain Unicode, in JetBrains Mono already
-    #   󰖳 󰝝 󰝞 󰝟 󰃠 󰃞 󰐥 ...    are Nerd Font, via bin/install-nerd-font
+    #   󰌽 󰝝 󰝞 󰝟 󰃠 󰃞 󰐥 ...    are Nerd Font, via bin/install-nerd-font
     # If the Nerd Font is ever missing you get boxes for the second set and a
     # perfectly readable sheet from the first. Nothing here degrades to blank.
     function keycap(k) {
-      if (k == "Super")    return "󰖳"
+      if (k == "Super")    return "󰌽"
       if (k == "Shift")    return "⇧"
       if (k == "Control")  return "⌃"
       if (k == "Alt" || k == "Mod1") return "⌥"
@@ -252,10 +252,10 @@ parse() {
   # Super+0 is NOT here: it is a real `riverctl map` line and the parser
   # already picks it up. Listing it again produced two near-identical rows.
   printf '%s\t%s\n' \
-    '󰖳 + 1..9'         'focus tag' \
-    '󰖳 + ⇧ + 1..9'     'move window to tag' \
-    '󰖳 + ⌃ + 1..9'     'toggle tag into view' \
-    '󰖳 + ⇧ + ⌃ + 1..9' 'toggle tag on window' \
+    '󰌽 + 1..9'         'focus tag' \
+    '󰌽 + ⇧ + 1..9'     'move window to tag' \
+    '󰌽 + ⌃ + 1..9'     'toggle tag into view' \
+    '󰌽 + ⇧ + ⌃ + 1..9' 'toggle tag on window' \
   | awk -F'\t' '{ printf "3\ttags\t%-30s │ %s\n", $1, $2 }'
 }
 

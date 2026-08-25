@@ -29,7 +29,7 @@ parse() {
     # JetBrains Mono, Nerd Font glyphs from bin/install-nerd-font. A missing
     # Nerd Font degrades to boxes on the second set, never to blank.
     function keycap(k) {
-      if (k == "SUPER")    return "󰖳"
+      if (k == "SUPER")    return "󰌽"
       if (k == "SHIFT")    return "⇧"
       if (k == "CTRL" || k == "CONTROL") return "⌃"
       if (k == "ALT")      return "⌥"
@@ -163,8 +163,8 @@ parse() {
   # not abort under set -e + pipefail. Same guard as river-cheatsheet.
 
   printf '%s\t%s\n' \
-    '󰖳 + 1..9'     'focus workspace' \
-    '󰖳 + ⇧ + 1..9' 'move window to workspace' \
+    '󰌽 + 1..9'     'focus workspace' \
+    '󰌽 + ⇧ + 1..9' 'move window to workspace' \
   | awk -F'\t' '{ printf "3\tworkspaces\t%-30s │ %s\n", $1, $2 }'
 }
 

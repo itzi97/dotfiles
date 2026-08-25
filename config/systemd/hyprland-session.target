@@ -1,0 +1,21 @@
+# ~/.dotfiles/config/systemd/hyprland-session.target
+#
+# Linked to ~/.config/systemd/user/hyprland-session.target.
+#
+# The exact twin of river-session.target, for the exact twin of its bug:
+# Hyprland launched plainly from SDDM (no uwsm) never tells systemd a
+# graphical session has started, so graphical-session.target is never
+# reached — and xdg-desktop-portal.service is ordered after it. The portal
+# then fails to activate, which costs screen sharing. river hit and fixed
+# this on 2026-08-23; the Hyprland port forgot the fix, and Discord
+# screenshare found it on 2026-08-25.
+#
+# BindsTo implies Requires, so starting this target starts
+# graphical-session.target with it, and tears it down when this stops.
+
+[Unit]
+Description=Hyprland session
+Documentation=man:systemd.special(7)
+BindsTo=graphical-session.target
+Wants=graphical-session-pre.target
+After=graphical-session-pre.target

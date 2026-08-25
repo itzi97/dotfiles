@@ -114,11 +114,66 @@ for p in "${images[@]}"; do
   _labels+=("$label")
 done
 
-# Picker convention (ADR-0021): 64ch wide, "<glyph> <noun> ❯" prompt — same
-# as the cheat sheet and the clipboard binding, so the three pickers read as
-# one surface. 󰋩 is MDI image (F02E9), verified against the font table.
-picked="$(printf '%s\n' "${_labels[@]}" \
-  | fuzzel --dmenu --prompt '󰋩 wallpaper ❯ ' --lines 15 --width 64)" || picked=""
+# --- previews ---------------------------------------------------------------
+# fuzzel's dmenu mode renders per-entry icons (rofi protocol: append
+# \0icon\x1f<path> to a line), but only PNG/SVG — and feeding it raw 4K
+# JPEGs would be wrong even if it could. So: a thumbnail cache. Each image
+# gets a small PNG rendered once by ImageMagick and reused forever; the
+# cache lives under XDG_CACHE (per-machine, disposable, like the collections
+# themselves). Missing ImageMagick degrades to the old text-only menu —
+# previews are a display upgrade, not a dependency of picking.
+THUMBS="${XDG_CACHE_HOME:-$HOME/.cache}/river-wallpaper/thumbs"
+MAGICK=""
+command -v magick >/dev/null 2>&1 && MAGICK=magick
+[[ -z "$MAGICK" ]] && command -v convert >/dev/null 2>&1 && MAGICK=convert
+
+_entries_file="$(mktemp)"
+trap 'rm -f "$_entries_file"' EXIT
+
+if [[ -n "$MAGICK" ]]; then
+  mkdir -p "$THUMBS"
+  # Generate missing/stale thumbs in parallel. First run over a fresh
+  # collection takes a while — say so rather than appearing hung.
+  _todo="$(mktemp)"
+  for _label in "${_labels[@]}"; do
+    p="${_by_label[$_label]}"
+    t="$THUMBS/$(printf '%s' "$p" | sha256sum | cut -c1-32).png"
+    if [[ ! -f "$t" || "$p" -nt "$t" ]]; then
+      printf '%s\0%s\0' "$p" "$t" >> "$_todo"
+    fi
+  done
+  if [[ -s "$_todo" ]]; then
+    n=$(( $(tr -cd '\0' < "$_todo" | wc -c) / 2 ))
+    (( n > 20 )) && notify-send -a wallpaper -u low "Generating ${n} wallpaper previews…" 2>/dev/null || true
+    # NUL-separated src/dst pairs — filenames stay arbitrary — consumed two
+    # at a time; -P bounds the parallelism. -auto-orient honours EXIF.
+    xargs -0 -n2 -P "$(nproc)" sh -c \
+      "$MAGICK \"\$1\" -auto-orient -thumbnail 128x128^ -gravity center -extent 128x128 \"\$2\" 2>/dev/null" _ \
+      < "$_todo" || true
+  fi
+  rm -f "$_todo"
+  for _label in "${_labels[@]}"; do
+    p="${_by_label[$_label]}"
+    t="$THUMBS/$(printf '%s' "$p" | sha256sum | cut -c1-32).png"
+    if [[ -f "$t" ]]; then
+      printf '%s\0icon\x1f%s\n' "$_label" "$t" >> "$_entries_file"
+    else
+      printf '%s\n' "$_label" >> "$_entries_file"
+    fi
+  done
+else
+  printf '%s\n' "${_labels[@]}" > "$_entries_file"
+fi
+
+# Taller rows so the thumbnails are legible — but --line-height is probed
+# rather than assumed, because a flag fuzzel doesn't know kills the menu.
+_lh=()
+fuzzel --help 2>&1 | grep -q -- '--line-height' && _lh=(--line-height=28)
+
+# Picker convention (ADR-0021): "<glyph> <noun> ❯" prompt — same family as
+# the cheat sheet and clipboard menus. 󰋩 is MDI image (F02E9), verified.
+picked="$(fuzzel --dmenu --prompt '󰋩 wallpaper ❯ ' --lines 10 --width 64 \
+    "${_lh[@]}" < "$_entries_file")" || picked=""
 
 [[ -n "${picked:-}" ]] || exit 0
 choice="${_by_label[$picked]:-}"

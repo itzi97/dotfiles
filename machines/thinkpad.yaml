@@ -127,6 +127,9 @@
     ~/.config/swaylock/config:      config/swaylock/config
     ~/.config/wlogout/layout:       config/wlogout/layout
     ~/.config/wlogout/style.css:    config/wlogout/style.css
+    # Committed gruvbox-tinted SVGs (MDI set) — the style.css references them
+    # relative to itself, so the directory must sit beside it.
+    ~/.config/wlogout/icons:        config/wlogout/icons
     # Portal backend selection. XDG_CURRENT_DESKTOP=river means
     # xdg-desktop-portal looks for river-portals.conf and finds nothing —
     # Fedora ships sway-portals.conf and hyprland-portals.conf but no river
@@ -168,6 +171,11 @@
     ~/.local/bin/osd:
       path: bin/osd
       mode: 755
+    # Twin of river-session.target, twin bug: without it the portal never
+    # activates in this session and screen sharing fails. See the target's
+    # header for the story.
+    ~/.config/systemd/user/hyprland-session.target:
+      path: config/systemd/hyprland-session.target
 
 # GTK settings.ini is deliberately NOT linked.
 #
