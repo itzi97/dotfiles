@@ -40,9 +40,55 @@ return {
       --   marksman      markdown, for the Space documents
       vim.lsp.enable({ "lua_ls", "pyright", "clangd", "texlab", "marksman" })
 
+      -- COMPLETION CAPABILITIES. This was missing entirely.
+      --
+      -- blink.cmp does not register these for you. It exports
+      -- get_lsp_capabilities() and expects the config to wire it up — there is
+      -- no vim.lsp.config('*') call anywhere in its source. Until now every
+      -- server was started with Neovim's built-in capabilities, which are not
+      -- nothing (snippetSupport, documentationFormat and a two-property
+      -- resolveSupport are already there) but are missing what blink adds:
+      -- labelDetailsSupport, insertReplaceSupport, completionList.itemDefaults,
+      -- contextSupport, and 'documentation' + 'detail' in resolveSupport.
+      --
+      -- That last pair is the one actually being felt: completion.lua turns
+      -- documentation.auto_show on, and without 'documentation' in
+      -- resolveSupport a server has no way to send the doc text on resolve, so
+      -- the window that pops up is frequently empty. The whole stated reason for
+      -- enabling it — seeing the signature in an unfamiliar library — was not
+      -- working.
+      --
+      -- '*' means every client; it is the documented idiom for this (:h
+      -- vim.lsp.config). The second argument to get_lsp_capabilities() folds in
+      -- nvim's defaults rather than replacing them.
+      --
+      -- COST: this loads blink at BufReadPre rather than at its own InsertEnter,
+      -- because capabilities have to exist before a client starts. Both are
+      -- after startup, so `nvim --startuptime` is unaffected. pcall so a blink
+      -- that failed to build costs completion quality and not LSP.
+      local ok_blink, blink = pcall(require, "blink.cmp")
+      if ok_blink then
+        vim.lsp.config("*", { capabilities = blink.get_lsp_capabilities(nil, true) })
+      end
+
       -- Keymaps are set on attach rather than globally, so they only exist in
       -- buffers that actually have a server. Pressing gd in a file with no LSP
       -- should do nothing rather than throw.
+      --
+      -- grn / gra / grr / gri USED TO BE MAPPED HERE AND HAVE BEEN REMOVED.
+      -- Neovim 0.11 made all four built-in defaults (runtime/lua/vim/
+      -- _defaults.lua), mapped unconditionally rather than on attach, so
+      -- redeclaring them bought nothing. It also cost something: the copies here
+      -- were normal-mode only, and shadowed nvim's gra, which is {n,x} — so
+      -- removing them is what gets visual-mode code actions back. gO (document
+      -- symbol) and i_CTRL-S (signature help) arrive from the same defaults and
+      -- were never declared here at all.
+      --
+      -- What stays is what nvim does not give you:
+      --   grd  not among the 0.11 defaults
+      --   K    nvim binds K to hover on attach ONLY if K is otherwise unmapped;
+      --        declaring it keeps it on hover rather than 'keywordprg' if
+      --        anything else ever claims the key
       vim.api.nvim_create_autocmd("LspAttach", {
         group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
         callback = function(event)
@@ -50,10 +96,6 @@ return {
             vim.keymap.set("n", keys, fn, { buffer = event.buf, desc = "LSP: " .. desc })
           end
 
-          map("grn", vim.lsp.buf.rename, "Rename")
-          map("gra", vim.lsp.buf.code_action, "Code action")
-          map("grr", vim.lsp.buf.references, "References")
-          map("gri", vim.lsp.buf.implementation, "Implementation")
           map("grd", vim.lsp.buf.definition, "Definition")
           map("K", vim.lsp.buf.hover, "Hover docs")
 
