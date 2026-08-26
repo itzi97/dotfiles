@@ -54,9 +54,11 @@ texlive-minted            # Arch: texlive-latexextra (a much coarser split —
 # rather than naming the binary it could not find.
 #
 # Verified 2026-08-26: `command -v pygmentize` found nothing, while
-# `dnf provides '*/bin/pygmentize'` names this package. Seven documents use
-# minted, three of them the shared UTAD preambles (2020, 2021, 2025), so
-# everything inheriting those years had stopped compiling.
+# `dnf provides '*/bin/pygmentize'` names this package. Seven files use minted,
+# three of them shared UTAD preambles (2020, 2021, 2025) — but only the 2025
+# one is live work; 2019–2021 is archived coursework that does not get rebuilt.
+# So the breakage was one real failure and six latent ones, which is also why
+# it went unnoticed for as long as it did.
 #
 # config/nvim/lua/plugins/latex.lua passes -shell-escape for exactly this.
 python3-pygments          # Arch: python-pygments
