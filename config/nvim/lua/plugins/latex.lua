@@ -58,21 +58,35 @@ return {
       out_dir = "build",
       continuous = 1,
       options = {
-        -- -shell-escape is here for minted, which shells out to `pygmentize` to
-        -- highlight code blocks. The comment that used to be on this line said
-        -- it was "common in CV templates" — a guess about templates in general.
-        -- Checked on 2026-08-26: the CV does not use minted. Seven files do, and
-        -- three of them are the shared UTAD preambles (2020, 2021, 2025), so
-        -- anything inheriting those years needs it. That is the real dependency.
+        -- NO -shell-escape. It was here, and its removal on 2026-08-26 is the
+        -- point of this comment.
         --
-        -- KNOWN RESIDUAL RISK, accepted knowingly rather than by not looking:
-        -- this applies to every compile, not only to those documents, so any
-        -- .tex opened here — a downloaded template, arXiv source — can run shell
-        -- commands at build time. Kept because the alternative is breaking seven
-        -- working documents, and everything under Documents/ is your own work.
-        -- If that stops being true, the narrower fix is a per-project .latexmkrc
-        -- rather than a global flag.
-        "-shell-escape",
+        -- The flag lets a .tex file run arbitrary shell commands at build time.
+        -- It was carried for minted, which shells out to `pygmentize`, and was
+        -- justified on this line as "needed by minted/pygments, common in CV
+        -- templates" — a guess about LaTeX templates generally, not a fact about
+        -- anything in Documents/.
+        --
+        -- Two searches were needed to get this right. The first matched the
+        -- string "minted" and reported seven dependent files, which was written
+        -- into this file and into packages/fedora.txt as fact. It was wrong: it
+        -- counted commented-out lines. The 2025 preamble has minted commented
+        -- out at every one of its nine occurrences and uses listings instead —
+        -- confirmed by compiling 2025/advanced-databases/notes/main.tex and
+        -- reading which package the log actually loaded.
+        --
+        -- Live \usepackage{minted}, comments excluded: three files, all in
+        -- 2019-2021, none of which is maintained. So this flag was granting
+        -- shell execution on every compile of every document for the benefit of
+        -- archived coursework.
+        --
+        -- ESCAPE HATCH, deliberately not closed: texlive-minted and
+        -- python3-pygments stay declared in packages/fedora.txt. If one of those
+        -- old documents ever has to be rebuilt, drop a .latexmkrc in its own
+        -- directory setting $pdflatex to include -shell-escape. That scopes the
+        -- risk to the one project that needs it instead of to every file you
+        -- open. Note that 2019's memoria.tex also sets minted's outputdir=out
+        -- while out_dir above is "build", so it needs that reconciled anyway.
         "-verbose",
         "-file-line-error",
         "-synctex=1",
