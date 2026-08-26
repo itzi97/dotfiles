@@ -1,0 +1,22 @@
+/* config/hypr/themes/gruvbox-crt/swaync.css
+ *
+ * GLASS variant of the shared swaync theme — the file that used to be
+ * config/hypr/swaync-hypr.css, moved here unchanged when the session was
+ * themed (ADR-0026). It imports the shared stylesheet and overrides only the
+ * surface backgrounds to translucent, so the two cannot drift: every rule
+ * except these backgrounds lives once, in config/swaync/style.css.
+ *
+ * river keeps the opaque original because river cannot blur, and translucency
+ * without blur is just worse legibility.
+ *
+ * Pairs with the swaync layerrules in hyprland.conf: blur with ignore_alpha,
+ * which is what keeps the notification layer's fully-transparent expanse
+ * unblurred so only these semi-opaque cards get the glass.
+ */
+
+@import url("../../../swaync/style.css");
+
+.notification      { background: rgba(40, 40, 40, 0.82); }   /* #282828 */
+.control-center    { background: rgba(40, 40, 40, 0.82); }
+.notification-action { background: rgba(60, 56, 54, 0.75); } /* #3c3836 */
+.widget-mpris      { background: rgba(60, 56, 54, 0.75); }

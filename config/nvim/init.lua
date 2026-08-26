@@ -23,6 +23,16 @@ require("config.options")
 require("config.lazy")
 require("config.keymaps")
 
+-- Follow the Hyprland session theme (ADR-0026). AFTER config.lazy, because
+-- both colourschemes must be installed before one can be chosen; neither
+-- plugin spec applies itself, so this is the only place a colourscheme is set
+-- and there is no last-one-wins race between them.
+local theme = require("config.theme")
+theme.apply()
+theme.watch()
+vim.api.nvim_create_user_command("SessionTheme", theme.reload,
+  { desc = "Re-read the session theme and re-apply the colourscheme" })
+
 -- Machine-specific overrides, if any. pcall so a missing file is not fatal —
 -- the same guard the placeholder config had, kept deliberately.
 pcall(require, "local")

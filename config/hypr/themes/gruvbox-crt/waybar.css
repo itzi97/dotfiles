@@ -1,0 +1,19 @@
+/* config/hypr/themes/gruvbox-crt/waybar.css
+ *
+ * This theme IS the session's existing design, so its stylesheet is the
+ * shared one — imported, not copied. A fork here would duplicate the 51
+ * generated progress rules from ADR-0025 and guarantee the two copies drift.
+ *
+ * The relative path resolves in both views for the same reason
+ * themes/gruvbox-crt/swaync.css does: ~/.config/hypr is a symlink to
+ * config/hypr, so ../../../waybar/ is config/waybar/ from the repo and
+ * ~/.config/waybar/ from the deployed tree. This only holds because
+ * bin/hypr-theme starts waybar with THIS path rather than a symlink in
+ * ~/.local/state — see the script's header.
+ *
+ * Note this means editing config/waybar/style.css changes the river bar AND
+ * this theme, which is the intended consequence of pinning river to gruvbox
+ * (ADR-0026). neon-sprawl is a standalone stylesheet and is unaffected.
+ */
+
+@import url("../../../waybar/style.css");

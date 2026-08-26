@@ -1,0 +1,43 @@
+// config/hypr/themes/gruvbox-crt/waybar.jsonc
+//
+// The bar's GEOMETRY and ARRANGEMENT for this theme. Module definitions come
+// from the include below; nothing here redefines a module, because this theme
+// is the session as it already was and its whole point is that switching back
+// to it changes nothing.
+//
+// Started by `hypr-theme launch` / `hypr-theme set`, never by hyprland.conf
+// directly — the script passes this path so the stylesheet's relative
+// @import resolves against the repo layout.
+{
+  "include": ["~/.config/waybar/hypr-modules.jsonc"],
+
+  "layer": "top",
+  "position": "top",
+  // 38 with 6px well margins: at 34/4px the wells crowded the bar edges
+  // (second-feedback, 2026-08-25).
+  "height": 38,
+  "spacing": 6,
+
+  "modules-left": ["hyprland/workspaces", "wlr/taskbar", "hyprland/window"],
+  // The now-playing readout, dead center — Spotify, Firefox (YouTube), and
+  // any real Navidrome client all speak MPRIS.
+  "modules-center": ["custom/media-prev", "group/media", "custom/media-next"],
+  // Ordered by how often you look at it, left to right: machine load first
+  // (glanceable, ignorable), then the things you interact with, then the
+  // clock, then power. The power button is last because it is the only one
+  // where a mis-click costs you unsaved work.
+  "modules-right": [
+    "cpu",
+    "memory",
+    "temperature",
+    "custom/idle",
+    "tray",
+    "custom/mic",
+    "wireplumber",
+    "backlight",
+    "battery",
+    "custom/notification",
+    "clock",
+    "custom/power"
+  ]
+}

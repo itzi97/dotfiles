@@ -343,8 +343,28 @@ WAYBAR_ACTIONS=" activate close fullscreen minimize maximize mode
 # It is also not a dnf package (built from source — unlike river-classic,
 # which IS an official Fedora package), so a package-list entry would break
 # bootstrap rather than document anything.
+#
+# hyprctl and swayosd-server joined it 2026-08-26 for the same reason, and the
+# naive fix would have been WRONG. Both are invoked by bin/hypr-theme, and both
+# are guarded by `command -v` there, so absence is a supported outcome:
+#
+#   hyprctl        ships with Hyprland, which comes from the sachesi COPR
+#                  enabled BY HAND. ADR-0023 is explicit that this must not go
+#                  in a package list — "a package list cannot express 'enable
+#                  this COPR first', and the trial must not complicate
+#                  bootstrap until it converts". Declaring it would break
+#                  bootstrap on the desktop, which has no Hyprland at all.
+#
+#   swayosd-server erikreider's COPR, and optional by construction: bin/osd
+#                  falls through to the wob gauges at the next keypress if the
+#                  server is gone, with nothing to reconfigure.
+#
+# If ADR-0023's trial converts, BOTH move out of here and into a package list
+# alongside the scripted COPR-enable step — that is the same moment, and this
+# comment is the reminder.
 OPTIONAL_CMDS=" dnf dnf5 pacman apt apt-get yay paru conda mamba nvidia-smi
- lspci lsblk flatpak snap zypper toolbox docker wideriver "
+ lspci lsblk flatpak snap zypper toolbox docker wideriver
+ hyprctl swayosd-server "
 
 undeclared=0
 while read -r cmd; do

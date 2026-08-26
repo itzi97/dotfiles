@@ -22,7 +22,7 @@
   // The now-playing readout, dead center — Spotify, Firefox (YouTube), and
   // any real Navidrome client all speak MPRIS. Fuller controls with album
   // art live in the swaync control center's mpris widget (click the bell).
-  "modules-center": ["custom/media-prev", "mpris", "custom/media-next"],
+  "modules-center": ["custom/media-prev", "group/media", "custom/media-next"],
   // Ordered by how often you look at it, left to right: machine load first
   // (glanceable, ignorable), then the things you interact with, then the
   // clock, then power. The power button is last because it is the only one
@@ -72,11 +72,16 @@
     // Visible transport keys flanking the readout (second-feedback: one
     // button was not a controller). hide-empty-text drops them when no
     // player is up, so the center well vanishes as a unit.
+    //
+    // on-click routes through bin/waybar-media rather than calling playerctl
+    // directly: a bare `playerctl previous` acts on whichever player last
+    // became active, which is not necessarily the one the bar is showing.
+    // These two buttons DID have that drift bug; the readout never did.
     "exec": "playerctl status >/dev/null 2>&1 && echo 󰒮 || true",
     "interval": 3,
     "format": "{}",
     "hide-empty-text": true,
-    "on-click": "playerctl previous",
+    "on-click": "$HOME/.local/bin/waybar-media prev",
     "tooltip": false
   },
 
@@ -85,20 +90,79 @@
     "interval": 3,
     "format": "{}",
     "hide-empty-text": true,
-    "on-click": "playerctl next",
+    "on-click": "$HOME/.local/bin/waybar-media next",
     "tooltip": false
   },
 
-  "mpris": {
-    // Built-in click handling targets the player being SHOWN (unlike a bare
-    // playerctl call, which targets whichever player was last active):
-    // left = play/pause, middle = previous, right = next. Scroll seeks.
-    "format": "{status_icon} {artist} — {title}",
-    "format-stopped": "",
-    "status-icons": { "playing": "󰐊", "paused": "󰏤", "stopped": "󰓛" },
-    "artist-len": 20,
-    "title-len": 30,
-    "tooltip-format": "{player}: {artist} — {title}\nleft: play/pause · middle: prev · right: next"
+  // THE NOW-PLAYING READOUT. A progress bar that says WHICH APP is playing,
+  // and opens on hover to show the cover art and the track name.
+  //
+  // This replaces the built-in `mpris` module, which could not do either
+  // half. A progress bar needs a CSS class that tracks playback position, and
+  // mpris only ever exposes #mpris.${player} and #mpris.${status} — only a
+  // CUSTOM module can set its own class. And the hover preview cannot be a
+  // tooltip at all: waybar tooltips are Pango, Pango has no image element
+  // (Alexays/Waybar#1999), and custom modules have no on-enter hook (#523).
+  //
+  // `group` with `drawer` IS the hover mechanism waybar actually has. See
+  // bin/waybar-media for the rest of the reasoning, including what a
+  // "browser window preview" honestly resolves to for a YouTube tab.
+  "group/media": {
+    "orientation": "horizontal",
+    "drawer": {
+      "transition-duration": 250,
+      "children-class": "media-drawer",
+      "transition-left-to-right": true
+    },
+    // ORDER IS LOAD-BEARING. The first module is the drawer's "group leader"
+    // and is the ONLY one always visible; the rest are revealed on hover.
+    // Put anything else first and the bar becomes the thing that hides.
+    "modules": ["custom/media", "image#media-art", "custom/media-title"]
+  },
+
+  "custom/media": {
+    // interval 1 would track position more smoothly, but style.css quantises
+    // the fill to 2% anyway — on a 3-minute track a step lands every ~3.6s,
+    // so polling faster than 2s spends ThinkPad battery on frames that are
+    // pixel-identical.
+    "exec": "$HOME/.local/bin/waybar-media bar",
+    "return-type": "json",
+    "interval": 2,
+    "format": "{}",
+    "hide-empty-text": true,
+    "on-click": "$HOME/.local/bin/waybar-media toggle",
+    "on-click-middle": "$HOME/.local/bin/waybar-media prev",
+    "on-click-right": "$HOME/.local/bin/waybar-media next",
+    "on-scroll-up": "$HOME/.local/bin/waybar-media seek-forward",
+    "on-scroll-down": "$HOME/.local/bin/waybar-media seek-back"
+  },
+
+  "image#media-art": {
+    // `exec` and NOT `path`. Setting both silently disables exec — "It will
+    // only execute if the path is not set" — which is the entirety of
+    // Alexays/Waybar#2085, where the cover never changed.
+    //
+    // The script never blocks: it returns art already in the cache and
+    // downloads anything new in the background for the next tick. A curl
+    // stalling on a captive portal here would freeze the whole bar, not just
+    // this module.
+    "exec": "$HOME/.local/bin/waybar-media art",
+    "size": 22,
+    "interval": 2,
+    "tooltip": false
+  },
+
+  "custom/media-title": {
+    // The track name that used to be the readout itself. It did not go away,
+    // it moved to where you go looking for it — which is what buys the bar
+    // back the ~400px the old "{artist} — {title}" scroll cost at all times.
+    "exec": "$HOME/.local/bin/waybar-media title",
+    "return-type": "json",
+    "interval": 2,
+    "format": "{}",
+    "max-length": 45,
+    "hide-empty-text": true,
+    "tooltip": false
   },
 
   "cpu": {

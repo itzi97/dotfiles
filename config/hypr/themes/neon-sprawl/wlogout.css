@@ -1,0 +1,77 @@
+/* config/hypr/themes/neon-sprawl/wlogout.css
+ *
+ * Power menu, neon-sprawl variant. Passed with `wlogout -c layout -s <this>`
+ * from the Hyprland bind; the river session keeps ~/.config/wlogout/style.css
+ * and stays gruvbox (ADR-0026).
+ *
+ * Derived from config/wlogout/style.css by value substitution, so the
+ * icon-dominant button mechanism and every selector survive intact — see that
+ * file's header for why the icons are per-button background-images rather
+ * than glyphs in the label.
+ *
+ * The icons are the SAME Material Design glyphs, retinted by the same
+ * mapping the rest of the theme uses (#ebdbb2 -> #d7e0ff content,
+ * #fb4934 -> #ff2e6c act-now) and committed alongside this file in
+ * icons/. The url() paths below point there, NOT at ../../../wlogout/
+ * icons/, which is what keeps the two themes' assets independent.
+ */
+* {
+  font-family: "JetBrains Mono", "Symbols Nerd Font", monospace;
+  font-size: 15px;
+  box-shadow: none;
+  transition: 120ms;
+}
+
+window {
+  /* Semi-transparent so you can see you are still on your own desktop; the
+     Hyprland session adds blur behind it via layerrule. */
+  background-color: rgba(10, 11, 16, 0.92);
+}
+
+button {
+  color: #d7e0ff;
+  background-color: #1e2130;
+  border: 2px solid #1e2130;
+  border-radius: 0;
+  margin: 12px;
+  background-repeat: no-repeat;
+  background-position: center 28%;
+  /* 38%, and the SVGs carry a 256px intrinsic size — GTK rasterizes
+     background SVGs at intrinsic size and scales the bitmap, so the
+     original 24px-intrinsic files scaled up to mush (feedback 2026-08-25). */
+  background-size: 38%;
+}
+
+#lock      { background-image: url("icons/lock.svg"); }
+#logout    { background-image: url("icons/logout.svg"); }
+#suspend   { background-image: url("icons/suspend.svg"); }
+#hibernate { background-image: url("icons/hibernate.svg"); }
+#reboot    { background-image: url("icons/reboot.svg"); }
+#shutdown  { background-image: url("icons/shutdown.svg"); }
+
+/* Focus is the accent — this menu is keyboard-driven (single-letter binds),
+   and "which one fires if I press Enter" is exactly what the accent exists
+   to answer. */
+button:focus,
+button:hover {
+  background-color: #1e2130;
+  border-color: #00e5ff;
+  color: #d7e0ff;
+  outline: none;
+}
+
+/* Destructive actions are red, and red means only this. Icon follows the
+   text into red on hover/focus — one meaning, every channel. */
+#shutdown:focus,
+#shutdown:hover,
+#reboot:focus,
+#reboot:hover {
+  background-color: #1e2130;
+  border-color: #ff2e6c;
+  color: #ff2e6c;
+}
+
+#shutdown:focus,
+#shutdown:hover { background-image: url("icons/shutdown-red.svg"); }
+#reboot:focus,
+#reboot:hover   { background-image: url("icons/reboot-red.svg"); }

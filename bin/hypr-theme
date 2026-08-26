@@ -1,0 +1,458 @@
+#!/usr/bin/env bash
+#
+# hypr-theme — switch the Hyprland session's entire look, motion and layout.
+#
+#   hypr-theme                 # print the active theme
+#   hypr-theme list            # every theme available, active one marked
+#   hypr-theme set <name>      # switch to it and reload every surface
+#   hypr-theme menu            # pop up a fuzzel picker (bound to $mod T)
+#   hypr-theme cycle           # next theme in the list (bound to $mod SHIFT T)
+#   hypr-theme launch          # start the themed surfaces (hyprland.conf calls this)
+#   hypr-theme init            # make the state dir valid without reloading
+#
+# WHAT A THEME OWNS
+#
+# ~/.config/hypr/themes/<name>/ holds hypr.conf (general, master, decoration,
+# animations, background), waybar.jsonc, waybar.css, swaync.css and
+# swayosd.css. Those sections appear THERE and nowhere in hyprland.conf, so
+# the session's look never depends on Hyprland's linear parse order.
+#
+# ONLY HYPRLAND NEEDS A SYMLINK, AND THAT IS THE WHOLE DESIGN
+#
+# hyprland.conf has a fixed `source = ~/.local/state/hypr-theme/current.conf`
+# line, which cannot take a runtime argument — so that one path is a symlink
+# this script re-points. Every other surface is STARTED by this script, so it
+# simply passes the real theme path on the command line.
+#
+# That asymmetry is deliberate and load-bearing. A themed stylesheet uses
+# relative imports (`@import url("../../../waybar/style.css")`) exactly the
+# way themes/gruvbox-crt/swaync.css already does — and GTK resolves those
+# against the file's own directory. Served through a symlink in
+# ~/.local/state, `../../../` would resolve to ~/.local/ and the import would
+# silently load nothing. Passing the real path keeps the repo-and-deployed
+# mirroring that makes those relative imports work in both views.
+#
+# WHY THE STATE DIR IS NOT ~/.config/hypr/
+#
+# Because `~/.config/hypr` IS A SYMLINK TO THE REPO (thinkpad.yaml links the
+# whole directory, nvim-style). Theme state written there lands in
+# ~/.dotfiles and shows up in `git status` — the same trap desktop.yaml
+# already documents for fish's generated state.
+#
+# WHY WAYBAR IS RESTARTED RATHER THAN SIGNALLED
+#
+# SIGUSR2 reloads waybar's STYLESHEET only — "modifications to the config file
+# can only be applied by restarting the Waybar process" (waybar(5)), and
+# Alexays/Waybar#3986 reports SIGUSR2 not reloading config fully even where it
+# looks like it did. A theme changes the module ARRANGEMENT, so signalling
+# would give a new skin on the old layout.
+#
+# FAILURE POSTURE — this runs on the machine that must not fail during a
+# deadline (principle #2). Every reload is best-effort and independent: the
+# bar is restarted FIRST and nothing after it can abort the run, because a
+# session with no bar is a session you cannot read.
+
+set -Eeuo pipefail
+
+# The DEPLOYED view, not ~/.dotfiles — this is the path the session actually
+# uses, and it keeps the script working if the repo ever moves.
+THEMES_DIR="${HOME}/.config/hypr/themes"
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/hypr-theme"
+NAME_FILE="${STATE_DIR}/name"
+LIVE_CONF="${STATE_DIR}/current.conf"
+DEFAULT_THEME=gruvbox-crt
+
+# Every file a theme must provide. Adding a surface means one line here plus
+# either a line in launch() (for daemons) or a bind in hyprland.conf (for
+# things spawned per-keypress).
+#
+# gruvbox-crt satisfies most of these with SYMLINKS to the canonical configs
+# in config/fuzzel, config/swaylock, config/kitty and config/wlogout — that
+# theme IS the current session, and a copy would only be a second thing to
+# keep in step. `[ -f ]` follows symlinks, so validation treats them alike.
+REQUIRED=(
+  hypr.conf
+  waybar.jsonc waybar.css
+  swaync.css swayosd.css
+  fuzzel.ini swaylock.conf kitty.conf wlogout.css
+  wallpaper description gtk
+)
+
+# Directories a theme must provide (checked separately — `[ -f ]` is false for
+# a directory, and wlogout's icons are per-theme assets, not one file).
+# Named `icons`, not `wlogout-icons`, DELIBERATELY: config/wlogout/style.css
+# says url("icons/…"), and gruvbox-crt satisfies wlogout.css with a symlink to
+# that very file. Any other directory name means the gruvbox power menu loses
+# every glyph — found by test 2026-08-26, and invisible until you open the
+# menu, because a missing background-image renders as nothing rather than as
+# an error.
+REQUIRED_DIRS=(icons)
+
+die()  { printf 'hypr-theme: %s\n' "$*" >&2; exit 1; }
+note() { command -v notify-send >/dev/null 2>&1 && notify-send "$@" 2>/dev/null || true; }
+
+themes() {
+  [ -d "$THEMES_DIR" ] || die "no theme directory at $THEMES_DIR"
+  local d found=0
+  for d in "$THEMES_DIR"/*/; do
+    [ -d "$d" ] || continue
+    printf '%s\n' "$(basename "$d")"
+    found=1
+  done
+  [ "$found" -eq 1 ] || die "no themes found in $THEMES_DIR"
+}
+
+current() {
+  local n=""
+  if [ -r "$NAME_FILE" ]; then n=$(cat "$NAME_FILE" 2>/dev/null || true); fi
+  if [ -n "$n" ] && [ -d "${THEMES_DIR}/${n}" ]; then
+    printf '%s\n' "$n"
+  else
+    # Unreadable, empty, or naming a theme that no longer exists. Answering
+    # with the default beats answering with a name nothing can load.
+    printf '%s\n' "$DEFAULT_THEME"
+  fi
+}
+
+# True if every file the theme must provide exists. Non-fatal, so callers that
+# are surveying (cycle, list) can ask without dying.
+is_valid() {
+  local dir="${THEMES_DIR}/${1}" f
+  [ -d "$dir" ] || return 1
+  for f in "${REQUIRED[@]}"; do
+    [ -f "${dir}/${f}" ] || return 1
+  done
+  for f in "${REQUIRED_DIRS[@]}"; do
+    [ -d "${dir}/${f}" ] || return 1
+  done
+  return 0
+}
+
+# Checked BEFORE anything moves, so a half-written theme cannot leave the
+# session pointing at some new files and some old ones.
+validate() {
+  # SPLIT DELIBERATELY. `local name=$1 dir="${THEMES_DIR}/${name}"` expands
+  # ${name} while building the argument list, BEFORE the assignment lands —
+  # so under `set -u` it is an unbound variable. It looked fine for a week
+  # because cmd_set declares its own `local name` first and bash is
+  # dynamically scoped, so ${name} silently resolved to the CALLER's variable,
+  # which held the same value. `hypr-theme init` calls validate straight from
+  # the case statement with nothing of that name in scope, and that is the
+  # path that broke (2026-08-26). Never cross-reference a variable inside the
+  # same `local`.
+  local name=$1
+  local dir="${THEMES_DIR}/${name}"
+  local f missing=()
+  [ -d "$dir" ] || die "no such theme: '${name}' (try: hypr-theme list)"
+  for f in "${REQUIRED[@]}"; do
+    [ -f "${dir}/${f}" ] || missing+=("$f")
+  done
+  for f in "${REQUIRED_DIRS[@]}"; do
+    [ -d "${dir}/${f}" ] || missing+=("${f}/")
+  done
+  [ "${#missing[@]}" -eq 0 ] || \
+    die "theme '${name}' is incomplete, refusing to switch. Missing: ${missing[*]}"
+}
+
+# --- surfaces ----------------------------------------------------------------
+
+start_waybar() {
+  local dir=$1
+  command -v waybar >/dev/null 2>&1 || return 0
+  setsid waybar -c "${dir}/waybar.jsonc" -s "${dir}/waybar.css" >/dev/null 2>&1 &
+}
+
+stop_waybar() {
+  pkill -x waybar 2>/dev/null || true
+  # Two waybars own the same layer surface and the survivor is arbitrary, so
+  # wait for the old one to actually go before starting the new one.
+  local i
+  for i in 1 2 3 4 5 6 7 8 9 10; do
+    pgrep -x waybar >/dev/null 2>&1 || return 0
+    sleep 0.1
+  done
+}
+
+start_swaync() {
+  local dir=$1
+  command -v swaync >/dev/null 2>&1 || return 0
+  setsid swaync -s "${dir}/swaync.css" >/dev/null 2>&1 &
+}
+
+stop_swaync() { pkill -x swaync 2>/dev/null || true; }
+
+start_swayosd() {
+  local dir=$1
+  command -v swayosd-server >/dev/null 2>&1 || return 0
+  setsid swayosd-server --style "${dir}/swayosd.css" >/dev/null 2>&1 &
+}
+
+# Restart it whether or not it is currently running.
+#
+# The earlier version bailed unless swayosd was already up, on the theory that
+# starting it where the COPR binary is absent would be a surprise. `command -v`
+# in start_swayosd already covers that — and the theory had a hole: if swayosd
+# DIED (a broken stylesheet will do it), the only thing that could restart it
+# refused to, so bin/osd fell through to the wob tier permanently and switching
+# themes could not recover. Found 2026-08-26, by exactly that sequence.
+restart_swayosd() {
+  local dir=$1
+  command -v swayosd-server >/dev/null 2>&1 || return 0
+  pkill -x swayosd-server 2>/dev/null || true
+  start_swayosd "$dir"
+}
+
+# Already-open terminals do not re-read KITTY_CONFIG_DIRECTORY. kitty reloads
+# its config on SIGUSR1, which is cheaper and far less rude than restarting
+# terminals that may be running something.
+#
+# Signals EVERY kitty, including any started from river or Plasma — those read
+# ~/.config/kitty and will simply reload the config they already had, so the
+# blast radius of the extra signal is nil.
+reload_kitty() {
+  pkill -USR1 -x kitty 2>/dev/null || true
+}
+
+# Each theme names its own wallpaper, as a path relative to $HOME so the file
+# stays machine-portable.
+#
+# DELEGATED to bin/river-wallpaper --set rather than run here. That script owns
+# swaybg: it knows one instance must die before the next starts, and it is the
+# single writer of the saved-wallpaper state. Two scripts calling swaybg would
+# stack invisible painters and leave two files disagreeing about what is
+# current (principle #6).
+#
+# Consequence worth knowing: switching themes OVERRIDES a wallpaper you picked
+# with $mod+W. The theme's choice wins, because a cyberpunk bar over a gruvbox
+# photograph is the incoherence this whole thing exists to avoid.
+apply_wallpaper() {
+  local dir=$1 rel img
+  [ -r "${dir}/wallpaper" ] || return 0
+  rel=$(cat "${dir}/wallpaper" 2>/dev/null || true)
+  [ -n "$rel" ] || return 0
+  img="${HOME}/${rel}"
+  command -v river-wallpaper >/dev/null 2>&1 \
+    && river-wallpaper --set "$img" >/dev/null 2>&1 || true
+}
+
+# GTK application chrome — file dialogs, Nautilus-likes, anything GTK that is
+# not one of our own surfaces.
+#
+# VIA gsettings, NOT by linking settings.ini. thinkpad.yaml documents at length
+# why ~/.config/gtk-3.0/settings.ini is deliberately unmanaged: Plasma owns and
+# rewrites it, and a symlink there would let Plasma write straight through into
+# the repo — and it holds gtk-xft-dpi=122880, a machine-specific value a
+# checked-in file would destroy. gsettings writes to dconf instead, which
+# Plasma does not fight over, and it applies to RUNNING apps.
+#
+# Session-scoped only in practice: switching themes is a Hyprland action, and
+# nothing changes it back when you log into river — so a river session after a
+# switch inherits whatever GTK theme was last set. That is the one place the
+# river-stays-gruvbox pin leaks, and it leaks because dconf is per-user, not
+# per-session. Noted rather than worked around; the alternative is fighting
+# Plasma for settings.ini, which is the thing that decision exists to avoid.
+apply_gtk() {
+  local dir=$1 name
+  [ -r "${dir}/gtk" ] || return 0
+  command -v gsettings >/dev/null 2>&1 || return 0
+  name=$(cat "${dir}/gtk" 2>/dev/null || true)
+  [ -n "$name" ] || return 0
+  gsettings set org.gnome.desktop.interface gtk-theme "$name" >/dev/null 2>&1 || true
+  # Dark preference is set here too rather than only in hyprland.conf's
+  # exec-once, so it survives a theme switch without a re-login.
+  gsettings set org.gnome.desktop.interface color-scheme prefer-dark >/dev/null 2>&1 || true
+}
+
+reload_hyprland() {
+  command -v hyprctl >/dev/null 2>&1 || return 0
+  # Meaningless outside a running session, which is why it is guarded and its
+  # failure ignored.
+  hyprctl reload >/dev/null 2>&1 || true
+}
+
+# --- commands ----------------------------------------------------------------
+
+point_at() {
+  local name=$1
+  mkdir -p "$STATE_DIR"
+  # -n so an existing symlink is REPLACED rather than followed into the theme
+  # directory, which would create the link inside it.
+  ln -sfn "${THEMES_DIR}/${name}/hypr.conf" "$LIVE_CONF"
+
+  # THE WHOLE THEME DIRECTORY, as one link. This is what lets hyprland.conf's
+  # binds and `env` lines — which are static text and cannot take a runtime
+  # argument — point at theme-dependent files:
+  #   fuzzel   --config=$HOME/.local/state/hypr-theme/live/fuzzel.ini
+  #   swaylock -C        …/live/swaylock.conf
+  #   wlogout  -s        …/live/wlogout.css
+  #   env = KITTY_CONFIG_DIRECTORY,…/live
+  #
+  # Linking the DIRECTORY rather than each file is what makes wlogout.css's
+  # relative url("wlogout-icons/…") resolve: the icons sit inside the same
+  # directory, so a downward relative path stays inside the link target.
+  #
+  # waybar.css and swaync.css deliberately do NOT come through here — they use
+  # UPWARD relative imports (../../../waybar/style.css), which would escape to
+  # ~/.local/ and silently load nothing. Those two are launched by this script
+  # with their real repo paths instead. See the header.
+  ln -sfn "${THEMES_DIR}/${name}" "${STATE_DIR}/live"
+
+  printf '%s\n' "$name" > "$NAME_FILE"
+}
+
+cmd_set() {
+  local name=${1:-}
+  [ -n "$name" ] || die "usage: hypr-theme set <name>"
+  validate "$name"
+  point_at "$name"
+
+  local dir="${THEMES_DIR}/${name}"
+  stop_waybar;  start_waybar  "$dir"
+  reload_hyprland
+  stop_swaync;  start_swaync  "$dir"
+  restart_swayosd            "$dir"
+  reload_kitty
+  apply_wallpaper             "$dir"
+  apply_gtk                   "$dir"
+
+  # fuzzel, swaylock and wlogout need nothing: they are spawned fresh on every
+  # keypress and read the live/ link at that moment. That is why they are
+  # binds rather than daemons, and why this function stays short.
+
+  note "Theme: ${name}" "Hyprland session reloaded"
+  printf '%s\n' "$name"
+}
+
+# Called from hyprland.conf's exec-once. Starts the themed surfaces for
+# whichever theme is current, so there is ONE definition of how the bar starts
+# and it is this function.
+cmd_launch() {
+  local name dir
+  name=$(current); validate "$name"; point_at "$name"
+  dir="${THEMES_DIR}/${name}"
+  start_waybar "$dir"
+  start_swaync "$dir"
+  start_swayosd "$dir"
+}
+
+cmd_cycle() {
+  local all list=() cur next="" i t
+  mapfile -t all < <(themes)
+  # themes() calls die(), and die() runs `exit` — inside a process
+  # substitution that kills ONLY the subshell, so a failure arrives here as an
+  # empty array rather than as a stopped script. Working-method rule 10: the
+  # guard has to be code. Without this, `${list[0]}` below is an unbound
+  # variable under `set -u` and the keybind fails with a bash error instead of
+  # a sentence.
+  [ "${#all[@]}" -gt 0 ] || die "no themes available to cycle through"
+
+  # SKIP INCOMPLETE THEMES rather than landing on one. cmd_set would refuse
+  # them — correctly — but cycle is bound to a key, and a key that appears to
+  # do nothing is worse than one that skips something. Found by test: a
+  # half-written theme directory sitting alphabetically between two good ones
+  # made $mod+SHIFT+T a no-op with the reason on stderr, where a keybind has
+  # nowhere to print.
+  for t in "${all[@]}"; do
+    is_valid "$t" && list+=("$t")
+  done
+  if [ "${#list[@]}" -eq 0 ]; then
+    die "no COMPLETE themes found (each needs: ${REQUIRED[*]})"
+  fi
+  if [ "${#list[@]}" -lt "${#all[@]}" ]; then
+    printf 'hypr-theme: skipping incomplete theme(s)\n' >&2
+    note "Theme" "Skipped an incomplete theme — see hypr-theme list"
+  fi
+
+  cur=$(current)
+  for i in "${!list[@]}"; do
+    if [ "${list[$i]}" = "$cur" ]; then
+      next="${list[$(( (i + 1) % ${#list[@]} ))]}"
+      break
+    fi
+  done
+  # Current theme not in the valid list: fall to the first rather than
+  # refusing, so a stale state file cannot strand the keybind.
+  cmd_set "${next:-${list[0]}}"
+}
+
+# The picker. Same shape as bin/river-wallpaper's menu, deliberately — this
+# session already has a picker convention (ADR-0021: 64ch, `<glyph> <noun> ❯`)
+# and a second one would be a second thing to learn.
+#
+# LOOKUP TABLE, NOT A DELIMITED LINE. river-wallpaper's header records why:
+# piping "label<TAB>value" and recovering with `cut` displays the whole line,
+# and trimming it needs --with-nth, which older fuzzel builds lack. A lookup
+# table needs no flag at all.
+#
+# The menu renders in the ACTIVE theme's fuzzel config, so the picker you use
+# to leave a theme still looks like that theme.
+cmd_menu() {
+  command -v fuzzel >/dev/null 2>&1 || die "fuzzel is not installed"
+
+  local list=() labels=() t cur mark desc picked n=0
+  mapfile -t list < <(themes)
+  [ "${#list[@]}" -gt 0 ] || die "no themes found in $THEMES_DIR"
+  cur=$(current)
+
+  declare -A by_label=()
+  for t in "${list[@]}"; do
+    is_valid "$t" || continue
+    desc=$(cat "${THEMES_DIR}/${t}/description" 2>/dev/null || true)
+    # The active theme is marked, not hidden: knowing where you are is half of
+    # what a picker is for.
+    if [ "$t" = "$cur" ]; then mark='󰄲'; else mark='󰝦'; fi
+    if [ -n "$desc" ]; then
+      mark="${mark}  ${t}  —  ${desc}"
+    else
+      mark="${mark}  ${t}"
+    fi
+    by_label["$mark"]="$t"
+    labels+=("$mark")
+    n=$((n + 1))
+  done
+  [ "$n" -gt 0 ] || die "no COMPLETE themes to choose from (each needs: ${REQUIRED[*]})"
+
+  # Probe before using, not assume — a flag fuzzel does not know kills the
+  # menu outright. Same check river-wallpaper makes.
+  local _lh=()
+  fuzzel --help 2>&1 | grep -q -- '--line-height' && _lh=(--line-height=28)
+
+  local cfg=()
+  [ -f "${STATE_DIR}/live/fuzzel.ini" ] && cfg=(--config="${STATE_DIR}/live/fuzzel.ini")
+
+  picked=$(printf '%s\n' "${labels[@]}" | fuzzel --dmenu \
+    "${cfg[@]}" "${_lh[@]}" \
+    --prompt '󰏘 theme ❯ ' --lines "$n" --width 64 2>/dev/null) || return 0
+  [ -n "$picked" ] || return 0
+
+  # Empty lookup means fuzzel returned something not on the list — in dmenu
+  # mode it echoes free text when nothing matches. Do nothing rather than
+  # guess, exactly as river-wallpaper does.
+  local choice="${by_label["$picked"]:-}"
+  [ -n "$choice" ] || return 0
+  cmd_set "$choice"
+}
+
+cmd_list() {
+  local cur t mark; cur=$(current)
+  while IFS= read -r t; do
+    if [ "$t" = "$cur" ]; then mark='*'; else mark=' '; fi
+    if is_valid "$t"; then
+      printf '%s %s\n' "$mark" "$t"
+    else
+      # Say so here rather than letting `set` be the thing that discovers it.
+      printf '%s %s  (incomplete — cycle will skip it)\n' "$mark" "$t"
+    fi
+  done < <(themes)
+}
+
+case "${1:-current}" in
+  current) current ;;
+  list)    cmd_list ;;
+  set)     cmd_set "${2:-}" ;;
+  cycle)   cmd_cycle ;;
+  menu)    cmd_menu ;;
+  launch)  cmd_launch ;;
+  init)    validate "$(current)"; point_at "$(current)"; current ;;
+  *) echo "usage: hypr-theme {current|list|menu|set <name>|cycle|launch|init}" >&2; exit 2 ;;
+esac

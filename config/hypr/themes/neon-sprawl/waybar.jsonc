@@ -1,0 +1,82 @@
+// config/hypr/themes/neon-sprawl/waybar.jsonc
+//
+// The bar REARRANGED, not just recoloured. Module definitions still come from
+// the shared include — this file changes where things sit and redefines the
+// two modules whose presentation is part of the theme.
+//
+// THE ARRANGEMENT ARGUMENT. gruvbox-crt reads left-to-right as a workbench:
+// what you're doing (workspaces, window), what's playing, then instruments.
+// This one reads as a HUD: the clock is the first thing at top-left because
+// that is where a heads-up display puts it, the focused window title takes
+// the centre as the single most important status line, and everything
+// mechanical — media included — is banked along the right edge as one
+// instrument strip. Same modules, different mental model.
+//
+// spacing 0, not 6: the wells butt together into one continuous strip rather
+// than floating as separate instruments. waybar.css draws the dividers.
+{
+  "include": ["~/.config/waybar/hypr-modules.jsonc"],
+
+  "layer": "top",
+  "position": "top",
+  // Taller than gruvbox-crt's 38: this theme has a 3px window border and
+  // 16px outer gaps, so a 38px bar looks pinched against them.
+  "height": 42,
+  "spacing": 0,
+
+  "modules-left": ["clock", "hyprland/workspaces", "custom/idle"],
+  "modules-center": ["hyprland/window"],
+  "modules-right": [
+    "custom/media-prev",
+    "group/media",
+    "custom/media-next",
+    "cpu",
+    "memory",
+    "temperature",
+    "custom/mic",
+    "wireplumber",
+    "backlight",
+    "battery",
+    "tray",
+    "custom/notification",
+    "custom/power"
+  ],
+
+  // Redefined because merge order is including-file-first: a key declared
+  // here wins over the same key in hypr-modules.jsonc.
+  //
+  // Seconds are deliberately ABSENT despite the temptation. A seconds field
+  // repaints the bar once per second forever, and this theme already spends
+  // battery on the borderangle loop — one continuous-repaint indulgence per
+  // theme is enough, and the rotating border is the one that carries the look.
+  "clock": {
+    "format": "{:%H:%M}",
+    "format-alt": "{:%a %d %b}",
+    "tooltip-format": "<tt><small>{calendar}</small></tt>",
+    "calendar": {
+      "mode": "month",
+      "weeks-pos": "right",
+      "on-scroll": 1,
+      "format": {
+        "months":   "<span color='#d7e0ff'><b>{}</b></span>",
+        "days":     "<span color='#d7e0ff'>{}</span>",
+        "weeks":    "<span color='#7a86b8'>W{}</span>",
+        "weekdays": "<span color='#7a86b8'><b>{}</b></span>",
+        "today":    "<span color='#00e5ff'><b><u>{}</u></b></span>"
+      }
+    },
+    "actions": {
+      "on-click-right": "mode",
+      "on-scroll-up": "shift_up",
+      "on-scroll-down": "shift_down"
+    }
+  },
+
+  // The centre status line in this layout, so it gets more room than the 60
+  // characters the workbench arrangement allowed.
+  "hyprland/window": {
+    "format": "{title}",
+    "max-length": 90,
+    "tooltip": false
+  }
+}

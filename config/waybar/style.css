@@ -189,12 +189,39 @@ window#waybar.empty #window {
 }
 
 /* --- center: the now-playing readout -------------------------------------- */
-/* Its own single-module well, dead center. Playing sits in ordinary fg —
-   music is ambient, not an alert; paused recedes to gray like every other
-   inactive state. The module vanishes entirely when nothing offers MPRIS,
-   taking its well with it. */
+/* Was a text scroll of "{artist} — {title}", permanently ~400px wide. Is now a
+   PROGRESS BAR carrying one glyph that says WHICH APPLICATION is playing, and
+   a drawer that opens on hover with the cover art and the track name.
+   The name did not disappear; it moved to where you go looking for it, which
+   is what buys the bar back the horizontal space.
+
+   GRAMMAR (ADR-0021): the fill introduces NO new hue. It is #504945 — the
+   same passive-surface edge already drawn by every well bezel in the session.
+   Music playing is not an alert and does not get an alert colour; the bar is
+   structure, carried by shape and value. Paused recedes via opacity rather
+   than a second set of colours, which is both the grammar's "inactive states
+   recede" rule and the reason this file has 52 progress rules and not 104.
+
+   THE HOVER IS A DRAWER, NOT A TOOLTIP, AND THAT IS NOT A STYLE CHOICE.
+   Waybar tooltips are Pango markup; Pango has no image element, and images in
+   tooltips are an open upstream request (Alexays/Waybar#1999). Custom modules
+   get no on-enter hook either (#523). `group/media` with a `drawer` is the
+   hover mechanism waybar actually ships, so that is what this is. */
+
+/* The group is a CONTAINER ONLY. The well is drawn by its children, so that
+   when nothing is playing and every child hides itself, no orphaned bezel is
+   left floating in the middle of the bar. */
+#media {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
 #custom-media-prev,
-#mpris,
+#custom-media,
+#image,
+#custom-media-title,
 #custom-media-next {
   color: #ebdbb2;
   background: #1d2021;
@@ -204,12 +231,8 @@ window#waybar.empty #window {
   margin-bottom: 6px;
 }
 
-#mpris {
-  padding: 0 12px;
-}
-
-/* Transport keys: one well with the readout — prev opens it, next closes
-   it. They hide with the readout when nothing plays (hide-empty-text). */
+/* Transport keys: one well with the readout — prev opens it, next closes it.
+   They hide with the readout when nothing plays (hide-empty-text). */
 #custom-media-prev {
   padding: 0 9px;
   border-left: 1px solid #3c3836;
@@ -220,9 +243,109 @@ window#waybar.empty #window {
   border-right: 1px solid #3c3836;
 }
 
-#mpris.paused {
+/* The bar itself. min-width is what makes it a GAUGE rather than a glyph with
+   a tint: at the natural width of one icon there is nothing for a percentage
+   to be a percentage OF. */
+#custom-media {
+  min-width: 132px;
+  padding: 0 9px;
+}
+
+/* Paused recedes as a whole — glyph and fill together — which is the same
+   move as #wireplumber.muted, done in one rule instead of a second full set
+   of gradients. */
+#custom-media.paused {
+  opacity: 0.55;
+}
+
+/* A live stream has no length, so there is no percentage to draw and the
+   script says so with .plive instead of inventing one. A flat dim wash reads
+   as "playing, length unknown" and cannot be mistaken for 0%. */
+#custom-media.plive {
+  background-image: linear-gradient(to right, #32302f 0%, #32302f 100%);
+}
+
+/* The drawer's contents. Both hide themselves when there is nothing to say,
+   so the closed bar is exactly the gauge. */
+#image {
+  padding: 0 0 0 6px;
+}
+
+/* Waybar adds .empty when the image could not be rendered — no art, or a
+   cover still downloading. Collapse it rather than leaving a 22px hole. */
+#image.empty {
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+#custom-media-title {
+  padding: 0 9px;
+  color: #a89984;          /* secondary text: it is a label, not a readout */
+}
+
+#custom-media-title.paused {
   color: #928374;
 }
+
+/* --- the fill ------------------------------------------------------------- */
+/* GENERATED, and quantised to 2%. bin/waybar-media rounds the position to the
+   nearest even percent and emits the matching class, so every value it can
+   produce has a rule here — a class with no rule renders as an EMPTY bar,
+   which looks exactly like "playback stopped" and is the one failure mode
+   worth spending 51 lines to make impossible.
+   If you change the step, change `(pct + 1) / 2 * 2` in the script to match. */
+#custom-media.p0   { background-image: linear-gradient(to right, #504945 0%, transparent 0%); }
+#custom-media.p2   { background-image: linear-gradient(to right, #504945 2%, transparent 2%); }
+#custom-media.p4   { background-image: linear-gradient(to right, #504945 4%, transparent 4%); }
+#custom-media.p6   { background-image: linear-gradient(to right, #504945 6%, transparent 6%); }
+#custom-media.p8   { background-image: linear-gradient(to right, #504945 8%, transparent 8%); }
+#custom-media.p10  { background-image: linear-gradient(to right, #504945 10%, transparent 10%); }
+#custom-media.p12  { background-image: linear-gradient(to right, #504945 12%, transparent 12%); }
+#custom-media.p14  { background-image: linear-gradient(to right, #504945 14%, transparent 14%); }
+#custom-media.p16  { background-image: linear-gradient(to right, #504945 16%, transparent 16%); }
+#custom-media.p18  { background-image: linear-gradient(to right, #504945 18%, transparent 18%); }
+#custom-media.p20  { background-image: linear-gradient(to right, #504945 20%, transparent 20%); }
+#custom-media.p22  { background-image: linear-gradient(to right, #504945 22%, transparent 22%); }
+#custom-media.p24  { background-image: linear-gradient(to right, #504945 24%, transparent 24%); }
+#custom-media.p26  { background-image: linear-gradient(to right, #504945 26%, transparent 26%); }
+#custom-media.p28  { background-image: linear-gradient(to right, #504945 28%, transparent 28%); }
+#custom-media.p30  { background-image: linear-gradient(to right, #504945 30%, transparent 30%); }
+#custom-media.p32  { background-image: linear-gradient(to right, #504945 32%, transparent 32%); }
+#custom-media.p34  { background-image: linear-gradient(to right, #504945 34%, transparent 34%); }
+#custom-media.p36  { background-image: linear-gradient(to right, #504945 36%, transparent 36%); }
+#custom-media.p38  { background-image: linear-gradient(to right, #504945 38%, transparent 38%); }
+#custom-media.p40  { background-image: linear-gradient(to right, #504945 40%, transparent 40%); }
+#custom-media.p42  { background-image: linear-gradient(to right, #504945 42%, transparent 42%); }
+#custom-media.p44  { background-image: linear-gradient(to right, #504945 44%, transparent 44%); }
+#custom-media.p46  { background-image: linear-gradient(to right, #504945 46%, transparent 46%); }
+#custom-media.p48  { background-image: linear-gradient(to right, #504945 48%, transparent 48%); }
+#custom-media.p50  { background-image: linear-gradient(to right, #504945 50%, transparent 50%); }
+#custom-media.p52  { background-image: linear-gradient(to right, #504945 52%, transparent 52%); }
+#custom-media.p54  { background-image: linear-gradient(to right, #504945 54%, transparent 54%); }
+#custom-media.p56  { background-image: linear-gradient(to right, #504945 56%, transparent 56%); }
+#custom-media.p58  { background-image: linear-gradient(to right, #504945 58%, transparent 58%); }
+#custom-media.p60  { background-image: linear-gradient(to right, #504945 60%, transparent 60%); }
+#custom-media.p62  { background-image: linear-gradient(to right, #504945 62%, transparent 62%); }
+#custom-media.p64  { background-image: linear-gradient(to right, #504945 64%, transparent 64%); }
+#custom-media.p66  { background-image: linear-gradient(to right, #504945 66%, transparent 66%); }
+#custom-media.p68  { background-image: linear-gradient(to right, #504945 68%, transparent 68%); }
+#custom-media.p70  { background-image: linear-gradient(to right, #504945 70%, transparent 70%); }
+#custom-media.p72  { background-image: linear-gradient(to right, #504945 72%, transparent 72%); }
+#custom-media.p74  { background-image: linear-gradient(to right, #504945 74%, transparent 74%); }
+#custom-media.p76  { background-image: linear-gradient(to right, #504945 76%, transparent 76%); }
+#custom-media.p78  { background-image: linear-gradient(to right, #504945 78%, transparent 78%); }
+#custom-media.p80  { background-image: linear-gradient(to right, #504945 80%, transparent 80%); }
+#custom-media.p82  { background-image: linear-gradient(to right, #504945 82%, transparent 82%); }
+#custom-media.p84  { background-image: linear-gradient(to right, #504945 84%, transparent 84%); }
+#custom-media.p86  { background-image: linear-gradient(to right, #504945 86%, transparent 86%); }
+#custom-media.p88  { background-image: linear-gradient(to right, #504945 88%, transparent 88%); }
+#custom-media.p90  { background-image: linear-gradient(to right, #504945 90%, transparent 90%); }
+#custom-media.p92  { background-image: linear-gradient(to right, #504945 92%, transparent 92%); }
+#custom-media.p94  { background-image: linear-gradient(to right, #504945 94%, transparent 94%); }
+#custom-media.p96  { background-image: linear-gradient(to right, #504945 96%, transparent 96%); }
+#custom-media.p98  { background-image: linear-gradient(to right, #504945 98%, transparent 98%); }
+#custom-media.p100 { background-image: linear-gradient(to right, #504945 100%, transparent 100%); }
 
 /* Machine stats are ambient information, not alerts: muted, tighter, and only
    there when you go looking. They take colour exclusively by entering a state

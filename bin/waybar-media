@@ -1,0 +1,389 @@
+#!/usr/bin/env bash
+#
+# waybar-media — the now-playing readout: a progress bar that knows which
+# application is playing, and shows you what, on hover.
+#
+#   waybar-media bar      # JSON: player glyph + a p0..p100 progress class
+#   waybar-media title    # JSON: artist — title, for the drawer
+#   waybar-media art      # a path to cached cover art, for the image module
+#   waybar-media toggle   # play/pause  ) all three act on the player the BAR
+#   waybar-media prev     # previous    ) is currently showing, not on whatever
+#   waybar-media next     # next        ) player last touched the bus
+#
+# WHY THIS REPLACES waybar's BUILT-IN mpris MODULE
+#
+# The built-in module renders text and nothing else. A progress bar needs a
+# CSS class that changes with playback position, and waybar only lets a
+# CUSTOM module set its own class — mpris exposes #mpris.${player} and
+# #mpris.${status}, never a position. So the readout had to become custom.
+#
+# The one thing the built-in did better was click targeting: its buttons act
+# on the player being SHOWN, whereas a bare `playerctl next` acts on whichever
+# player last became active — which is not always the one you are looking at.
+# That property is preserved here rather than lost: `bar` records the player it
+# picked in $STATE_DIR/current, and the transport subcommands act on that
+# recorded player. The old custom/media-prev and custom/media-next called bare
+# playerctl and DID have the drift bug; they now route through here too.
+#
+# WHY THE HOVER PREVIEW IS A DRAWER AND NOT A TOOLTIP
+#
+# It cannot be a tooltip. Waybar tooltips are Pango markup, Pango has no image
+# element, and "images in tooltip" is an open feature request upstream
+# (Alexays/Waybar#1999). Custom modules also have no on-enter/on-leave hook
+# (#523), so a script cannot react to hover either. What DOES exist is
+# `group/*` with a `drawer`, which reveals its non-leader children on hover —
+# so the group is the hover mechanism, and the art is a real `image` module.
+#
+# WHAT "BROWSER WINDOW PREVIEW" ACTUALLY RESOLVES TO
+#
+# There is no way to screenshot a browser window from here — the window is
+# usually on another tag, and grim only captures what is composited. What
+# Firefox does publish over MPRIS is `mpris:artUrl`, which for a YouTube tab is
+# the video thumbnail. That is the preview: it is the right image, obtained
+# from the same channel as everything else, with no compositor games.
+#
+# ART IS CACHED IN $XDG_RUNTIME_DIR, DELIBERATELY, AND IT COSTS SOMETHING
+#
+# XDG_RUNTIME_DIR is tmpfs and is destroyed at logout, so the cache cannot
+# accumulate into an on-disk record of everything you have listened to
+# (04-privacy: device theft). The cost is real and worth naming: every track
+# is re-fetched once per login instead of once ever. On a metered tether that
+# is a few hundred KB a session. Move CACHE_DIR to ~/.cache if you would
+# rather have the history than the bytes.
+
+set -Eeuo pipefail
+
+STATE_DIR="${XDG_RUNTIME_DIR:-/tmp}/waybar-media"
+CACHE_DIR="${STATE_DIR}/art"
+CURRENT="${STATE_DIR}/current"
+mkdir -p "$CACHE_DIR"
+
+# How many cached covers to keep. tmpfs is RAM; an unbounded cache in a long
+# session is a slow memory leak with a friendly name.
+CACHE_KEEP=40
+
+# --- the icon table ----------------------------------------------------------
+# Keyed on the MPRIS bus name's first component, lowercased: `firefox.instance_1`
+# and `firefox.instance_2` are both `firefox`.
+#
+# Every glyph below was taken from Nerd Fonts v3.5.1 bin/scripts/lib/i_md.sh
+# rather than from memory. There is NO nf-md glyph for brave, chromium, mpv or
+# ncspot — those fall back on purpose (a browser gets the generic web glyph, a
+# video player the video glyph), because an invented codepoint renders as a
+# tofu box and a tofu box in the middle of the bar looks like a broken bar.
+#
+# To check one before adding it:
+#   grep -n 'i_md_spotify=' ~/path/to/i_md.sh
+player_icon() {
+  case "$1" in
+    spotify)            printf '\U000F04C7' ;;  # i_md_spotify
+    firefox)            printf '\U000F0239' ;;  # i_md_firefox
+    librewolf|zen)      printf '\U000F0239' ;;  # firefox-family
+    chrome|chromium|google-chrome)
+                        printf '\U000F02AF' ;;  # i_md_google_chrome
+    brave|vivaldi|opera)
+                        printf '\U000F059F' ;;  # i_md_web — no brand glyph exists
+    msedge|microsoft-edge)
+                        printf '\U000F01E9' ;;  # i_md_microsoft_edge
+    vlc)                printf '\U000F057C' ;;  # i_md_vlc
+    mpv|celluloid|haruna)
+                        printf '\U000F0567' ;;  # i_md_video — no mpv glyph exists
+    feishin|supersonic|tauon|strawberry|rhythmbox|elisa|amberol)
+                        printf '\U000F0387' ;;  # i_md_music_note
+    ncspot|spotify-player|cmus|mpd|mpv-audio|kew)
+                        printf '\U000F03CB' ;;  # i_md_headphones
+    *)                  printf '\U000F0387' ;;  # i_md_music_note — unknown player
+  esac
+}
+
+# YouTube in a browser earns the YouTube glyph over the browser's own: what is
+# playing is more useful than what is hosting it. Only applied when the URL
+# says so, so a Bandcamp tab still reads as Firefox.
+refine_icon() {
+  local player=$1 url=$2
+  case "$url" in
+    *youtube.com*|*youtu.be*|*ytimg.com*|*googlevideo.com*)
+      printf '\U000F0343' ;;                    # i_md_youtube
+    *) player_icon "$player" ;;
+  esac
+}
+
+# --- text hygiene ------------------------------------------------------------
+# Track titles are arbitrary strings from the internet. They contain ampersands
+# ("Simon & Garfunkel"), angle brackets, double quotes and backslashes, and
+# each one breaks a different consumer: & and <> break Pango, " and \ break the
+# JSON waybar is parsing. Both escapes are applied here rather than relying on
+# the module's "escape" option, which covers Pango only and not the tooltip.
+pango_escape() {
+  local s=${1-}
+  s=${s//&/&amp;}
+  s=${s//</&lt;}
+  s=${s//>/&gt;}
+  printf '%s' "$s"
+}
+
+json_escape() {
+  local s=${1-}
+  s=${s//\\/\\\\}
+  s=${s//\"/\\\"}
+  s=${s//$'\n'/ }
+  s=${s//$'\r'/ }
+  s=${s//$'\t'/ }
+  # Anything else below 0x20 would be a literal control byte in the JSON.
+  printf '%s' "$s" | tr -d '\000-\037'
+}
+
+esc() { json_escape "$(pango_escape "${1-}")"; }
+
+# --- which player are we talking about? --------------------------------------
+# Prefer a player that is actually Playing; fall back to the first one that
+# exists so a paused track still shows. `playerctl -l` lists full bus suffixes
+# and -p needs one of those, so the full name is what gets stored.
+pick_player() {
+  local players p
+  players=$(playerctl -l 2>/dev/null) || return 1
+  [ -n "$players" ] || return 1
+  while IFS= read -r p; do
+    [ -n "$p" ] || continue
+    if [ "$(playerctl -p "$p" status 2>/dev/null || true)" = "Playing" ]; then
+      printf '%s\n' "$p"; return 0
+    fi
+  done <<<"$players"
+  printf '%s\n' "$(printf '%s\n' "$players" | head -n1)"
+}
+
+# The player the bar is SHOWING. Falls back to a fresh pick if the recorded one
+# has since exited — a stale name would make the transport keys silently no-op.
+shown_player() {
+  local p=""
+  if [ -f "$CURRENT" ]; then p=$(cat "$CURRENT" 2>/dev/null || true); fi
+  if [ -n "$p" ] && playerctl -p "$p" status >/dev/null 2>&1; then
+    printf '%s\n' "$p"; return 0
+  fi
+  pick_player
+}
+
+# One playerctl call for everything, not six. The separator is 0x1f (unit
+# separator) because it is the one byte that cannot appear in a track title.
+US=$'\037'
+read_meta() {
+  local p=$1
+  playerctl -p "$p" metadata \
+    --format "{{playerName}}${US}{{status}}${US}{{position}}${US}{{mpris:length}}${US}{{artist}}${US}{{title}}${US}{{mpris:artUrl}}${US}{{album}}" \
+    2>/dev/null || true
+}
+
+# --- art -----------------------------------------------------------------
+url_key() { printf '%s' "$1" | sha256sum | cut -c1-32; }
+
+# Never blocks. waybar runs `art` on a timer in its own main loop, so a curl
+# that hangs on a captive portal would freeze the whole bar, not just this
+# module — the ThinkPad rule (must not fail during a deadline) applies to the
+# bar as much as to anything else. So: return only what is already on disk,
+# and start the download in the background for the NEXT tick to pick up.
+fetch_art_async() {
+  # Split, not `local url=$1 dest=$2 lock="${dest}.lock"` — that expands
+  # ${dest} before the assignment lands and is an unbound variable under
+  # `set -u`. It survived testing only because the caller (art_path) happens
+  # to have its own `dest` in scope and bash is dynamically scoped. Same bug
+  # as bin/hypr-theme's validate(), found 2026-08-26.
+  local url=$1
+  local dest=$2
+  local lock="${dest}.lock"
+  # mkdir is atomic. Without it, `art` firing every 5s would start a second
+  # curl for the same cover before the first finished.
+  mkdir "$lock" 2>/dev/null || return 0
+  (
+    trap 'rmdir "$lock" 2>/dev/null || true' EXIT
+    if curl -sfL --max-time 8 --max-redirs 3 --max-filesize 4000000 \
+            --proto '=http,https' --proto-redir '=http,https' \
+            -o "${dest}.part" "$url"; then
+      mv -f "${dest}.part" "$dest"
+    else
+      rm -f "${dest}.part"
+    fi
+  ) >/dev/null 2>&1 &
+}
+
+prune_cache() {
+  local n
+  n=$(find "$CACHE_DIR" -maxdepth 1 -type f -name '*.img' 2>/dev/null | wc -l)
+  [ "$n" -gt "$CACHE_KEEP" ] || return 0
+  # -printf is GNU find; both machines are Linux. Oldest-first, drop the excess.
+  find "$CACHE_DIR" -maxdepth 1 -type f -name '*.img' -printf '%T@ %p\n' 2>/dev/null \
+    | sort -n | head -n "$(( n - CACHE_KEEP ))" | cut -d' ' -f2- \
+    | while IFS= read -r f; do rm -f "$f"; done
+}
+
+# Resolves an artUrl to a local path, or prints nothing. Printing nothing is a
+# supported outcome: waybar's image module renders no image and takes the
+# .empty class, which style.css uses to collapse it.
+art_path() {
+  local url=$1 key dest
+  [ -n "$url" ] || return 0
+  case "$url" in
+    file://*)
+      # Local art (mpv, a tagged library) needs no download and no cache.
+      local pth=${url#file://}
+      # Percent-decoding, because a path with a space arrives as %20.
+      pth=$(printf '%b' "${pth//%/\\x}")
+      if [ -f "$pth" ]; then printf '%s\n' "$pth"; fi
+      return 0 ;;
+    http://*|https://*)
+      key=$(url_key "$url")
+      dest="${CACHE_DIR}/${key}.img"
+      if [ -s "$dest" ]; then
+        printf '%s\n' "$dest"
+      else
+        fetch_art_async "$url" "$dest"
+        prune_cache
+      fi
+      return 0 ;;
+    *) return 0 ;;
+  esac
+}
+
+# --- formatting --------------------------------------------------------------
+# Microseconds to m:ss. MPRIS speaks microseconds everywhere; every "the
+# progress bar is stuck at 0%" bug in this file's history was a factor of 1e6.
+hms() {
+  local us=${1:-0} s
+  [ -n "$us" ] || us=0
+  s=$(( us / 1000000 ))
+  printf '%d:%02d' $(( s / 60 )) $(( s % 60 ))
+}
+
+is_num() { case "${1-}" in ''|*[!0-9]*) return 1 ;; *) return 0 ;; esac; }
+
+# --- subcommands -------------------------------------------------------------
+
+cmd_bar() {
+  command -v playerctl >/dev/null 2>&1 || return 0
+
+  local p; p=$(pick_player) || return 0
+  [ -n "$p" ] || return 0
+  printf '%s' "$p" >"$CURRENT"
+
+  local meta; meta=$(read_meta "$p")
+  [ -n "$meta" ] || return 0
+
+  local name status pos len artist title art album
+  IFS="$US" read -r name status pos len artist title art album <<<"$meta"
+
+  # A stopped player is not a readout, it is clutter. Matches the old
+  # module's "format-stopped": "".
+  if [ "$status" = "Stopped" ]; then return 0; fi
+
+  # {{position}} is a playerctl format variable; if a player does not export
+  # the Position property it comes back empty or non-numeric. Falling back to
+  # `playerctl position` (seconds, float) keeps the bar honest instead of
+  # rendering a confidently wrong 0%.
+  if ! is_num "$pos"; then
+    local secs; secs=$(playerctl -p "$p" position 2>/dev/null || true)
+    if [ -n "$secs" ]; then
+      pos=$(awk -v s="$secs" 'BEGIN{ printf "%d", s * 1000000 }')
+    else
+      pos=""
+    fi
+  fi
+
+  local icon; icon=$(refine_icon "${name,,}" "$art")
+
+  # Two classes: playing/paused for colour, pNN for the fill. A live stream has
+  # no length, so it gets .plive instead of a lie about how far through it is.
+  local statecls="playing" pcls="plive" ratio="live"
+  if [ "$status" = "Paused" ]; then statecls="paused"; fi
+
+  if is_num "$len" && [ "$len" -gt 0 ] && is_num "$pos"; then
+    local pct=$(( pos * 100 / len ))
+    if [ "$pct" -lt 0 ]; then pct=0; fi
+    if [ "$pct" -gt 100 ]; then pct=100; fi
+    # Snap to the nearest 2%: style.css defines p0,p2,...,p100 and a class it
+    # has no rule for would silently render an empty bar.
+    pcls="p$(( (pct + 1) / 2 * 2 ))"
+    ratio="$(hms "$pos") / $(hms "$len")"
+  fi
+
+  local tip
+  tip="$(esc "${name}")  ·  ${ratio}"
+  if [ -n "$artist$title" ]; then tip="$(esc "${artist:-Unknown artist} — ${title:-Unknown title}")\\n${tip}"; fi
+  if [ -n "$album" ]; then tip="${tip}\\n$(esc "$album")"; fi
+  tip="${tip}\\nleft: play/pause · right: next · scroll: seek"
+
+  printf '{"text":"%s","alt":"%s","class":["%s","%s"],"tooltip":"%s"}\n' \
+    "$icon" "$statecls" "$statecls" "$pcls" "$tip"
+}
+
+cmd_title() {
+  command -v playerctl >/dev/null 2>&1 || return 0
+  local p; p=$(shown_player) || return 0
+  [ -n "$p" ] || return 0
+
+  local meta; meta=$(read_meta "$p")
+  [ -n "$meta" ] || return 0
+
+  local name status pos len artist title art album
+  IFS="$US" read -r name status pos len artist title art album <<<"$meta"
+  if [ "$status" = "Stopped" ]; then return 0; fi
+
+  local text
+  if [ -n "$artist" ] && [ -n "$title" ]; then text="${artist} — ${title}"
+  elif [ -n "$title" ];  then text="$title"
+  elif [ -n "$artist" ]; then text="$artist"
+  else return 0
+  fi
+
+  local statecls="playing"
+  if [ "$status" = "Paused" ]; then statecls="paused"; fi
+
+  printf '{"text":"%s","class":"%s","tooltip":""}\n' "$(esc "$text")" "$statecls"
+}
+
+cmd_art() {
+  command -v playerctl >/dev/null 2>&1 || return 0
+  local p; p=$(shown_player) || return 0
+  [ -n "$p" ] || return 0
+
+  local meta; meta=$(read_meta "$p")
+  [ -n "$meta" ] || return 0
+
+  local name status pos len artist title art album
+  IFS="$US" read -r name status pos len artist title art album <<<"$meta"
+  if [ "$status" = "Stopped" ]; then return 0; fi
+
+  art_path "$art"
+}
+
+# Transport. Targets the shown player — see the header. `|| true` because a
+# player that exits between the pick and the call must not make waybar log an
+# error every time you brush the module.
+cmd_ctl() {
+  command -v playerctl >/dev/null 2>&1 || return 0
+  local p; p=$(shown_player) || return 0
+  [ -n "$p" ] || return 0
+  playerctl -p "$p" "$1" ${2:+"$2"} >/dev/null 2>&1 || true
+}
+
+# The JSON modules emit {"text":""} rather than nothing on every silent path
+# (no playerctl, no player, stopped). An empty string is not JSON, and waybar
+# would log a parse failure once per interval forever; an empty text field is
+# valid and is what "hide-empty-text" is looking for. Centralised here so a
+# future early-return cannot forget it.
+emit_json() {
+  local out; out=$("$@")
+  if [ -n "$out" ]; then printf '%s\n' "$out"; else printf '{"text":""}\n'; fi
+}
+
+case "${1:-bar}" in
+  bar)    emit_json cmd_bar ;;
+  title)  emit_json cmd_title ;;
+  art)    cmd_art ;;
+  toggle) cmd_ctl play-pause ;;
+  prev)   cmd_ctl previous ;;
+  next)   cmd_ctl next ;;
+  seek-forward)  cmd_ctl position 5+ ;;
+  seek-back)     cmd_ctl position 5- ;;
+  *)
+    echo "usage: waybar-media {bar|title|art|toggle|prev|next|seek-forward|seek-back}" >&2
+    exit 2 ;;
+esac

@@ -53,6 +53,27 @@ if [[ "${1:-}" == "--restore" ]]; then
   exit 0
 fi
 
+# --set: apply a specific image without opening the menu. Added for
+# bin/hypr-theme, which gives each Hyprland theme its own wallpaper
+# (ADR-0026).
+#
+# It lives HERE rather than in hypr-theme because this script owns swaybg —
+# it is the thing that knows one instance must be killed before the next
+# starts, and it is the single writer of STATE_FILE. A second script running
+# swaybg would stack invisible painters and leave two files disagreeing about
+# which wallpaper is current (principle #6).
+#
+# Not fatal on a missing file, same as --restore: switching a theme must not
+# fail because a wallpaper was moved.
+if [[ "${1:-}" == "--set" ]]; then
+  [[ -n "${2:-}" ]] || { echo "usage: river-wallpaper --set <path>" >&2; exit 2; }
+  apply "$2" || {
+    notify-send "Wallpaper not found" "$2" 2>/dev/null || echo "not found: $2" >&2
+    exit 0
+  }
+  exit 0
+fi
+
 existing=()
 for d in "${_dirs[@]}"; do [[ -d "$d" ]] && existing+=("$d"); done
 
@@ -172,7 +193,19 @@ fuzzel --help 2>&1 | grep -q -- '--line-height' && _lh=(--line-height=28)
 
 # Picker convention (ADR-0021): "<glyph> <noun> ❯" prompt — same family as
 # the cheat sheet and clipboard menus. 󰋩 is MDI image (F02E9), verified.
-picked="$(fuzzel --dmenu --prompt '󰋩 wallpaper ❯ ' --lines 10 --width 64 \
+# Use the active Hyprland theme's launcher style, but ONLY inside a Hyprland
+# session — this script is bound in both sessions, and river is pinned to
+# gruvbox (ADR-0026). HYPRLAND_INSTANCE_SIGNATURE is exported by Hyprland to
+# every child it spawns, so it answers "which session am I in" without this
+# script needing to be told, and without an env line that would require a
+# re-login to take effect.
+_theme_cfg=()
+if [[ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]]; then
+  _live="${XDG_STATE_HOME:-$HOME/.local/state}/hypr-theme/live/fuzzel.ini"
+  [[ -f "$_live" ]] && _theme_cfg=(--config="$_live")
+fi
+
+picked="$(fuzzel "${_theme_cfg[@]}" --dmenu --prompt '󰋩 wallpaper ❯ ' --lines 10 --width 64 \
     "${_lh[@]}" < "$_entries_file")" || picked=""
 
 [[ -n "${picked:-}" ]] || exit 0

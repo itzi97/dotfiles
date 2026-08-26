@@ -1,0 +1,67 @@
+/* config/hypr/themes/neon-sprawl/swayosd.css
+ *
+ * The volume/brightness/mic OSD — icon + bar, bottom centre — in neon-sprawl.
+ *
+ * GENERATED FROM config/hypr/swayosd.css BY VALUE SUBSTITUTION, and the first
+ * version of this file was not. That version was hand-written from guessed
+ * selectors and omitted #container, segmentedprogress, segment and the
+ * :disabled rules entirely — SwayOSD then rendered wrong, and bin/osd fell
+ * through to its wob tier, which is the bare geometric gauge with no icon
+ * (2026-08-26). Same failure shape as the swaylock config: the working file
+ * is the specification, and a rewrite from memory silently drops half of it.
+ *
+ * Selectors match SwayOSD's own default stylesheet (data/style/style.scss).
+ * Radius stays 0, as in gruvbox-crt: hard-edged bezels are ADR-0021's language
+ * and cyberpunk is angular anyway. If you want it softer, it is one value in
+ * four places here.
+ *
+ *   #1d2021 -> #12141d   ground      #504945 -> #00e5ff   bezel (lit, not passive)
+ *   #ebdbb2 -> #d7e0ff   content     #3c3836 -> #1e2130   trough
+ *   #d79921 -> #00e5ff   value is current: accent
+ */
+
+window#osd {
+  border-radius: 0;
+  border: 2px solid #00e5ff;
+  background: rgba(18, 20, 29, 0.92);   /* bg0_h, near-solid */
+}
+
+window#osd #container {
+  margin: 12px 15px;
+}
+
+window#osd image,
+window#osd label {
+  color: #d7e0ff;
+  font-family: "JetBrains Mono", "Symbols Nerd Font", monospace;
+  font-size: 13px;
+}
+
+window#osd progressbar:disabled,
+window#osd image:disabled {
+  opacity: 0.5;
+}
+
+window#osd progressbar,
+window#osd segmentedprogress {
+  min-height: 8px;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+}
+
+window#osd trough,
+window#osd segment {
+  min-height: inherit;
+  border-radius: 0;
+  border: none;
+  background: #1e2130;                  /* bezel-ground, like the well borders */
+}
+
+window#osd progress,
+window#osd segment.active {
+  min-height: inherit;
+  border-radius: 0;
+  border: none;
+  background: #00e5ff;                  /* the value is current: accent */
+}

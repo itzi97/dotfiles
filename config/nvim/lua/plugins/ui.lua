@@ -1,13 +1,24 @@
 -- Colourscheme, statusline, and the two mini.nvim modules that earn their keep.
 
+-- TWO COLOURSCHEMES, ONE APPLIED. Which one depends on the active Hyprland
+-- session theme (ADR-0026) — see lua/config/theme.lua for how that is read.
+--
+-- Both are lazy = false + priority 1000: a colourscheme has to load before
+-- anything that registers highlights, and "the one we're not using" still has
+-- to be loaded for a live switch to be instant. Two palettes in memory costs
+-- nothing measurable.
+--
+-- NEITHER SPEC CALLS vim.cmd.colorscheme. If both did, the winner would be
+-- whichever lazy.nvim happened to configure last — the same accident-of-order
+-- problem the Hyprland config was restructured to avoid. init.lua applies
+-- exactly one, once, after both are set up.
 return {
   {
     -- gruvbox, dark. ellisonleao's is the maintained Lua port — the original
     -- morhetz/gruvbox is vimscript and no longer the one to use.
     "ellisonleao/gruvbox.nvim",
     lazy = false,
-    priority = 1000, -- must load before everything else, or other plugins
-                     -- register highlights against the wrong palette
+    priority = 1000,
     config = function()
       require("gruvbox").setup({
         -- "hard" | "medium" | "soft". medium is gruvbox as most people picture
@@ -19,7 +30,27 @@ return {
         transparent_mode = false,
       })
       vim.o.background = "dark"
-      vim.cmd.colorscheme("gruvbox")
+    end,
+  },
+
+  {
+    -- silkcircuit — the neon-sprawl half. Vivid magenta/cyan on near-black,
+    -- which is the whole reason it pairs with that session theme.
+    --
+    -- NOT PINNED IN lazy-lock.json BY HAND. ADR-0019 keeps that file committed
+    -- so plugin versions are reproducible, but the SHA has to come from an
+    -- actual fetch — run `:Lazy sync` and commit the resulting diff. A
+    -- hand-written SHA would either be wrong or be a guess presented as a pin.
+    "hyperb1iss/silkcircuit-nvim",
+    lazy = false,
+    priority = 1000,
+    config = function()
+      -- Guarded: this plugin is newer and less widely used than gruvbox, and
+      -- a setup() signature change must not stop the editor from opening.
+      -- theme.apply() falls back to gruvbox if the scheme never registers.
+      pcall(function()
+        require("silkcircuit").setup({})
+      end)
     end,
   },
 

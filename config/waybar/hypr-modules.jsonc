@@ -1,47 +1,26 @@
-// ~/.config/waybar/hyprland.jsonc
+// ~/.config/waybar/hypr-modules.jsonc
 //
-// Bar for the HYPRLAND session (ADR-0023). Launched by hyprland.conf with:
-//   waybar -c ~/.config/waybar/hyprland.jsonc -s ~/.config/waybar/style.css
+// MODULE DEFINITIONS ONLY, for the Hyprland session's bar. This file defines
+// what every module IS; it deliberately declares no bar and no layout — no
+// `layer`, `position`, `height`, `spacing` or `modules-*`.
 //
-// config.jsonc stays the river session's bar. The two files differ ONLY in
-// modules-left — river/tags+river/window vs hyprland/workspaces+
-// hyprland/window — because tags and workspaces are different models with
-// different waybar modules. Everything else is deliberately identical, and
-// the stylesheet is shared, so a change to the right side or the styling
-// lands in both sessions at once. If you edit a right-side module here,
-// edit config.jsonc too — drift between the bars is a bug.
+// Those live in the THEME, because arranging the bar differently is half of
+// what makes two themes feel like two systems rather than two palettes:
+//   ~/.config/hypr/themes/<name>/waybar.jsonc
+// which pulls this file in with waybar's `include` key. Merge order is
+// including-file first, so a theme may override any module defined here
+// simply by redeclaring it — see neon-sprawl's clock.
+//
+// WAS hyprland.jsonc UNTIL 2026-08-26. Renamed when the bar was themed
+// (ADR-0026): a file called hyprland.jsonc that can no longer start a bar on
+// its own is a trap for whoever reads the exec-once line next.
+//
+// config.jsonc — the RIVER bar — is untouched and stays a standalone config
+// with its own copy of these modules. That fork is deliberate: river is a
+// sunset candidate (ADR-0023) and is pinned to the gruvbox design forever, so
+// the old "edit both or it's a bug" rule no longer applies between these two
+// files. It still applies between this file and the themes.
 {
-  "layer": "top",
-  "position": "top",
-  // 38 with 6px well margins: at 34/4px the wells crowded the bar edges
-  // (second-feedback, 2026-08-25).
-  "height": 38,
-  "spacing": 6,
-
-  "modules-left": ["hyprland/workspaces", "wlr/taskbar", "hyprland/window"],
-  // The now-playing readout, dead center — Spotify, Firefox (YouTube), and
-  // any real Navidrome client all speak MPRIS. Fuller controls with album
-  // art live in the swaync control center's mpris widget (click the bell).
-  "modules-center": ["custom/media-prev", "mpris", "custom/media-next"],
-  // Ordered by how often you look at it, left to right: machine load first
-  // (glanceable, ignorable), then the things you interact with, then the
-  // clock, then power. The power button is last because it is the only one
-  // where a mis-click costs you unsaved work.
-  "modules-right": [
-    "cpu",
-    "memory",
-    "temperature",
-    "custom/idle",
-    "tray",
-    "custom/mic",
-    "wireplumber",
-    "backlight",
-    "battery",
-    "custom/notification",
-    "clock",
-    "custom/power"
-  ],
-
   "hyprland/workspaces": {
     // Nine fixed workspaces, mirroring the river bar's nine tags — the
     // special (scratchpad) workspace is deliberately not shown, same as
@@ -77,7 +56,10 @@
     "interval": 3,
     "format": "{}",
     "hide-empty-text": true,
-    "on-click": "playerctl previous",
+    // Routed through bin/waybar-media so the key acts on the player the bar
+    // is SHOWING — a bare `playerctl previous` acts on whichever player last
+    // became active. Same change in config.jsonc.
+    "on-click": "$HOME/.local/bin/waybar-media prev",
     "tooltip": false
   },
 
@@ -86,20 +68,58 @@
     "interval": 3,
     "format": "{}",
     "hide-empty-text": true,
-    "on-click": "playerctl next",
+    "on-click": "$HOME/.local/bin/waybar-media next",
     "tooltip": false
   },
 
-  "mpris": {
-    // Built-in click handling targets the player being SHOWN (unlike a bare
-    // playerctl call, which targets whichever player was last active):
-    // left = play/pause, middle = previous, right = next. Scroll seeks.
-    "format": "{status_icon} {artist} — {title}",
-    "format-stopped": "",
-    "status-icons": { "playing": "󰐊", "paused": "󰏤", "stopped": "󰓛" },
-    "artist-len": 20,
-    "title-len": 30,
-    "tooltip-format": "{player}: {artist} — {title}\nleft: play/pause · middle: prev · right: next"
+  // THE NOW-PLAYING READOUT — a progress bar that says which app is playing,
+  // opening on hover to the cover art and the track name. Replaces the
+  // built-in `mpris` module, which can expose neither a position-dependent
+  // CSS class nor an image on hover. The full reasoning (and the upstream
+  // issue numbers) lives in config.jsonc; these four blocks are deliberately
+  // identical to the ones there.
+  "group/media": {
+    "orientation": "horizontal",
+    "drawer": {
+      "transition-duration": 250,
+      "children-class": "media-drawer",
+      "transition-left-to-right": true
+    },
+    // ORDER IS LOAD-BEARING: the first module is the always-visible "group
+    // leader"; the rest are what the drawer reveals.
+    "modules": ["custom/media", "image#media-art", "custom/media-title"]
+  },
+
+  "custom/media": {
+    "exec": "$HOME/.local/bin/waybar-media bar",
+    "return-type": "json",
+    "interval": 2,
+    "format": "{}",
+    "hide-empty-text": true,
+    "on-click": "$HOME/.local/bin/waybar-media toggle",
+    "on-click-middle": "$HOME/.local/bin/waybar-media prev",
+    "on-click-right": "$HOME/.local/bin/waybar-media next",
+    "on-scroll-up": "$HOME/.local/bin/waybar-media seek-forward",
+    "on-scroll-down": "$HOME/.local/bin/waybar-media seek-back"
+  },
+
+  "image#media-art": {
+    // `exec` and NOT `path`: setting both silently disables exec
+    // (Alexays/Waybar#2085). The script never blocks — see config.jsonc.
+    "exec": "$HOME/.local/bin/waybar-media art",
+    "size": 22,
+    "interval": 2,
+    "tooltip": false
+  },
+
+  "custom/media-title": {
+    "exec": "$HOME/.local/bin/waybar-media title",
+    "return-type": "json",
+    "interval": 2,
+    "format": "{}",
+    "max-length": 45,
+    "hide-empty-text": true,
+    "tooltip": false
   },
 
   "cpu": {
@@ -230,6 +250,6 @@
   "custom/power": {
     "format": "󰐥",
     "tooltip-format": "Session menu (Super+Shift+P)",
-    "on-click": "wlogout -b 3"
+    "on-click": "wlogout -b 3 -s $HOME/.local/state/hypr-theme/live/wlogout.css"
   }
 }

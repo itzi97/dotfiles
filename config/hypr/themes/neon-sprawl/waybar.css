@@ -1,0 +1,264 @@
+/* config/hypr/themes/neon-sprawl/waybar.css
+ *
+ * Standalone — this theme shares no stylesheet with river or gruvbox-crt.
+ *
+ * THE GRAMMAR IS ADR-0021'S, RE-INSTANTIATED. The rule was never "amber":
+ * it is that an accent means CURRENT and nothing else may look like it, that
+ * exactly one colour means act-now and one means attend-soon, and that
+ * everything else recedes. Same skeleton, different values:
+ *
+ *   #00e5ff  selected / focused / current / deliberately paused
+ *   #ff2e6c  act now      #ffb800  attend soon
+ *   #d7e0ff  content      #7a86b8  secondary
+ *   #3a4160  ambient      #1e2130  passive edges   #12141d  well ground
+ *
+ * Magenta #b026ff appears ONLY in the window border gradient (hypr.conf), at
+ * 3px, where it cannot be confused with the hotter act-now #ff2e6c.
+ *
+ * STRUCTURE, not just colour: bar spacing is 0, so modules butt together into
+ * one continuous instrument strip and separation is carried by 1px dividers
+ * rather than by gaps of bar ground. That is the visual inverse of
+ * gruvbox-crt's floating wells, and it is most of why the two read as
+ * different systems at a glance.
+ *
+ * Type is one step up (14px) and letter-spaced: signage, not a readout.
+ */
+
+* {
+  font-family: "JetBrains Mono", "Symbols Nerd Font", monospace;
+  font-size: 14px;
+  min-height: 0;
+  border: none;
+  border-radius: 0;
+}
+
+window#waybar {
+  background: #0a0b10;
+  color: #d7e0ff;
+  /* Cyan underline: the bar is a lit edge, not a panel with a border. */
+  border-bottom: 2px solid #00e5ff;
+}
+
+/* --- left: clock, workspaces, idle ---------------------------------------- */
+/* The clock leads. It is the accent at rest — the same licence ADR-0021 gave
+   gruvbox's amber clock, for the same reason: the accent means CURRENT, and
+   this is the current time. */
+#clock {
+  color: #00e5ff;
+  font-weight: bold;
+  letter-spacing: 2px;
+  padding: 0 16px;
+  background: #12141d;
+}
+
+#workspaces {
+  background: #12141d;
+  border-left: 1px solid #1e2130;
+}
+
+#workspaces button:hover {
+  background: #1e2130;
+  color: #d7e0ff;
+}
+
+#workspaces button {
+  padding: 0 12px;
+  color: #d7e0ff;
+  background: transparent;
+  /* An unlit tab in a strip of tabs. */
+  border-bottom: 2px solid transparent;
+}
+
+#workspaces button.empty {
+  color: #3a4160;
+}
+
+/* Lit from below rather than filled: a filled block at this saturation
+   vibrates against the dark ground. */
+#workspaces button.active {
+  color: #00e5ff;
+  background: #1e2130;
+  border-bottom: 2px solid #00e5ff;
+  font-weight: bold;
+}
+
+#workspaces button.urgent {
+  color: #0a0b10;
+  background: #ff2e6c;
+}
+
+/* --- centre: the focused window ------------------------------------------- */
+#window {
+  color: #7a86b8;
+  padding: 0 16px;
+  letter-spacing: 1px;
+}
+
+window#waybar.empty #window {
+  background: transparent;
+  padding: 0;
+}
+
+/* --- right: the instrument strip ------------------------------------------ */
+/* One continuous surface, divided by hairlines. Every module carries its own
+   left divider; the strip's outer edge is the bar edge. */
+#custom-media-prev,
+#custom-media,
+#image,
+#custom-media-title,
+#custom-media-next,
+#cpu,
+#memory,
+#temperature,
+#custom-mic,
+#wireplumber,
+#backlight,
+#battery,
+#tray,
+#custom-notification,
+#custom-power,
+#custom-idle {
+  background: #12141d;
+  color: #d7e0ff;
+  padding: 0 12px;
+  border-left: 1px solid #1e2130;
+}
+
+/* Ambient machine stats recede until they have something to say. */
+#cpu, #memory, #temperature {
+  color: #3a4160;
+  padding: 0 9px;
+}
+
+#cpu.warning, #memory.warning { color: #ffb800; }
+
+#cpu.critical, #memory.critical, #temperature.critical {
+  color: #0a0b10;
+  background: #ff2e6c;
+  font-weight: bold;
+}
+
+#custom-idle.active    { color: #1e2130; }
+#custom-idle.inhibited { color: #00e5ff; }
+#custom-idle.broken {
+  color: #0a0b10;
+  background: #ff2e6c;
+  font-weight: bold;
+}
+
+#wireplumber.muted { color: #3a4160; }
+#custom-mic.muted  { color: #3a4160; }
+
+#battery.charging { color: #00e5ff; }
+#battery.warning:not(.charging) { color: #ffb800; }
+#battery.critical:not(.charging) {
+  color: #0a0b10;
+  background: #ff2e6c;
+  font-weight: bold;
+}
+
+#custom-power { color: #7a86b8; }
+#custom-power:hover { color: #ff2e6c; }
+
+#tray > .passive { -gtk-icon-effect: dim; }
+#tray > .needs-attention { -gtk-icon-effect: highlight; }
+
+tooltip {
+  background: #12141d;
+  border: 1px solid #00e5ff;
+  color: #d7e0ff;
+}
+
+/* --- the now-playing gauge (ADR-0025) -------------------------------------- */
+/* Same mechanism as gruvbox-crt: bin/waybar-media emits a p0..p100 class
+   quantised to 2%, and the fill is a hard-edged linear-gradient. The fill
+   colour here is #1e2130 — the passive edge — for the same reason amber's was
+   #504945: a playing track is not an alert and does not get the accent. */
+#media {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+#custom-media {
+  min-width: 120px;
+  padding: 0 12px;
+}
+
+#custom-media.paused { opacity: 0.55; }
+
+#custom-media.plive {
+  background-image: linear-gradient(to right, #1e2130 0%, #1e2130 100%);
+}
+
+#image { padding: 0 0 0 6px; }
+
+#image.empty {
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+#custom-media-title {
+  color: #7a86b8;
+  padding: 0 12px;
+}
+
+#custom-media-title.paused { color: #3a4160; }
+
+/* GENERATED, quantised to 2% — every class bin/waybar-media can emit has a
+   rule, because a class with no rule renders as an empty bar and looks
+   exactly like "stopped". If you change the step, change
+   `(pct + 1) / 2 * 2` in the script to match. */
+#custom-media.p0   { background-image: linear-gradient(to right, #1e2130 0%, transparent 0%); }
+#custom-media.p2   { background-image: linear-gradient(to right, #1e2130 2%, transparent 2%); }
+#custom-media.p4   { background-image: linear-gradient(to right, #1e2130 4%, transparent 4%); }
+#custom-media.p6   { background-image: linear-gradient(to right, #1e2130 6%, transparent 6%); }
+#custom-media.p8   { background-image: linear-gradient(to right, #1e2130 8%, transparent 8%); }
+#custom-media.p10  { background-image: linear-gradient(to right, #1e2130 10%, transparent 10%); }
+#custom-media.p12  { background-image: linear-gradient(to right, #1e2130 12%, transparent 12%); }
+#custom-media.p14  { background-image: linear-gradient(to right, #1e2130 14%, transparent 14%); }
+#custom-media.p16  { background-image: linear-gradient(to right, #1e2130 16%, transparent 16%); }
+#custom-media.p18  { background-image: linear-gradient(to right, #1e2130 18%, transparent 18%); }
+#custom-media.p20  { background-image: linear-gradient(to right, #1e2130 20%, transparent 20%); }
+#custom-media.p22  { background-image: linear-gradient(to right, #1e2130 22%, transparent 22%); }
+#custom-media.p24  { background-image: linear-gradient(to right, #1e2130 24%, transparent 24%); }
+#custom-media.p26  { background-image: linear-gradient(to right, #1e2130 26%, transparent 26%); }
+#custom-media.p28  { background-image: linear-gradient(to right, #1e2130 28%, transparent 28%); }
+#custom-media.p30  { background-image: linear-gradient(to right, #1e2130 30%, transparent 30%); }
+#custom-media.p32  { background-image: linear-gradient(to right, #1e2130 32%, transparent 32%); }
+#custom-media.p34  { background-image: linear-gradient(to right, #1e2130 34%, transparent 34%); }
+#custom-media.p36  { background-image: linear-gradient(to right, #1e2130 36%, transparent 36%); }
+#custom-media.p38  { background-image: linear-gradient(to right, #1e2130 38%, transparent 38%); }
+#custom-media.p40  { background-image: linear-gradient(to right, #1e2130 40%, transparent 40%); }
+#custom-media.p42  { background-image: linear-gradient(to right, #1e2130 42%, transparent 42%); }
+#custom-media.p44  { background-image: linear-gradient(to right, #1e2130 44%, transparent 44%); }
+#custom-media.p46  { background-image: linear-gradient(to right, #1e2130 46%, transparent 46%); }
+#custom-media.p48  { background-image: linear-gradient(to right, #1e2130 48%, transparent 48%); }
+#custom-media.p50  { background-image: linear-gradient(to right, #1e2130 50%, transparent 50%); }
+#custom-media.p52  { background-image: linear-gradient(to right, #1e2130 52%, transparent 52%); }
+#custom-media.p54  { background-image: linear-gradient(to right, #1e2130 54%, transparent 54%); }
+#custom-media.p56  { background-image: linear-gradient(to right, #1e2130 56%, transparent 56%); }
+#custom-media.p58  { background-image: linear-gradient(to right, #1e2130 58%, transparent 58%); }
+#custom-media.p60  { background-image: linear-gradient(to right, #1e2130 60%, transparent 60%); }
+#custom-media.p62  { background-image: linear-gradient(to right, #1e2130 62%, transparent 62%); }
+#custom-media.p64  { background-image: linear-gradient(to right, #1e2130 64%, transparent 64%); }
+#custom-media.p66  { background-image: linear-gradient(to right, #1e2130 66%, transparent 66%); }
+#custom-media.p68  { background-image: linear-gradient(to right, #1e2130 68%, transparent 68%); }
+#custom-media.p70  { background-image: linear-gradient(to right, #1e2130 70%, transparent 70%); }
+#custom-media.p72  { background-image: linear-gradient(to right, #1e2130 72%, transparent 72%); }
+#custom-media.p74  { background-image: linear-gradient(to right, #1e2130 74%, transparent 74%); }
+#custom-media.p76  { background-image: linear-gradient(to right, #1e2130 76%, transparent 76%); }
+#custom-media.p78  { background-image: linear-gradient(to right, #1e2130 78%, transparent 78%); }
+#custom-media.p80  { background-image: linear-gradient(to right, #1e2130 80%, transparent 80%); }
+#custom-media.p82  { background-image: linear-gradient(to right, #1e2130 82%, transparent 82%); }
+#custom-media.p84  { background-image: linear-gradient(to right, #1e2130 84%, transparent 84%); }
+#custom-media.p86  { background-image: linear-gradient(to right, #1e2130 86%, transparent 86%); }
+#custom-media.p88  { background-image: linear-gradient(to right, #1e2130 88%, transparent 88%); }
+#custom-media.p90  { background-image: linear-gradient(to right, #1e2130 90%, transparent 90%); }
+#custom-media.p92  { background-image: linear-gradient(to right, #1e2130 92%, transparent 92%); }
+#custom-media.p94  { background-image: linear-gradient(to right, #1e2130 94%, transparent 94%); }
+#custom-media.p96  { background-image: linear-gradient(to right, #1e2130 96%, transparent 96%); }
+#custom-media.p98  { background-image: linear-gradient(to right, #1e2130 98%, transparent 98%); }
+#custom-media.p100 { background-image: linear-gradient(to right, #1e2130 100%, transparent 100%); }

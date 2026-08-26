@@ -1,0 +1,8 @@
+/* config/hypr/themes/gruvbox-crt/swayosd.css
+ *
+ * The amber OSD skin, imported from where it already lives rather than
+ * copied. ../../swayosd.css is config/hypr/swayosd.css — themes/ and
+ * gruvbox-crt/ are the two levels to climb.
+ */
+
+@import url("../../swayosd.css");

@@ -1,0 +1,63 @@
+/* config/hypr/themes/neon-sprawl/swaync.css
+ *
+ * Standalone: this theme shares no stylesheet with the gruvbox surfaces, so
+ * unlike gruvbox-crt/swaync.css there is no @import of config/swaync/style.css.
+ *
+ * Pairs with the swaync layerrules in hyprland.conf (blur + ignore_alpha),
+ * which is what keeps the notification layer's transparent expanse unblurred
+ * so only these cards get the glass.
+ */
+
+.notification-row { background: transparent; }
+
+.notification {
+  background: rgba(18, 20, 29, 0.86);
+  border: 1px solid #1e2130;
+  border-left: 3px solid #00e5ff;
+  color: #d7e0ff;
+  margin: 6px 12px;
+}
+
+.notification.critical { border-left: 3px solid #ff2e6c; }
+
+.notification-content { padding: 9px; }
+
+.summary { color: #d7e0ff; font-weight: bold; }
+.body    { color: #7a86b8; }
+.time    { color: #3a4160; }
+
+.notification-action {
+  background: rgba(30, 33, 48, 0.80);
+  color: #d7e0ff;
+  border: 1px solid #1e2130;
+}
+
+.notification-action:hover {
+  background: #1e2130;
+  color: #00e5ff;
+}
+
+.control-center {
+  background: rgba(10, 11, 16, 0.90);
+  border: 1px solid #00e5ff;
+  color: #d7e0ff;
+}
+
+.widget-title { color: #00e5ff; font-weight: bold; padding: 9px; }
+
+.widget-title > button {
+  background: transparent;
+  color: #7a86b8;
+  border: 1px solid #1e2130;
+}
+
+.widget-title > button:hover { color: #ff2e6c; border-color: #ff2e6c; }
+
+.widget-mpris {
+  background: rgba(30, 33, 48, 0.80);
+  color: #d7e0ff;
+}
+
+.widget-dnd { color: #d7e0ff; padding: 9px; }
+
+.widget-dnd > switch:checked { background: #00e5ff; }

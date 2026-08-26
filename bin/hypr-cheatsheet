@@ -168,6 +168,17 @@ parse() {
   | awk -F'\t' '{ printf "3\tworkspaces\t%-30s │ %s\n", $1, $2 }'
 }
 
+# Render in the ACTIVE theme's launcher style (ADR-0026), so the cheat sheet
+# looks like the session it is describing. Guarded on the file existing: a
+# --config pointing at nothing makes fuzzel exit and the menu never opens at
+# all, which is a worse outcome than the wrong colours.
+#
+# No session check needed — this script is Hyprland-only. river has its own
+# cheat sheet (bin/river-cheatsheet), which stays gruvbox by design.
+_theme_cfg=()
+_live="${XDG_STATE_HOME:-$HOME/.local/state}/hypr-theme/live/fuzzel.ini"
+[ -f "$_live" ] && _theme_cfg=(--config="$_live")
+
 parse \
   | sort -s -t'	' -k1,1n \
   | awk -F'\t' '
@@ -179,4 +190,4 @@ parse \
       }
       { print $3 }
     ' \
-  | fuzzel --dmenu --prompt '󰌌 keys ❯ ' --lines 24 --width 64 >/dev/null 2>&1 || true
+  | fuzzel "${_theme_cfg[@]}" --dmenu --prompt '󰌌 keys ❯ ' --lines 24 --width 64 >/dev/null 2>&1 || true

@@ -79,6 +79,18 @@
       mode: 755
     ~/.config/waybar/config.jsonc:  config/waybar/config.jsonc
     ~/.config/waybar/style.css:     config/waybar/style.css
+    # Drives group/media in BOTH bars: the progress-bar readout, the per-player
+    # icon, the cover art the drawer reveals on hover, and the transport keys
+    # flanking it. Linked here next to style.css for the same reason style.css
+    # is here — it is shared by the river and hyprland bars, so it must not sit
+    # in a block only one of them gets.
+    #
+    # mode 755 matters more than usual: waybar execs this on a timer and a
+    # non-executable script fails as an EMPTY MODULE, not as an error. The bar
+    # would render a blank space in the middle and say nothing about why.
+    ~/.local/bin/waybar-media:
+      path: bin/waybar-media
+      mode: 755
     # The session wrapper. Sets the environment river's children need and then
     # execs river — config/river/init CANNOT do this, because it runs as
     # river's child and `spawn` inherits river's environment, not init's.
@@ -161,9 +173,19 @@
     # The hyprland-session bar. style.css is linked in the river block above
     # and SHARED, so the two bars cannot drift on styling — only the module
     # config differs (river/tags vs hyprland/workspaces).
-    ~/.config/waybar/hyprland.jsonc: config/waybar/hyprland.jsonc
+    # Module DEFINITIONS for the hyprland bar. Not a bar config on its own any
+    # more — the geometry and arrangement live in each theme's waybar.jsonc,
+    # which pulls this in with waybar's `include` (ADR-0026). Renamed from
+    # hyprland.jsonc so nothing tries to start a bar from it.
+    ~/.config/waybar/hypr-modules.jsonc: config/waybar/hypr-modules.jsonc
     ~/.local/bin/hypr-cheatsheet:
       path: bin/hypr-cheatsheet
+      mode: 755
+    # Switches the session's whole look, motion and bar arrangement.
+    # Also the single definition of how waybar/swaync/swayosd start —
+    # hyprland.conf's exec-once calls `hypr-theme launch`.
+    ~/.local/bin/hypr-theme:
+      path: bin/hypr-theme
       mode: 755
     # Volume/brightness keys with an on-screen progress notification.
     # Compositor-agnostic; currently bound only in hyprland.conf — river's
@@ -195,6 +217,16 @@
 # else is maintaining these and they should come into the repo.
 
 - shell:
+    # Create ~/.local/state/hypr-theme/current.conf if it is missing, so
+    # hyprland.conf's `source` line resolves on a fresh machine. Deliberately
+    # NOT a dotbot link: `relink: true` would reset the symlink to the default
+    # theme on every bootstrap run, silently undoing a theme you chose weeks
+    # ago. `init` keeps whatever is already there and only fills a gap.
+    - command: bin/hypr-theme init >/dev/null 2>&1 || true
+      stdout: false
+      stderr: false
+      description: Ensure a Hyprland theme is selected
+
     - command: systemctl --user daemon-reload && systemctl --user enable --now pkgwatch.timer
       stdout: true
       stderr: true
