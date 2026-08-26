@@ -54,11 +54,22 @@ texlive-minted            # Arch: texlive-latexextra (a much coarser split —
 # rather than naming the binary it could not find.
 #
 # Verified 2026-08-26: `command -v pygmentize` found nothing, while
-# `dnf provides '*/bin/pygmentize'` names this package. Seven files use minted,
-# three of them shared UTAD preambles (2020, 2021, 2025) — but only the 2025
-# one is live work; 2019–2021 is archived coursework that does not get rebuilt.
-# So the breakage was one real failure and six latent ones, which is also why
-# it went unnoticed for as long as it did.
+# `dnf provides '*/bin/pygmentize'` names this package.
+#
+# THE IMPACT CLAIM THAT WAS HERE FIRST WAS WRONG, twice over. It said seven
+# files used minted and that the 2025 preamble was live work depending on it.
+# Both came from grepping for the string "minted", which counts commented-out
+# lines. 2025's preamble has it commented out at all nine occurrences and uses
+# listings; compiling 2025/advanced-databases/notes/main.tex loads listings.sty
+# and never touches pygmentize. Live \usepackage{minted}, comments excluded, is
+# three files in 2019-2021 and nothing since.
+#
+# So these two are NOT a live dependency. They stay declared as a scoped escape
+# hatch: config/nvim/lua/plugins/latex.lua no longer passes -shell-escape
+# globally (removed the same day, for the same reason), so rebuilding one of
+# those old documents means a .latexmkrc in its own directory — and that only
+# works if the packages are present. ~15 MB to keep three archived documents
+# rebuildable without re-enabling shell execution everywhere.
 #
 # config/nvim/lua/plugins/latex.lua passes -shell-escape for exactly this.
 python3-pygments          # Arch: python-pygments
