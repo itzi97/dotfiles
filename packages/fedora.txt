@@ -22,3 +22,20 @@ python3-pyyaml            # required by dotbot; Arch: python-yaml
 #
 # Until that is run by hand, this line is a no-op with --skip-unavailable.
 starship
+
+# --- LaTeX code highlighting (ADR-0018) -------------------------------
+# pygmentize, which the minted package shells out to. Not in common.txt
+# because Arch spells it python-pygments.
+#
+# This came free with the `uni` distrobox image for as long as latexmk lived
+# there. ADR-0018 moved TeX Live onto the host; pygments did not follow, and
+# nothing noticed, because latexmk reports the failure as a shell-escape error
+# rather than naming the binary it could not find.
+#
+# Verified 2026-08-26: `command -v pygmentize` found nothing, while
+# `dnf provides '*/bin/pygmentize'` names this package. Seven documents use
+# minted, three of them the shared UTAD preambles (2020, 2021, 2025), so
+# everything inheriting those years had stopped compiling.
+#
+# config/nvim/lua/plugins/latex.lua passes -shell-escape for exactly this.
+python3-pygments          # Arch: python-pygments
