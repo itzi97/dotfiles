@@ -250,6 +250,6 @@
   "custom/power": {
     "format": "󰐥",
     "tooltip-format": "Session menu (Super+Shift+P)",
-    "on-click": "wlogout -b 3 -s $HOME/.local/state/hypr-theme/live/wlogout.css"
+    "on-click": "wlogout -b 3 -C $HOME/.local/state/hypr-theme/live/wlogout.css"
   }
 }

@@ -1,7 +1,8 @@
 /* config/hypr/themes/neon-sprawl/wlogout.css
  *
- * Power menu, neon-sprawl variant. Passed with `wlogout -c layout -s <this>`
- * from the Hyprland bind; the river session keeps ~/.config/wlogout/style.css
+ * Power menu, neon-sprawl variant. Passed with `wlogout -C <this>` (-C is
+ * --css; -s is not a wlogout flag and -c is column-spacing) from the Hyprland
+ * bind; the river session keeps ~/.config/wlogout/style.css
  * and stays gruvbox (ADR-0026).
  *
  * Derived from config/wlogout/style.css by value substitution, so the
