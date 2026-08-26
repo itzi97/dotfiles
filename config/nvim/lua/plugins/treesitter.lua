@@ -44,6 +44,20 @@ return {
       "json", "yaml", "toml", "query", "vim", "vimdoc",
     },
     auto_install = true,
+
+    -- ...but auto_install would have undone that exclusion. Leaving "latex" out
+    -- of ensure_installed only stops it being installed up front; auto_install
+    -- means opening any .tex buffer makes nvim-treesitter try to fetch and build
+    -- the parser for that filetype on the spot. That is the same build that
+    -- fails on this host, so the effect was a failed compile every time a .tex
+    -- file was opened — the exact standing-noise problem that rocks = false and
+    -- the disabled providers exist to avoid, arriving by a different door.
+    --
+    -- ignore_install is the counterpart to ensure_installed and is honoured by
+    -- the master branch (lua/nvim-treesitter/configs.lua). It makes the
+    -- exclusion mean what the comment above already claimed it meant.
+    ignore_install = { "latex" },
+
     highlight = {
       enable = true,
       -- vimtex does its own syntax work for LaTeX and the two disagree; the
