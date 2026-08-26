@@ -200,7 +200,7 @@ window#waybar.empty #window {
    Music playing is not an alert and does not get an alert colour; the bar is
    structure, carried by shape and value. Paused recedes via opacity rather
    than a second set of colours, which is both the grammar's "inactive states
-   recede" rule and the reason this file has 52 progress rules and not 104.
+   recede" rule and the reason this file has 51 progress rules and not 102.
 
    THE HOVER IS A DRAWER, NOT A TOOLTIP, AND THAT IS NOT A STYLE CHOICE.
    Waybar tooltips are Pango markup; Pango has no image element, and images in

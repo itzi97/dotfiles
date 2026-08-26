@@ -12,8 +12,10 @@
  *   #d7e0ff  content      #7a86b8  secondary
  *   #3a4160  ambient      #1e2130  passive edges   #12141d  well ground
  *
- * Magenta #b026ff appears ONLY in the window border gradient (hypr.conf), at
- * 3px, where it cannot be confused with the hotter act-now #ff2e6c.
+ * Magenta #b026ff appears in chrome ONLY in the window border gradient
+ * (hypr.conf), at 3px, where it cannot be confused with the hotter act-now
+ * #ff2e6c. It is also kitty's color5 — but the terminal palette is DATA, not
+ * chrome, and ADR-0021 exempts it for exactly that reason.
  *
  * STRUCTURE, not just colour: bar spacing is 0, so modules butt together into
  * one continuous instrument strip and separation is carried by 1px dividers

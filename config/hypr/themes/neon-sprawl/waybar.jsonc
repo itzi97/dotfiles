@@ -10,7 +10,9 @@
 // that is where a heads-up display puts it, the focused window title takes
 // the centre as the single most important status line, and everything
 // mechanical — media included — is banked along the right edge as one
-// instrument strip. Same modules, different mental model.
+// instrument strip. Same DEFINITIONS file, different mental model — and not
+// quite the same module set: wlr/taskbar is dropped here, because a window
+// list and a centred window title say the same thing twice.
 //
 // spacing 0, not 6: the wells butt together into one continuous strip rather
 // than floating as separate instruments. waybar.css draws the dividers.

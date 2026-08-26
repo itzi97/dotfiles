@@ -170,9 +170,13 @@
     # Whole directory, nvim-style: hyprland reads hyprland.conf and writes
     # nothing in here, so the repo owns everything under it.
     ~/.config/hypr:                  config/hypr
-    # The hyprland-session bar. style.css is linked in the river block above
-    # and SHARED, so the two bars cannot drift on styling — only the module
-    # config differs (river/tags vs hyprland/workspaces).
+    # NO LONGER SHARED. This used to say style.css was linked in the river
+    # block and shared by both bars, so they could not drift. ADR-0026 ended
+    # that: the Hyprland bar's stylesheet is now the active THEME's
+    # waybar.css. gruvbox-crt's is a one-line @import of the shared file, so
+    # that pairing still cannot drift — but neon-sprawl's is standalone and
+    # shares nothing. river keeps config.jsonc + style.css and is pinned to
+    # gruvbox permanently.
     # Module DEFINITIONS for the hyprland bar. Not a bar config on its own any
     # more — the geometry and arrangement live in each theme's waybar.jsonc,
     # which pulls this in with waybar's `include` (ADR-0026). Renamed from

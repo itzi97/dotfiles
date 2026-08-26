@@ -21,11 +21,11 @@
     # STALE COMMENT CORRECTED 2026-08-26: this used to say "Desktop-only:
     # Hyprland does not exist on the ThinkPad." That stopped being true when
     # ADR-0023 added Hyprland as the ThinkPad's third session — thinkpad.yaml
-    # links ~/.config/hypr to config/hypr, a full 400-line session. The two
+    # links ~/.config/hypr to config/hypr, a full 381-line session. The two
     # machines link the SAME destination from DIFFERENT sources, which is
     # legitimate but is exactly the kind of thing a stale comment hides.
     #
-    # What is here is a 12-line stub from 2026-07-25: a mod key and two binds.
+    # What is here is an 11-line stub from 2026-07-25: a mod key and two binds.
     # The desktop's compositor question is still open (06-backlog,
     # open question 2), and the session themes of ADR-0026 are ThinkPad-only
     # because they are built on config/hypr, not on this.

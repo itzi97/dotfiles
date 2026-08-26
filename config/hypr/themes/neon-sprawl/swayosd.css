@@ -23,7 +23,7 @@
 window#osd {
   border-radius: 0;
   border: 2px solid #00e5ff;
-  background: rgba(18, 20, 29, 0.92);   /* bg0_h, near-solid */
+  background: rgba(18, 20, 29, 0.92);   /* #12141d well ground, near-solid */
 }
 
 window#osd #container {

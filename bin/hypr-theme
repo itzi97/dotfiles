@@ -5,8 +5,8 @@
 #   hypr-theme                 # print the active theme
 #   hypr-theme list            # every theme available, active one marked
 #   hypr-theme set <name>      # switch to it and reload every surface
-#   hypr-theme menu            # pop up a fuzzel picker (bound to $mod T)
-#   hypr-theme cycle           # next theme in the list (bound to $mod SHIFT T)
+#   hypr-theme menu            # pop up a fuzzel picker (bound to $mod SHIFT T)
+#   hypr-theme cycle           # next theme in the list (NOT bound to a key)
 #   hypr-theme launch          # start the themed surfaces (hyprland.conf calls this)
 #   hypr-theme init            # make the state dir valid without reloading
 #
@@ -17,20 +17,26 @@
 # swayosd.css. Those sections appear THERE and nowhere in hyprland.conf, so
 # the session's look never depends on Hyprland's linear parse order.
 #
-# ONLY HYPRLAND NEEDS A SYMLINK, AND THAT IS THE WHOLE DESIGN
+# TWO SYMLINKS, AND THE SPLIT BETWEEN THEM IS THE WHOLE DESIGN
 #
-# hyprland.conf has a fixed `source = ~/.local/state/hypr-theme/current.conf`
-# line, which cannot take a runtime argument — so that one path is a symlink
-# this script re-points. Every other surface is STARTED by this script, so it
-# simply passes the real theme path on the command line.
+# Surfaces reach their themed config one of two ways, and which one is not
+# arbitrary:
 #
-# That asymmetry is deliberate and load-bearing. A themed stylesheet uses
-# relative imports (`@import url("../../../waybar/style.css")`) exactly the
-# way themes/gruvbox-crt/swaync.css already does — and GTK resolves those
-# against the file's own directory. Served through a symlink in
-# ~/.local/state, `../../../` would resolve to ~/.local/ and the import would
-# silently load nothing. Passing the real path keeps the repo-and-deployed
-# mirroring that makes those relative imports work in both views.
+#   STARTED BY THIS SCRIPT, given the real theme path:
+#     waybar, swaync, swayosd
+#   REACHED THROUGH THE `live` DIRECTORY SYMLINK, because hyprland.conf's
+#   binds and `env` lines are static text and cannot take a runtime argument:
+#     fuzzel (--config), swaylock (-C), wlogout (-C), kitty
+#     (KITTY_CONFIG_DIRECTORY), and hyprland itself (`source =`, via
+#     current.conf rather than live/)
+#
+# The split exists because of RELATIVE IMPORTS. themes/gruvbox-crt/waybar.css
+# does `@import url("../../../waybar/style.css")` and swaync.css does the
+# same for ../../../swaync/. GTK resolves those against the file's own
+# directory, so served from ~/.local/state/hypr-theme/ the `../../../` would
+# land in ~/.local/ and load nothing, silently. Those two get real repo paths.
+# Everything under live/ uses only DOWNWARD paths (wlogout.css's
+# url("icons/…")), which stay inside the link target and are therefore safe.
 #
 # WHY THE STATE DIR IS NOT ~/.config/hypr/
 #
@@ -66,10 +72,13 @@ DEFAULT_THEME=gruvbox-crt
 # either a line in launch() (for daemons) or a bind in hyprland.conf (for
 # things spawned per-keypress).
 #
-# gruvbox-crt satisfies most of these with SYMLINKS to the canonical configs
-# in config/fuzzel, config/swaylock, config/kitty and config/wlogout — that
-# theme IS the current session, and a copy would only be a second thing to
-# keep in step. `[ -f ]` follows symlinks, so validation treats them alike.
+# gruvbox-crt satisfies FOUR of these — fuzzel.ini, swaylock.conf, kitty.conf
+# and wlogout.css — plus the icons/ directory, with SYMLINKS to the canonical
+# configs in config/fuzzel, config/swaylock, config/kitty and config/wlogout.
+# That theme IS the current session, and a copy would only be a second thing
+# to keep in step. The other eight are real files, because they describe the
+# theme rather than the session. `[ -f ]` follows symlinks, so validation
+# treats both alike.
 REQUIRED=(
   hypr.conf
   waybar.jsonc waybar.css
@@ -245,12 +254,14 @@ apply_wallpaper() {
 # checked-in file would destroy. gsettings writes to dconf instead, which
 # Plasma does not fight over, and it applies to RUNNING apps.
 #
-# Session-scoped only in practice: switching themes is a Hyprland action, and
-# nothing changes it back when you log into river — so a river session after a
-# switch inherits whatever GTK theme was last set. That is the one place the
-# river-stays-gruvbox pin leaks, and it leaks because dconf is per-user, not
-# per-session. Noted rather than worked around; the alternative is fighting
-# Plasma for settings.ini, which is the thing that decision exists to avoid.
+# LATENT CROSS-SESSION LEAK, not currently firing. dconf is per-USER, not
+# per-session, so nothing resets this when you log into river — a river
+# session would inherit whatever GTK theme was last set here. It does not bite
+# today only because both themes' `gtk` files say Breeze-Dark, so gsettings
+# writes the same value either way. The moment neon-sprawl names a different
+# theme, the river-stays-gruvbox pin (ADR-0026) leaks through this function.
+# Noted rather than worked around: the alternative is fighting Plasma for
+# settings.ini, which is the thing that decision exists to avoid.
 apply_gtk() {
   local dir=$1 name
   [ -r "${dir}/gtk" ] || return 0
@@ -284,12 +295,15 @@ point_at() {
   # argument — point at theme-dependent files:
   #   fuzzel   --config=$HOME/.local/state/hypr-theme/live/fuzzel.ini
   #   swaylock -C        …/live/swaylock.conf
-  #   wlogout  -s        …/live/wlogout.css
+  #   wlogout  -C        …/live/wlogout.css   (-C is --css; -s is not a
+  #                                            wlogout flag, -c is spacing)
   #   env = KITTY_CONFIG_DIRECTORY,…/live
   #
   # Linking the DIRECTORY rather than each file is what makes wlogout.css's
-  # relative url("wlogout-icons/…") resolve: the icons sit inside the same
-  # directory, so a downward relative path stays inside the link target.
+  # relative url("icons/…") resolve: the icons sit inside the same directory,
+  # so a downward relative path stays inside the link target. (The directory
+  # is named `icons` and not `wlogout-icons` for that reason — see
+  # REQUIRED_DIRS above.)
   #
   # waybar.css and swaync.css deliberately do NOT come through here — they use
   # UPWARD relative imports (../../../waybar/style.css), which would escape to
@@ -347,11 +361,14 @@ cmd_cycle() {
   [ "${#all[@]}" -gt 0 ] || die "no themes available to cycle through"
 
   # SKIP INCOMPLETE THEMES rather than landing on one. cmd_set would refuse
-  # them — correctly — but cycle is bound to a key, and a key that appears to
-  # do nothing is worse than one that skips something. Found by test: a
-  # half-written theme directory sitting alphabetically between two good ones
-  # made $mod+SHIFT+T a no-op with the reason on stderr, where a keybind has
-  # nowhere to print.
+  # them — correctly — but it would refuse SILENTLY as far as the caller can
+  # see, because the reason goes to stderr. Found by test: a half-written
+  # theme directory sitting alphabetically between two good ones made a cycle
+  # appear to do nothing at all.
+  #
+  # cycle is deliberately NOT bound to a key (the picker is, on $mod+SHIFT+T)
+  # — but it is what a script would reach for, and a script has even less
+  # chance of noticing stderr than a person does.
   for t in "${all[@]}"; do
     is_valid "$t" && list+=("$t")
   done
