@@ -15,12 +15,15 @@
 --    found". None of that is true any more; ADR-0018 moved TeX Live onto the
 --    host and the container is not in the path at all. Corrected 2026-08-26.
 --
---    Consequence worth checking once, since it silently rode along with the old
---    arrangement: `-shell-escape` below exists for minted, and minted needs
---    `pygmentize` in the same place as the compiler. That used to be satisfied
---    by the container image. It now has to be on the host —
---    `command -v pygmentize` — or minted documents fail at compile time with an
---    error that blames shell-escape rather than the missing binary.
+--    A dependency rode along with the old arrangement and did NOT survive the
+--    move. minted (see -shell-escape below) shells out to `pygmentize`, which
+--    the container image supplied. Checked on 2026-08-26: `command -v latexmk`
+--    finds /usr/bin/latexmk, `command -v pygmentize` finds nothing.
+--
+--    So minted documents do not compile on this host right now, and the failure
+--    blames shell-escape rather than naming the missing binary — which is why
+--    it went unnoticed. Pygments belongs in the host package list next to TeX
+--    Live, since ADR-0018 already put TeX Live there.
 --
 -- 2. VIEWER. zathura, installed on the host.
 --
@@ -55,7 +58,21 @@ return {
       out_dir = "build",
       continuous = 1,
       options = {
-        "-shell-escape",     -- needed by minted/pygments, common in CV templates
+        -- -shell-escape is here for minted, which shells out to `pygmentize` to
+        -- highlight code blocks. The comment that used to be on this line said
+        -- it was "common in CV templates" — a guess about templates in general.
+        -- Checked on 2026-08-26: the CV does not use minted. Seven files do, and
+        -- three of them are the shared UTAD preambles (2020, 2021, 2025), so
+        -- anything inheriting those years needs it. That is the real dependency.
+        --
+        -- KNOWN RESIDUAL RISK, accepted knowingly rather than by not looking:
+        -- this applies to every compile, not only to those documents, so any
+        -- .tex opened here — a downloaded template, arXiv source — can run shell
+        -- commands at build time. Kept because the alternative is breaking seven
+        -- working documents, and everything under Documents/ is your own work.
+        -- If that stops being true, the narrower fix is a per-project .latexmkrc
+        -- rather than a global flag.
+        "-shell-escape",
         "-verbose",
         "-file-line-error",
         "-synctex=1",
