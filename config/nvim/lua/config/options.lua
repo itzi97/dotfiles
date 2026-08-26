@@ -25,7 +25,14 @@ opt.signcolumn = "yes"         -- always on: without it the text jumps sideways
                                -- every time a git sign or diagnostic appears
 opt.scrolloff = 8              -- keep context above/below the cursor
 opt.wrap = false
-opt.termguicolors = true
+opt.termguicolors = true       -- silkcircuit refuses to load without this and
+                               -- says so via vim.notify; gruvbox just looks
+                               -- wrong. Set here, before lazy, so both are safe.
+
+-- mini.statusline already shows the mode, so the "-- INSERT --" in the command
+-- line is the same information twice. Copied deliberately from kickstart
+-- (init.lua, 626c660) rather than merged — there is no upstream here.
+opt.showmode = false
 
 -- --- indentation -----------------------------------------------------------
 opt.expandtab = true
@@ -56,8 +63,24 @@ opt.splitbelow = true
 opt.updatetime = 250           -- how fast CursorHold fires (diagnostics, gitsigns)
 opt.timeoutlen = 400           -- how long to wait for a mapping sequence
 opt.mouse = "a"                -- principle #9: keyboard-first, mouse-tolerant
-opt.clipboard = "unnamedplus"  -- share the system clipboard
 opt.confirm = true             -- prompt instead of failing on :q with changes
+
+-- Share the system clipboard — but set it AFTER startup, not during.
+--
+-- This used to be a plain `opt.clipboard = "unnamedplus"` on this line. Setting
+-- it eagerly makes neovim go looking for a clipboard provider while it is still
+-- starting, which on Wayland means shelling out to wl-copy/wl-paste before the
+-- first paint. kickstart schedules it for exactly this reason (init.lua,
+-- 626c660: "Schedule the setting after `UiEnter` because it can increase
+-- startup-time"), and that argument applies here more than it does there,
+-- because this config is also opened over ssh and inside distrobox, where
+-- probing for a provider is slower and sometimes pointless.
+--
+-- Nothing is lost: the scheduled callback runs before you could plausibly press
+-- a key. Copied in as a decision rather than merged — there is no upstream.
+vim.schedule(function()
+  vim.o.clipboard = "unnamedplus"
+end)
 
 -- Show whitespace that matters. Trailing spaces and hard tabs are invisible
 -- until they cause a diff or break a Makefile.
