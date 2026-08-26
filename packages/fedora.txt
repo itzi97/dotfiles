@@ -23,6 +23,27 @@ python3-pyyaml            # required by dotbot; Arch: python-yaml
 # Until that is run by hand, this line is a no-op with --skip-unavailable.
 starship
 
+# --- LaTeX toolchain (ADR-0018) ---------------------------------------
+# THE COMPILER ITSELF WAS DECLARED NOWHERE. Not here, not common.txt, not
+# cachyos.txt, not a bundle. common.txt has a whole section arguing zathura is
+# wanted on "every machine that edits LaTeX, which is all of them" — and the
+# thing that produces the PDF zathura opens was in no list at all. A rebuilt
+# machine got the editor, vimtex and the viewer, and no way to compile.
+#
+# Same shape as btop, wl-clipboard, libnotify and polkit-kde on 2026-08-24:
+# true-but-undeclared. latexmk was genuinely absent from the host while it
+# lived in the `uni` distrobox; ADR-0018 moved TeX Live onto the host and the
+# package lists never caught up. Found 2026-08-26.
+#
+# Names read off this machine with `rpm -qf` / `rpm -q`, not guessed:
+# latexmk-4.88, texlive-minted-svn78270, texlive-collection-latex-svn78733.
+# Fedora splits these three ways and Arch does not, so all three differ.
+latexmk                   # Arch: texlive-binextra
+texlive-collection-latex  # Arch: texlive-latex
+texlive-minted            # Arch: texlive-latexextra (a much coarser split —
+                          # ~110 MB there vs a few MB here; worth pricing
+                          # before adding the Arch side to cachyos.txt)
+
 # --- LaTeX code highlighting (ADR-0018) -------------------------------
 # pygmentize, which the minted package shells out to. Not in common.txt
 # because Arch spells it python-pygments.
