@@ -1,50 +1,60 @@
 /* config/hypr/themes/neon-sprawl/swayosd.css
  *
- * The volume/brightness/mic OSD — icon + bar, bottom centre — in neon-sprawl.
+ * Volume / brightness / mic OSD — icon + bar, bottom centre — in neon-sprawl.
  *
- * GENERATED FROM config/hypr/swayosd.css BY VALUE SUBSTITUTION, and the first
- * version of this file was not. That version was hand-written from guessed
- * selectors and omitted #container, segmentedprogress, segment and the
- * :disabled rules entirely — SwayOSD then rendered wrong, and bin/osd fell
- * through to its wob tier, which is the bare geometric gauge with no icon
- * (2026-08-26). Same failure shape as the swaylock config: the working file
- * is the specification, and a rewrite from memory silently drops half of it.
+ * SELECTORS ARE EXACTLY config/hypr/swayosd.css's TWELVE, verified. That list
+ * is the specification: the first version of this file was written from
+ * guessed selectors, omitted #container, segmentedprogress, segment and the
+ * :disabled rules, and SwayOSD rendered wrong enough that bin/osd fell through
+ * to the bare wob gauges. Values may change freely; the selector set may not.
  *
- * Selectors match SwayOSD's own default stylesheet (data/style/style.scss).
- * Radius stays 0, as in gruvbox-crt: hard-edged bezels are ADR-0021's language
- * and cyberpunk is angular anyway. If you want it softer, it is one value in
- * four places here.
+ * This version changes STRUCTURE, not just values — the previous one was a
+ * value-substitution of the gruvbox file and therefore inherited its shape:
+ * a 2px box on all four sides, a flat trough, a flat fill. Recoloured, not
+ * redesigned.
  *
- *   #1d2021 -> #12141d   ground      #504945 -> #00e5ff   bezel (lit, not passive)
- *   #ebdbb2 -> #d7e0ff   content     #3c3836 -> #1e2130   trough
- *   #d79921 -> #00e5ff   value is current: accent
+ * What it is now: a HUD readout. No box — a heavy lit rule underneath and a
+ * bracket at the left, so the panel reads as a strip of instrumentation
+ * rather than a dialog. The fill is the theme's cyan→magenta signature.
+ *
+ * No glow: GTK3 parses shadow blur radii and does not render them. The icon
+ * gets a hard chromatic-aberration split instead, which GTK does draw.
  */
 
 window#osd {
   border-radius: 0;
-  border: 2px solid #00e5ff;
-  background: rgba(18, 20, 29, 0.92);   /* #12141d well ground, near-solid */
+  /* Bracket, not box: lit along the bottom, hinted at the left, open on the
+     right — a gauge that continues off the edge of itself. */
+  border: none;
+  border-bottom: 3px solid #00e5ff;
+  border-left: 1px solid #b026ff;
+  background-image: linear-gradient(to bottom,
+                    rgba(10, 11, 16, 0.88) 0%,
+                    rgba(18, 20, 29, 0.94) 100%);
 }
 
 window#osd #container {
-  margin: 12px 15px;
+  margin: 12px 18px;
 }
 
 window#osd image,
 window#osd label {
-  color: #d7e0ff;
+  color: #00e5ff;
   font-family: "JetBrains Mono", "Symbols Nerd Font", monospace;
   font-size: 13px;
+  /* Mis-converged sign. Offsets render in GTK3; blur does not. */
+  text-shadow: 1px 0 rgba(255, 46, 108, 0.6), -1px 0 rgba(0, 229, 255, 0.6);
 }
 
 window#osd progressbar:disabled,
 window#osd image:disabled {
-  opacity: 0.5;
+  opacity: 0.35;
 }
 
 window#osd progressbar,
 window#osd segmentedprogress {
-  min-height: 8px;
+  /* Thinner than gruvbox's 8px: a filament, not a bar. */
+  min-height: 4px;
   border-radius: 0;
   background: transparent;
   border: none;
@@ -55,7 +65,9 @@ window#osd segment {
   min-height: inherit;
   border-radius: 0;
   border: none;
-  background: #1e2130;                  /* bezel-ground, like the well borders */
+  /* Nearly invisible — the unfilled part of a HUD gauge is absence, not a
+     grey bar sitting there. */
+  background: #12141d;
 }
 
 window#osd progress,
@@ -63,5 +75,5 @@ window#osd segment.active {
   min-height: inherit;
   border-radius: 0;
   border: none;
-  background: #00e5ff;                  /* the value is current: accent */
+  background-image: linear-gradient(to right, #00e5ff 0%, #b026ff 100%);
 }

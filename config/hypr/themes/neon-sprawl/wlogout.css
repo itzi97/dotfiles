@@ -76,3 +76,47 @@ button:hover {
 #shutdown:hover { background-image: url("icons/shutdown-red.svg"); }
 #reboot:focus,
 #reboot:hover   { background-image: url("icons/reboot-red.svg"); }
+
+/* --- neon-sprawl structural pass (2026-08-26) -------------------------------
+ * The substitution that produced this file kept gruvbox's SHAPE: uniform
+ * boxes, uniform borders. These rules come after it and change the shape into
+ * something angular — bracket borders rather than frames, a two-hue gradient
+ * on the focused button, and a hard chromatic-aberration split on the labels.
+ *
+ * Deliberately additive and last: every selector above still exists, so the
+ * icon mechanism and the destructive-button colouring are untouched. GTK CSS
+ * is last-wins on equal specificity, so these override cleanly.
+ *
+ * No glow — GTK3 does not render shadow blur. Offsets only.
+ */
+
+button {
+  border: 1px solid #1e2130;
+  border-left: 3px solid #1e2130;
+  background-color: rgba(18, 20, 29, 0.88);
+  color: #7a86b8;
+  text-shadow: 1px 0 rgba(255, 46, 108, 0.45), -1px 0 rgba(0, 229, 255, 0.45);
+}
+
+/* The accent means CURRENT — here, the button under the cursor. Lit left edge
+   and a ground that fades away from it, so focus reads as illumination
+   rather than as a fill. */
+button:focus, button:hover {
+  border-left: 3px solid #00e5ff;
+  border-color: #00e5ff;
+  color: #d7e0ff;
+  background-image: linear-gradient(to right,
+                    rgba(0, 229, 255, 0.16) 0%,
+                    rgba(10, 11, 16, 0.88) 70%);
+}
+
+/* The two that destroy unsaved work keep act-now, and get the hotter edge. */
+#shutdown:focus, #shutdown:hover,
+#reboot:focus, #reboot:hover {
+  border-left: 3px solid #ff2e6c;
+  border-color: #ff2e6c;
+  color: #ff2e6c;
+  background-image: linear-gradient(to right,
+                    rgba(255, 46, 108, 0.18) 0%,
+                    rgba(10, 11, 16, 0.88) 70%);
+}

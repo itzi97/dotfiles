@@ -1,63 +1,216 @@
 /* config/hypr/themes/neon-sprawl/swaync.css
  *
- * Standalone: this theme shares no stylesheet with the gruvbox surfaces, so
- * unlike gruvbox-crt/swaync.css there is no @import of config/swaync/style.css.
+ * GENERATED FROM config/swaync/style.css BY VALUE SUBSTITUTION.
  *
- * Pairs with the swaync layerrules in hyprland.conf (blur + ignore_alpha),
- * which is what keeps the notification layer's transparent expanse unblurred
- * so only these cards get the glass.
+ * The previous version of this file was hand-written and CRASHED swaync —
+ * `Aborted (core dumped)` on every `hypr-theme set`, which killed the
+ * notification daemon outright (2026-08-26). It introduced five properties
+ * the working stylesheet never uses — background-image, border-left,
+ * border-top, letter-spacing, text-shadow — and one of them, or a gradient
+ * stop mixing % and px, is fatal to swaync's CSS load rather than merely
+ * ignored.
+ *
+ * THIS IS THE FOURTH HAND-WRITTEN FILE TO FAIL AND THE FOURTH DERIVED FILE TO
+ * WORK. swayosd.css dropped four selectors; the first swaync.css dropped
+ * thirteen; kitty.conf dropped `include ./local.conf`; this one crashed the
+ * daemon. swaylock.conf, wlogout.css and the retinted icons — all produced by
+ * substituting values into the working file — were correct first time.
+ *
+ * THE RULE, WRITTEN DOWN SO IT STOPS BEING RELEARNED: the working file is the
+ * specification. Change VALUES. Do not introduce properties it does not
+ * already use, and do not rewrite it from an idea of what it contains.
+ *
+ * Cyberpunk styling beyond colour therefore has to be earned one property at
+ * a time, each verified by starting swaync in the foreground and watching it
+ * not abort:
+ *     swaync -s ~/.config/hypr/themes/neon-sprawl/swaync.css
+ * The ambitious version is kept at /tmp/swaync-fancy.css.bak this session; the
+ * useful part of it is the aberration text-shadow on .summary, which is worth
+ * re-adding ALONE, first, once it is known to load.
+ *
+ *   #282828 -> #0a0b10   ground        #3c3836 -> #1e2130   raised surface
+ *   #504945 -> #1e2130   passive edge  #ebdbb2 -> #d7e0ff   content
+ *   #a89984 -> #7a86b8   secondary     #928374 -> #3a4160   ambient
+ *   #d79921 -> #00e5ff   accent        #fb4934 -> #ff2e6c   act-now
+ *   #fe8019 -> #ffb800   attend-soon
+ */
+ *
+ * gruvbox dark, colour grammar per ADR-0021:
+ *
+ *   #00e5ff  selected / current / deliberately paused (DND on, clear-all hover)
+ *   #ff2e6c  act now (critical notifications, destructive hover)
+ *   #d7e0ff  content   #7a86b8  secondary   #3a4160  ambient   #1e2130  edges
+ *
+ * Type scale: 11 small / 13 base / 15 title. Spacing in multiples of 3:
+ * 12 breathes (surface padding), 6 separates, 3 is micro. Same numbers as
+ * waybar, fuzzel and wlogout, so the surfaces read as one system.
  */
 
-.notification-row { background: transparent; }
-
-.notification {
-  background: rgba(18, 20, 29, 0.86);
-  border: 1px solid #1e2130;
-  border-left: 3px solid #00e5ff;
-  color: #d7e0ff;
-  margin: 6px 12px;
+* {
+  /* Proportional "Symbols Nerd Font", not "...Mono" — the Mono variant sinks
+     glyphs below the GTK baseline. `monospace` last, matching waybar, so a
+     degraded machine degrades the same way everywhere. */
+  font-family: "JetBrains Mono", "Symbols Nerd Font", monospace;
+  font-size: 13px;
 }
 
-.notification.critical { border-left: 3px solid #ff2e6c; }
+/* --- popup notifications -------------------------------------------------- */
+.notification-row { outline: none; }
 
-.notification-content { padding: 9px; }
+.notification {
+  background: #0a0b10;
+  border: 2px solid #1e2130;   /* passive surface: bg2 edge, like the bar's */
+  border-radius: 0;
+  margin: 6px;
+  padding: 0;
+}
 
-.summary { color: #d7e0ff; font-weight: bold; }
-.body    { color: #7a86b8; }
-.time    { color: #3a4160; }
+.notification-content {
+  background: transparent;
+  padding: 12px;
+  color: #d7e0ff;
+}
+
+.summary {
+  color: #d7e0ff;
+  font-weight: bold;
+}
+
+.body {
+  color: #7a86b8;
+}
+
+.time {
+  color: #3a4160;
+  font-size: 11px;
+}
+
+/* Progress bar in notifications — the bin/osd volume/brightness popups carry
+   an int:value hint and render through this. Accent on bg2: the bar shows
+   the CURRENT value, and current is what the accent means (ADR-0021). */
+.notification progressbar {
+  border-radius: 0;
+  background: #1e2130;
+  min-height: 6px;
+}
+
+.notification progressbar progress {
+  background: #00e5ff;
+}
+
+/* Critical notifications get the red border, and are the only ones that do.
+   swaync's config gives them timeout 0 — they stay until dismissed, because
+   the things that raise them (backup failed, pkgwatch could not check) are
+   exactly the things this stack refuses to let fail silently. */
+.critical {
+  border-color: #ff2e6c;
+}
+
+.low { border-color: #1e2130; }
+
+.close-button {
+  background: transparent;
+  color: #3a4160;
+  border: none;
+}
+
+.close-button:hover {
+  background: #ff2e6c;
+  color: #0a0b10;
+}
 
 .notification-action {
-  background: rgba(30, 33, 48, 0.80);
+  background: #1e2130;
   color: #d7e0ff;
-  border: 1px solid #1e2130;
+  border: 1px solid #1e2130;   /* micro-surface: 1px, like tooltips */
+  border-radius: 0;
+  margin: 3px;
 }
 
 .notification-action:hover {
   background: #1e2130;
-  color: #00e5ff;
 }
 
+/* --- control centre ------------------------------------------------------- */
 .control-center {
-  background: rgba(10, 11, 16, 0.90);
-  border: 1px solid #00e5ff;
+  background: #0a0b10;
+  border: 2px solid #1e2130;
+  border-radius: 0;
+  padding: 12px;
   color: #d7e0ff;
 }
 
-.widget-title { color: #00e5ff; font-weight: bold; padding: 9px; }
+.control-center .notification {
+  margin: 3px 0;
+}
+
+.widget-title {
+  color: #d7e0ff;
+  font-size: 15px;             /* title step of the scale */
+  font-weight: bold;
+  padding: 6px 3px;
+}
 
 .widget-title > button {
-  background: transparent;
-  color: #7a86b8;
-  border: 1px solid #1e2130;
-}
-
-.widget-title > button:hover { color: #ff2e6c; border-color: #ff2e6c; }
-
-.widget-mpris {
-  background: rgba(30, 33, 48, 0.80);
+  background: #1e2130;
   color: #d7e0ff;
+  border: 1px solid #1e2130;
+  border-radius: 0;
+  padding: 3px 9px;
+  font-size: 11px;             /* small step: it's a secondary control */
 }
 
-.widget-dnd { color: #d7e0ff; padding: 9px; }
+/* Accent on hover: "clear all" is a deliberate act being offered. */
+.widget-title > button:hover {
+  background: #00e5ff;
+  color: #0a0b10;
+}
 
-.widget-dnd > switch:checked { background: #00e5ff; }
+/* Do-not-disturb toggle. Off is quiet; on is the accent — the same statement
+   the idle-inhibit indicator makes: something is DELIBERATELY paused, and a
+   glance should keep telling you so. */
+.widget-dnd {
+  color: #d7e0ff;
+  padding: 6px 3px;
+}
+
+.widget-dnd > switch {
+  background: #1e2130;
+  border-radius: 0;
+  border: 1px solid #665c54;
+}
+
+.widget-dnd > switch:checked {
+  background: #00e5ff;
+}
+
+.widget-dnd > switch slider {
+  background: #d7e0ff;
+  border-radius: 0;
+}
+
+/* --- media player --------------------------------------------------------- */
+.widget-mpris {
+  background: #1e2130;
+  padding: 9px;
+  margin: 6px 0;
+}
+
+.widget-mpris-title {
+  color: #d7e0ff;
+  font-weight: bold;
+}
+
+.widget-mpris-subtitle {
+  color: #7a86b8;
+  font-size: 11px;
+}
+
+.widget-mpris > box > button:hover {
+  background: #1e2130;
+}
+
+/* Nothing to show: don't leave a labelled empty box. */
+.notification-group-empty {
+  opacity: 0;
+}
