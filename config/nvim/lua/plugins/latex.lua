@@ -4,15 +4,23 @@
 -- there are two machine-specific details worth understanding before changing
 -- anything here.
 --
--- 1. COMPILER. vimtex shells out to `latexmk`. On this machine latexmk is NOT
---    installed on the host — it lives in the `uni` distrobox and reaches the
---    host as an exported wrapper in ~/.local/bin (ADR-0012, toolboxes/uni.txt).
---    That works because the box shares $HOME, so the container sees the same
---    .tex file at the same path and writes the PDF back where you expect.
+-- 1. COMPILER. vimtex shells out to `latexmk`, which is installed on the host,
+--    from TeX Live (ADR-0018 makes TeX Live Tier 1 here).
 --
---    It also means: if `tbx rm uni` ever happens, LaTeX compilation stops
---    working here and the error will be a confusing "latexmk not found" rather
---    than anything mentioning containers. `tbx create uni` fixes it.
+--    THIS PARAGRAPH USED TO SAY THE OPPOSITE, and it is worth knowing why so
+--    nobody reinstates it. It claimed latexmk was not on the host at all — that
+--    it lived in the `uni` distrobox and reached us as an exported wrapper in
+--    ~/.local/bin, working only because the box shares $HOME, and that
+--    `tbx rm uni` would break LaTeX compilation with a confusing "latexmk not
+--    found". None of that is true any more; ADR-0018 moved TeX Live onto the
+--    host and the container is not in the path at all. Corrected 2026-08-26.
+--
+--    Consequence worth checking once, since it silently rode along with the old
+--    arrangement: `-shell-escape` below exists for minted, and minted needs
+--    `pygmentize` in the same place as the compiler. That used to be satisfied
+--    by the container image. It now has to be on the host —
+--    `command -v pygmentize` — or minted documents fail at compile time with an
+--    error that blames shell-escape rather than the missing binary.
 --
 -- 2. VIEWER. zathura, installed on the host.
 --
@@ -27,8 +35,10 @@
 --    okular stays installed because it came with the spin — it just stops
 --    being the thing that opens PDFs.
 --
---    Forward search across the container boundary works because the *viewer*
---    runs on the host. Only the compiler is containerised.
+--    (A note here used to explain that forward search worked "across the
+--    container boundary" because only the compiler was containerised. There is
+--    no boundary now — compiler and viewer are both on the host, so synctex
+--    forward and inverse search are simply local. Removed 2026-08-26.)
 
 return {
   "lervag/vimtex",
