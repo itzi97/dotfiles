@@ -23,7 +23,12 @@
 # arbitrary:
 #
 #   STARTED BY THIS SCRIPT, given the real theme path:
-#     waybar, swaync, swayosd
+#     waybar, swayosd
+#   OWNED BY systemd, restarted by this script:
+#     swaync — its unit is packaged and enabled, so this script spawning a
+#     second copy only ever produced a D-Bus race it lost. The theme path
+#     reaches it through config/systemd/swaync-theme.conf -> bin/swaync-themed.
+#     See restart_swaync() below for the full account.
 #   REACHED THROUGH THE `live` DIRECTORY SYMLINK, because hyprland.conf's
 #   binds and `env` lines are static text and cannot take a runtime argument:
 #     fuzzel (--config), swaylock (-C), wlogout (-C), kitty
@@ -86,6 +91,17 @@ REQUIRED=(
   fuzzel.ini swaylock.conf kitty.conf wlogout.css
   wallpaper description gtk
 )
+
+# Desktop chrome a theme MAY name, checked by nothing. `gtk` stays in REQUIRED
+# above because both themes have always had it; these are deliberately optional
+# so a theme can own only the surfaces it has an asset for. apply_desktop()
+# treats an absent file as "leave that setting alone" — see its header.
+#
+#   icon-theme  gsettings/kdeglobals icon theme name — NOT `icons`, which is
+#               already the wlogout SVG directory in REQUIRED_DIRS
+#   cursor      "<name> <size>", size optional
+#   kde         Plasma colour scheme name, from ~/.local/share/color-schemes/
+OPTIONAL=(icon-theme cursor kde)
 
 # Directories a theme must provide (checked separately — `[ -f ]` is false for
 # a directory, and wlogout's icons are per-theme assets, not one file).
@@ -182,13 +198,49 @@ stop_waybar() {
   done
 }
 
-start_swaync() {
-  local dir=$1
-  command -v swaync >/dev/null 2>&1 || return 0
-  setsid swaync -s "${dir}/swaync.css" >/dev/null 2>&1 &
+# SWAYNC IS OWNED BY systemd, NOT BY THIS SCRIPT — and that is a correction,
+# not a design choice made freely.
+#
+# Fedora's SwayNotificationCenter package enables swaync.service with a bare
+# `ExecStart=/usr/bin/swaync`. This script used to `pkill -x swaync` and spawn
+# its own with `-s <theme>/swaync.css`. Both of those are owners, and systemd's
+# won every time: the pkill made systemd restart its untheme d copy, while the
+# copy spawned here aborted trying to acquire the D-Bus name
+# `org.freedesktop.Notifications` that the dying process still held (swaync
+# calls Vala's `error()` on that path, which is g_error(), which aborts). A
+# bare swaync loads ~/.config/swaync/style.css — the SHARED GRUVBOX FILE. So
+# `hypr-theme set neon-sprawl` retheme d the bar and the OSD and left
+# notifications gruvbox, with every process apparently healthy and nothing in
+# any log (found 2026-08-27).
+#
+# The old stop_swaync was ALSO missing the wait loop stop_waybar has, which
+# would have been a second bug had the first not made it unreachable.
+#
+# `systemctl --user restart` serialises stop-then-start, so the race is gone
+# rather than slept through, and config/systemd/swaync-theme.conf gives the
+# unit an ExecStart that knows about themes (bin/swaync-themed).
+swaync_unit_exists() {
+  command -v systemctl >/dev/null 2>&1 || return 1
+  systemctl --user cat swaync.service >/dev/null 2>&1
 }
 
-stop_swaync() { pkill -x swaync 2>/dev/null || true; }
+restart_swaync() {
+  local dir=$1
+  if swaync_unit_exists; then
+    systemctl --user restart swaync.service >/dev/null 2>&1 || true
+    return 0
+  fi
+  # No unit on this machine — then this script really is the only owner, and
+  # it needs the wait stop_waybar has, for the D-Bus reason above.
+  command -v swaync >/dev/null 2>&1 || return 0
+  pkill -x swaync 2>/dev/null || true
+  local i
+  for i in 1 2 3 4 5 6 7 8 9 10; do
+    pgrep -x swaync >/dev/null 2>&1 || break
+    sleep 0.1
+  done
+  setsid swaync -s "${dir}/swaync.css" >/dev/null 2>&1 &
+}
 
 start_swayosd() {
   local dir=$1
@@ -262,16 +314,111 @@ apply_wallpaper() {
 # theme, the river-stays-gruvbox pin (ADR-0026) leaks through this function.
 # Noted rather than worked around: the alternative is fighting Plasma for
 # settings.ini, which is the thing that decision exists to avoid.
-apply_gtk() {
-  local dir=$1 name
-  [ -r "${dir}/gtk" ] || return 0
-  command -v gsettings >/dev/null 2>&1 || return 0
-  name=$(cat "${dir}/gtk" 2>/dev/null || true)
-  [ -n "$name" ] || return 0
-  gsettings set org.gnome.desktop.interface gtk-theme "$name" >/dev/null 2>&1 || true
-  # Dark preference is set here too rather than only in hyprland.conf's
-  # exec-once, so it survives a theme switch without a re-login.
-  gsettings set org.gnome.desktop.interface color-scheme prefer-dark >/dev/null 2>&1 || true
+# Desktop chrome the session does not draw itself: GTK application windows,
+# icons, the pointer, and Qt/KDE colours. Was apply_gtk() and did only the
+# first; generalised 2026-08-27 (ADR-0027) after the obvious complaint that
+# Dolphin stayed gruvbox in a cyberpunk session.
+#
+# EVERY FILE IS OPTIONAL AND ABSENCE MEANS "LEAVE IT ALONE". That is the whole
+# design. A theme names only what it actually has an asset for, so adding one
+# later is a one-line file rather than an edit to this script — and a theme
+# that names nothing changes nothing, which is what makes this safe to ship
+# before the assets exist.
+#
+#   <theme>/gtk         GTK theme name      gsettings gtk-theme
+#   <theme>/icon-theme  icon theme name     gsettings icon-theme + kdeglobals
+#   <theme>/cursor      "<name> <size>"     gsettings + hyprctl + plasma
+#   <theme>/kde         colour scheme name  plasma-apply-colorscheme
+#
+# `icon-theme`, NOT `icons`. `icons/` is already the wlogout SVG directory and
+# is in REQUIRED_DIRS. The collision would not have errored: read_theme_file
+# runs `cat` on the path, cat on a directory writes to a stderr this function
+# discards, the value comes back empty, and the slot is skipped in silence.
+# Caught only because the filesystem refused to write a file over a directory.
+#
+# IF ANY THEME NAMES A SLOT, EVERY THEME MUST. "Absent means leave alone" is
+# the right default for a setting nobody owns, and a trap the moment one theme
+# owns it: switching from a theme that sets `icons` to one that does not leaves
+# the FIRST theme's icons in place, because nothing tells the setting to go
+# back. The round trip stops being symmetric and the second theme quietly
+# inherits the first. So the rule is per-slot and repo-wide, not per-theme —
+# and it is why gruvbox-crt carries `icons` and `kde` files naming what it has
+# always had, rather than omitting them.
+#
+# GTK AND KDE ARE TWO SEPARATE LEVERS FOR THE SAME SETTING, verified on this
+# machine 2026-08-27. `gsettings` writes dconf, which reaches GTK apps only;
+# KDE apps read ~/.config/kdeglobals. Colours have plasma-apply-colorscheme and
+# cursors have plasma-apply-cursortheme, but there is NO plasma-changeicons in
+# Fedora 44 — so icons go in via kwriteconfig6 directly. That is the same file
+# plasma-apply-colorscheme writes, so it breaks no rule; what thinkpad.yaml
+# forbids is SYMLINKING kdeglobals into the repo, not writing a key to it.
+#
+# ALL FOUR LEAK ACROSS SESSIONS AND THAT IS NOT FIXABLE FROM HERE. dconf is
+# per-user, not per-session, and ~/.config/kdeglobals is one file for Plasma,
+# river and Hyprland alike. So a river or Plasma login after a switch inherits
+# whatever was last set. ADR-0026 already accepted this for the GTK theme when
+# it was a no-op (both themes said Breeze-Dark); ADR-0027 accepts it knowingly
+# for the rest. It is symmetric — switching back restores — and the alternative
+# is fighting Plasma for settings.ini, which ADR-0026 exists to avoid.
+read_theme_file() {
+  local f=$1
+  [ -r "$f" ] || return 1
+  local v; v=$(cat "$f" 2>/dev/null || true)
+  [ -n "$v" ] || return 1
+  printf '%s\n' "$v"
+}
+
+apply_desktop() {
+  local dir=$1 v
+
+  if command -v gsettings >/dev/null 2>&1; then
+    if v=$(read_theme_file "${dir}/gtk"); then
+      gsettings set org.gnome.desktop.interface gtk-theme "$v" >/dev/null 2>&1 || true
+    fi
+    if v=$(read_theme_file "${dir}/icon-theme"); then
+      gsettings set org.gnome.desktop.interface icon-theme "$v" >/dev/null 2>&1 || true
+      # KDE half. No plasma-changeicons exists on Fedora 44 (checked), so the
+      # key goes straight in. Already-open KDE apps may not repaint until they
+      # restart — UNVERIFIED either way, and not worth a daemon to fix.
+      command -v kwriteconfig6 >/dev/null 2>&1 && \
+        kwriteconfig6 --file kdeglobals --group Icons --key Theme "$v" >/dev/null 2>&1 || true
+    fi
+    # Dark preference is set here rather than only in hyprland.conf's
+    # exec-once, so it survives a theme switch without a re-login.
+    gsettings set org.gnome.desktop.interface color-scheme prefer-dark >/dev/null 2>&1 || true
+  fi
+
+  # "<name> <size>", size optional. Two consumers, because they do not talk to
+  # each other: gsettings/XCURSOR_THEME covers GTK and Qt clients, and
+  # `hyprctl setcursor` covers the compositor's own pointer. hyprland.conf sets
+  # both at startup for the default theme; this keeps them in step on a switch.
+  if v=$(read_theme_file "${dir}/cursor"); then
+    local cname csize
+    cname=${v%% *}
+    csize=${v#* }
+    [ "$csize" = "$v" ] && csize=24        # no size given, keep the session default
+    if command -v gsettings >/dev/null 2>&1; then
+      gsettings set org.gnome.desktop.interface cursor-theme "$cname" >/dev/null 2>&1 || true
+      gsettings set org.gnome.desktop.interface cursor-size "$csize" >/dev/null 2>&1 || true
+    fi
+    command -v hyprctl >/dev/null 2>&1 && \
+      hyprctl setcursor "$cname" "$csize" >/dev/null 2>&1 || true
+    # KDE half, and this one HAS a helper — unlike icons.
+    command -v plasma-apply-cursortheme >/dev/null 2>&1 && \
+      plasma-apply-cursortheme "$cname" --size "$csize" >/dev/null 2>&1 || true
+  fi
+
+  # Qt/KDE colours — Dolphin, Okular, Ark, Gwenview, and Plasma itself.
+  #
+  # ADR-0026 said theming Qt "needs QT_QPA_PLATFORMTHEME moved from kde to
+  # qt6ct". That is the lever for Qt apps OUTSIDE Plasma's reach; these read
+  # kdeglobals THROUGH the kde platform theme, so a colour scheme works
+  # entirely within the choice that ADR-0026 was protecting. qt6ct is not
+  # involved and nothing is reversed. Corrected in ADR-0027.
+  if v=$(read_theme_file "${dir}/kde"); then
+    command -v plasma-apply-colorscheme >/dev/null 2>&1 && \
+      plasma-apply-colorscheme "$v" >/dev/null 2>&1 || true
+  fi
 }
 
 reload_hyprland() {
@@ -323,11 +470,11 @@ cmd_set() {
   local dir="${THEMES_DIR}/${name}"
   stop_waybar;  start_waybar  "$dir"
   reload_hyprland
-  stop_swaync;  start_swaync  "$dir"
+  restart_swaync             "$dir"
   restart_swayosd            "$dir"
   reload_kitty
   apply_wallpaper             "$dir"
-  apply_gtk                   "$dir"
+  apply_desktop               "$dir"
 
   # fuzzel, swaylock and wlogout need nothing: they are spawned fresh on every
   # keypress and read the live/ link at that moment. That is why they are
@@ -345,7 +492,11 @@ cmd_launch() {
   name=$(current); validate "$name"; point_at "$name"
   dir="${THEMES_DIR}/${name}"
   start_waybar "$dir"
-  start_swaync "$dir"
+  # restart, not start: swaync.service may already be running from
+  # graphical-session.target by the time exec-once reaches this, and it would
+  # have been started before point_at() above wrote the state this session's
+  # theme depends on. Restarting is what makes the wrapper re-read it.
+  restart_swaync "$dir"
   start_swayosd "$dir"
 }
 

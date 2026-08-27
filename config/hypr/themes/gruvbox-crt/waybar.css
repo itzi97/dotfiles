@@ -17,3 +17,143 @@
  */
 
 @import url("../../../waybar/style.css");
+
+/* --- the CRT the theme is named after (2026-08-27) --------------------------
+ *
+ * This file was a bare @import for a month. The theme is called gruvbox-CRT and
+ * had no scanline, no phosphor, no bezel — the CRT lived entirely in hypr.conf's
+ * bezier names and in the wallpaper. Everything below is the part the name was
+ * promising.
+ *
+ * IT LANDS HERE AND NOT IN config/waybar/style.css DELIBERATELY. That file is
+ * river's bar too, and ADR-0026 pins river to gruvbox — but pinned to gruvbox,
+ * not to gruvbox-CRT. river is a plain bar on a compositor with no effects
+ * pipeline; a phosphor bloom there would be a glow with nothing behind it.
+ * Overriding after the import is exactly the seam gruvbox-crt/swaync.css
+ * already uses, and it means the two cannot drift on anything except what is
+ * written here.
+ *
+ * BLUR RENDERS. Every one of these effects was unavailable under the premise
+ * this theme was built on — "GTK parses shadow blur radii and does not render
+ * them" — which was a stale docs line, wrong since GTK+ 3.6.0 (2012). waybar
+ * 0.15 is GTK3. See 02-stack/gtk-css-envelope.md.
+ */
+
+/* SCANLINES. A 3px period, not 1px: at 191 DPI a single-pixel line is about
+   0.9 arcmin — at or below the eye's resolution limit — so it reads as either
+   nothing or as moiré, never as a line. 2px gap + 1px line is ~2.3 arcmin and
+   resolves as texture.
+   Measured on a bare column of the rendered bar: ground 40, every third row 34
+   at alpha 0.16, which is a 6/255 contrast — present but almost deniable. 0.26
+   lands it at 30, which reads as a screen rather than as a smudge, and is still
+   far under the point where it competes with the text sitting on it. */
+window#waybar {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.00) 0px,
+    rgba(0, 0, 0, 0.00) 2px,
+    rgba(0, 0, 0, 0.26) 2px,
+    rgba(0, 0, 0, 0.26) 3px);
+}
+
+/* PHOSPHOR. The accent is a lit element on a CRT, not ink on paper — so it
+   blooms, and only it does. ADR-0021's rule is unchanged and is what keeps this
+   from becoming atmosphere: an accent means CURRENT, and nothing else may look
+   like it. Three things glow on this bar and all three are the accent doing its
+   job — the clock (the current time), the focused tag, the active task. */
+#clock {
+  text-shadow: 0 0 7px rgba(215, 153, 33, 0.55);
+  color: #d79921;
+}
+
+#workspaces button.active,
+#tags button.focused {
+  text-shadow: 0 0 6px rgba(215, 153, 33, 0.60);
+  box-shadow: inset 0 -2px 0 0 #d79921,
+              0 0 10px 0 rgba(215, 153, 33, 0.28);
+}
+
+#taskbar button.active {
+  text-shadow: 0 0 6px rgba(215, 153, 33, 0.50);
+}
+
+/* BEZEL. The wells were flat rectangles with a hairline top and bottom. A CRT
+   module is recessed into a moulded panel: a dark inset at the top edge where
+   the bezel casts, a faint warm lift at the bottom where the glass catches. Two
+   inset shadows, no extra element, no layout change. */
+#clock,
+#custom-power,
+#cpu,
+#memory,
+#temperature,
+#wireplumber,
+#backlight,
+#battery,
+#custom-mic,
+#custom-idle,
+#custom-notification,
+#tray {
+  box-shadow: inset 0 2px 3px -2px rgba(0, 0, 0, 0.75),
+              inset 0 -1px 0 0 rgba(215, 153, 33, 0.10);
+}
+
+/* ACT-NOW PULSES. The one genuinely new capability in this pass: GTK3 supports
+   @keyframes and the animation shorthand, verified by parse on 3.24. This is
+   also the one honest use of a continuous repaint in a theme whose whole
+   identity is refusing them (hypr.conf: "no borderangle loop; this laptop runs
+   on a battery"). It is not an idle effect — it runs ONLY while something is
+   critical, which is rare, and the entire point of the state is that you should
+   not be able to ignore it. A steady red you have looked at twice stops being
+   red; a slow pulse does not.
+   1.4s, and it fades rather than blinks: blinking is a smoke alarm, and this
+   has to be survivable while you finish a sentence. */
+@keyframes crt-alarm {
+  from { background-color: #fb4934; }
+  to   { background-color: #cc241d; }
+}
+
+#temperature.critical,
+#memory.critical,
+#cpu.critical,
+#battery.critical:not(.charging),
+#custom-idle.broken,
+#workspaces button.urgent,
+#tags button.urgent {
+  animation: crt-alarm 1.4s ease-in-out infinite alternate;
+  box-shadow: 0 0 12px 0 rgba(251, 73, 52, 0.45);
+}
+
+/* Attend-soon does NOT pulse and does NOT bloom. The distinction between
+   "when you get a moment" and "now" is the second channel ADR-0021 reserves,
+   and it only works if one of them stays quiet. */
+#memory.warning,
+#cpu.warning,
+#battery.warning:not(.charging) {
+  animation: none;
+  box-shadow: none;
+}
+
+/* A relay closing, matching hypr.conf's `relay` bezier — hover should feel
+   mechanical rather than eased. 90ms is under the threshold where a transition
+   reads as lag on a bar you are pointing at. */
+#workspaces button,
+#tags button,
+#taskbar button,
+#custom-power,
+#custom-notification {
+  transition: background 90ms cubic-bezier(0.20, 0.90, 0.10, 1.05),
+              color 90ms linear;
+}
+
+/* Tabular figures. On a clock, the hour must not shift when the minute rolls
+   over — the one piece of terminal ornamentation here that is load-bearing
+   rather than decorative. Single quoted string: GTK3 rejects a comma list. */
+#clock,
+#cpu,
+#memory,
+#temperature,
+#battery,
+#backlight,
+#wireplumber {
+  font-feature-settings: "tnum";
+}

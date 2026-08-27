@@ -1,0 +1,174 @@
+# ~/.dotfiles/config/color-schemes/NeonSprawl.colors
+#
+# Linked to ~/.local/share/color-schemes/NeonSprawl.colors.
+# Applied by bin/hypr-theme's apply_desktop(), from themes/neon-sprawl/kde.
+#
+# GENERATED FROM GruvboxDark.colors BY VALUE SUBSTITUTION, and the key list was
+# diffed against it afterwards: 122 sections and keys, identical, in identical
+# order. Same discipline as swaylock.conf and wlogout.css, for the same reason
+# — five hand-written files in this repo have silently dropped keys, and a
+# .colors file with a missing key falls back to the Breeze default for that one
+# role, which reads as a single mysteriously wrong widget rather than as an
+# error.
+#
+#   #1d2021 -> #0a0b10   ground        #282828 -> #12141d   well ground
+#   #3c3836 -> #1e2130   raised        #504945 -> #3a4160   passive edge
+#   #ebdbb2 -> #d7e0ff   content       #928374 -> #7a86b8   inactive text
+#   #d79921 -> #00e5ff   ACCENT        #fabd2f -> #6bf2ff   active text
+#   #fb4934 -> #ff2e6c   negative      #fe8019 -> #ffb800   neutral
+#   #b8bb26 -> #4ee88f   positive      #d3869b -> #b026ff   visited
+#   #83a598 -> #4d8dff   link
+#
+# TWO SUBSTITUTIONS ARE NOT MECHANICAL AND ARE ARGUED HERE.
+#
+# ForegroundInactive takes #7a86b8 (the theme's SECONDARY) rather than #3a4160
+# (its ambient), even though gruvbox's #928374 is the ambient tone. #3a4160 on
+# #12141d is around 2:1 — greyed-out text should recede, not vanish, and the
+# legibility research behind 02-stack/gtk-css-envelope.md is blunt that dark
+# accents on near-black are headline-only at best. Ambient stays for CHROME,
+# where nothing has to be read.
+#
+# ForegroundLink takes #4d8dff rather than the accent. ADR-0021's rule is that
+# an accent means CURRENT and nothing else may look like it; a hyperlink is not
+# current, it is available. kitty's color4 is the palette's own blue and this
+# is the one place in Qt chrome that needs a fifth hue.
+#
+# THIS CHANGES PLASMA AND river TOO, because all three sessions read
+# ~/.config/kdeglobals and dconf is per-user. That leak is named in ADR-0027
+# and is symmetric: switching back to gruvbox-crt restores GruvboxDark. What it
+# means in practice is that logging into Plasma right after using neon-sprawl
+# gives you a cyan Plasma until you switch back.
+
+[ColorEffects:Disabled]
+Color=30,33,48
+ColorAmount=0
+ColorEffect=0
+ContrastAmount=0.65
+ContrastEffect=1
+IntensityAmount=0.1
+IntensityEffect=2
+
+[ColorEffects:Inactive]
+ChangeSelectionColor=true
+Color=58,65,96
+ColorAmount=0.025
+ColorEffect=2
+ContrastAmount=0.1
+ContrastEffect=2
+Enable=false
+IntensityAmount=0
+IntensityEffect=0
+
+[Colors:Button]
+BackgroundAlternate=58,65,96
+BackgroundNormal=30,33,48
+DecorationFocus=0,229,255
+DecorationHover=0,229,255
+ForegroundActive=107,242,255
+ForegroundInactive=122,134,184
+ForegroundLink=77,141,255
+ForegroundNegative=255,46,108
+ForegroundNeutral=255,184,0
+ForegroundNormal=215,224,255
+ForegroundPositive=78,232,143
+ForegroundVisited=176,38,255
+
+[Colors:Complementary]
+BackgroundAlternate=30,33,48
+BackgroundNormal=10,11,16
+DecorationFocus=0,229,255
+DecorationHover=0,229,255
+ForegroundActive=107,242,255
+ForegroundInactive=122,134,184
+ForegroundLink=77,141,255
+ForegroundNegative=255,46,108
+ForegroundNeutral=255,184,0
+ForegroundNormal=215,224,255
+ForegroundPositive=78,232,143
+ForegroundVisited=176,38,255
+
+[Colors:Header]
+BackgroundAlternate=30,33,48
+BackgroundNormal=18,20,29
+DecorationFocus=0,229,255
+DecorationHover=0,229,255
+ForegroundActive=107,242,255
+ForegroundInactive=122,134,184
+ForegroundLink=77,141,255
+ForegroundNegative=255,46,108
+ForegroundNeutral=255,184,0
+ForegroundNormal=215,224,255
+ForegroundPositive=78,232,143
+ForegroundVisited=176,38,255
+
+[Colors:Selection]
+BackgroundAlternate=0,229,255
+BackgroundNormal=0,229,255
+DecorationFocus=0,229,255
+DecorationHover=0,229,255
+ForegroundActive=18,20,29
+ForegroundInactive=18,20,29
+ForegroundLink=10,11,16
+ForegroundNegative=102,18,43
+ForegroundNeutral=102,74,0
+ForegroundNormal=18,20,29
+ForegroundPositive=31,93,57
+ForegroundVisited=18,20,29
+
+[Colors:Tooltip]
+BackgroundAlternate=30,33,48
+BackgroundNormal=18,20,29
+DecorationFocus=0,229,255
+DecorationHover=0,229,255
+ForegroundActive=107,242,255
+ForegroundInactive=122,134,184
+ForegroundLink=77,141,255
+ForegroundNegative=255,46,108
+ForegroundNeutral=255,184,0
+ForegroundNormal=215,224,255
+ForegroundPositive=78,232,143
+ForegroundVisited=176,38,255
+
+[Colors:View]
+BackgroundAlternate=18,20,29
+BackgroundNormal=10,11,16
+DecorationFocus=0,229,255
+DecorationHover=0,229,255
+ForegroundActive=107,242,255
+ForegroundInactive=122,134,184
+ForegroundLink=77,141,255
+ForegroundNegative=255,46,108
+ForegroundNeutral=255,184,0
+ForegroundNormal=215,224,255
+ForegroundPositive=78,232,143
+ForegroundVisited=176,38,255
+
+[Colors:Window]
+BackgroundAlternate=30,33,48
+BackgroundNormal=18,20,29
+DecorationFocus=0,229,255
+DecorationHover=0,229,255
+ForegroundActive=107,242,255
+ForegroundInactive=122,134,184
+ForegroundLink=77,141,255
+ForegroundNegative=255,46,108
+ForegroundNeutral=255,184,0
+ForegroundNormal=215,224,255
+ForegroundPositive=78,232,143
+ForegroundVisited=176,38,255
+
+[General]
+ColorScheme=NeonSprawl
+Name=Neon Sprawl
+shadeSortColumn=true
+
+[KDE]
+contrast=4
+
+[WM]
+activeBackground=30,33,48
+activeBlend=0,229,255
+activeForeground=215,224,255
+inactiveBackground=18,20,29
+inactiveBlend=58,65,96
+inactiveForeground=122,134,184

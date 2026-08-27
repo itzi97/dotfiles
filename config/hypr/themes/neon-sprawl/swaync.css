@@ -33,9 +33,8 @@
  *   #a89984 -> #7a86b8   secondary     #928374 -> #3a4160   ambient
  *   #d79921 -> #00e5ff   accent        #fb4934 -> #ff2e6c   act-now
  *   #fe8019 -> #ffb800   attend-soon
- */
  *
- * gruvbox dark, colour grammar per ADR-0021:
+ * Colour grammar per ADR-0021, re-instantiated:
  *
  *   #00e5ff  selected / current / deliberately paused (DND on, clear-all hover)
  *   #ff2e6c  act now (critical notifications, destructive hover)
@@ -50,7 +49,7 @@
   /* Proportional "Symbols Nerd Font", not "...Mono" — the Mono variant sinks
      glyphs below the GTK baseline. `monospace` last, matching waybar, so a
      degraded machine degrades the same way everywhere. */
-  font-family: "JetBrains Mono", "Symbols Nerd Font", monospace;
+  font-family: "Adwaita Mono", "Symbols Nerd Font", monospace;
   font-size: 13px;
 }
 
@@ -174,10 +173,14 @@
   padding: 6px 3px;
 }
 
+/* #665c54 was the one gruvbox value the 2026-08-26 substitution table missed —
+   it is not in the mapping block at the top of this file, so nothing replaced
+   it. Found by the ADR-0021 grep test, which is exactly what that test is for.
+   Ambient, matching every other passive edge in the theme. */
 .widget-dnd > switch {
   background: #1e2130;
   border-radius: 0;
-  border: 1px solid #665c54;
+  border: 1px solid #3a4160;
 }
 
 .widget-dnd > switch:checked {
@@ -213,4 +216,99 @@
 /* Nothing to show: don't leave a labelled empty box. */
 .notification-group-empty {
   opacity: 0;
+}
+
+/* --- neon-sprawl structural pass (2026-08-27) ------------------------------
+ *
+ * Everything above is the value-substituted derivation of config/swaync/style.css
+ * and its selector set is identical to that file's, verified by diff. This block
+ * is ADDITIVE: it introduces no new selector that could shadow one of those, and
+ * relies on last-wins at equal specificity. Removing this block returns the file
+ * to a plain recolour.
+ *
+ * THE BLUR PREMISE WAS WRONG, AND IT WAS WRONG FOR FOURTEEN YEARS. The note in
+ * the previous version — "GTK parses shadow blur radii and does not render
+ * them" — is a stale reading of a GTK+ 3.4-era docs line. Blur has rendered
+ * since GTK+ 3.6.0 (NEWS: "Add support for blur to CSS shadows"), and it
+ * renders here too: swaync 0.12.5 is GTK4, and GTK4 draws shadows as GSK
+ * shadow nodes with a radius. Both were verified by rendering, not by reading
+ * — see 02-stack/gtk-css-envelope.md and the two PNGs cited there.
+ *
+ * SO GLOW IS AVAILABLE, AND IS THEREFORE A BUDGET RATHER THAN A GIFT.
+ * ADR-0021's argument applies unchanged: an accent can only mean something if
+ * nothing else is allowed to look like it. Blur is spent on exactly two things
+ * on this surface — act-now, and the accent when it marks something current or
+ * deliberately paused. Every receding element stays hard-edged.
+ */
+
+/* Bracket, not box. A notification is a strip of instrumentation with a lit
+   left edge, not a dialog with a frame. The other three sides drop to a
+   hairline so .critical's border-color still reads as a full act-now frame. */
+.notification {
+  border: 1px solid #1e2130;
+  border-left: 3px solid #3a4160;
+}
+
+/* THE HIGHEST-VALUE LINE IN THE FILE, and the one proved first and alone.
+   A mis-converged sign: red pushed right, cyan pulled left, one device pixel
+   each, no blur. At 13px on a 191 DPI panel a 1px split is ~0.9 arcmin — at
+   the resolution limit — so this reads as chromatic fringing on the stroke
+   rather than as two legible edges. That is the intended effect and also its
+   ceiling: it is a texture on the glyph, not a doubling of it. Anything
+   larger stops being aberration and becomes a double-strike. */
+.summary {
+  text-shadow: 1px 0 rgba(255, 46, 108, 0.55), -1px 0 rgba(0, 229, 255, 0.55);
+}
+
+/* ACT-NOW GETS THE GLOW. These are the notifications swaync gives timeout 0 —
+   backup failed, pkgwatch could not check — the things this stack refuses to
+   let fail silently. If exactly one thing on screen is allowed to bloom, it is
+   this. The border-color inherited from .critical above lights all four sides;
+   the left edge inherits its 3px weight. */
+.critical {
+  border-left-color: #ff2e6c;
+  box-shadow: 0 0 12px 0 rgba(255, 46, 108, 0.38);
+}
+
+/* Accent glow #2 of 2 on this surface: "clear all" is a deliberate act being
+   offered, which is what the accent means. */
+.widget-title > button:hover {
+  box-shadow: 0 0 10px 0 rgba(0, 229, 255, 0.45);
+}
+
+/* DND on is the same statement the idle-inhibit indicator makes — something is
+   DELIBERATELY paused, and a glance should keep saying so. Accent, and lit,
+   because "still paused" is a state you want to keep noticing. */
+.widget-dnd > switch:checked {
+  box-shadow: 0 0 8px 0 rgba(0, 229, 255, 0.40);
+}
+
+/* Tabular figures. The only ornament here that is load-bearing: timestamps
+   stop shifting horizontally as the digits change. Single feature string, not
+   a comma list — GTK4 accepts `"tnum", "zero"` and GTK3 rejects it, and this
+   file should stay loadable by either. */
+.time {
+  font-feature-settings: "tnum";
+  letter-spacing: 1px;
+}
+
+/* A GTK3-ism inherited from config/swaync/style.css, and a real defect on this
+   machine: that file styles `.notification progressbar { background: #504945 }`,
+   which worked when swaync was GTK3 and the widget drew its own trough. swaync
+   0.12.5 is GTK4, where GtkProgressBar draws a `trough` child node ON TOP of
+   the widget background — so the unfilled part of the bar falls through to
+   whatever the GTK theme paints, which under Breeze-Dark is not this palette.
+   Rendered and confirmed before adding this. `trough` is a NEW selector, which
+   the parity rule permits: coverage may grow, never shrink. */
+.notification progressbar trough {
+  background: #1e2130;
+  border: none;
+  border-radius: 0;
+  min-height: 6px;
+}
+
+.notification progressbar trough progress {
+  background: #00e5ff;
+  border-radius: 0;
+  min-height: 6px;
 }

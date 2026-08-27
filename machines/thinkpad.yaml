@@ -131,6 +131,12 @@
     #   plasma-apply-colorscheme GruvboxDark
     ~/.local/share/color-schemes/GruvboxDark.colors:
       path: config/color-schemes/GruvboxDark.colors
+    # Its neon-sprawl twin, derived from it by value substitution and applied
+    # automatically by hypr-theme's apply_desktop() from themes/<name>/kde
+    # (ADR-0027). The manual `plasma-apply-colorscheme` above is still how you
+    # set it outside a theme switch — from Plasma, say.
+    ~/.local/share/color-schemes/NeonSprawl.colors:
+      path: config/color-schemes/NeonSprawl.colors
     # Session theming — gruvbox everywhere it can be, Adwaita-dark for GTK
     # (see the note in gtk-3.0/settings.ini for why not gruvbox there).
     ~/.config/fuzzel/fuzzel.ini:    config/fuzzel/fuzzel.ini
@@ -191,6 +197,32 @@
     ~/.local/bin/hypr-theme:
       path: bin/hypr-theme
       mode: 755
+    # SWAYNC'S ExecStart, AND THE REASON THIS PAIR EXISTS.
+    #
+    # Fedora enables swaync.service with a bare `ExecStart=/usr/bin/swaync`,
+    # Type=dbus, BusName=org.freedesktop.Notifications, Restart=on-failure.
+    # hypr-theme ALSO owned swaync — pkill, then spawn its own with the theme's
+    # stylesheet — and systemd's copy won every time: the spawned one aborted on
+    # `error("Could not acquire swaync name!")` (Vala's error() is g_error(),
+    # which dumps core — that is the "crash" wrongly blamed on a stylesheet on
+    # 2026-08-26), while Restart=on-failure resurrected the untheme d one, which
+    # loads ~/.config/swaync/style.css. So the bar and the OSD retheme d and
+    # notifications silently did not. Found 2026-08-27.
+    #
+    # systemd is now the single owner. The drop-in below points ExecStart at the
+    # wrapper; hypr-theme calls `systemctl --user restart swaync.service`.
+    #
+    # THE DROP-IN IS SESSION-WIDE, the wrapper is what scopes it: swaync.service
+    # is one unit for every session, so river gets this ExecStart too. The
+    # wrapper gates on `pgrep -x Hyprland` and falls back to a bare swaync, so
+    # river keeps the plain shared stylesheet it has always had — which matters,
+    # because gruvbox-crt/swaync.css uses rgba() backgrounds that assume the
+    # blur river does not have.
+    ~/.local/bin/swaync-themed:
+      path: bin/swaync-themed
+      mode: 755
+    ~/.config/systemd/user/swaync.service.d/theme.conf:
+      path: config/systemd/swaync-theme.conf
     # Volume/brightness keys with an on-screen progress notification.
     # Compositor-agnostic; currently bound only in hyprland.conf — river's
     # keys still call wpctl/brightnessctl directly and can adopt this later.
@@ -235,6 +267,24 @@
       stdout: true
       stderr: true
       description: Enable the monthly pkgwatch timer
+
+    # The swaync drop-in linked above changes ExecStart, and a RUNNING daemon
+    # keeps the old one until it is restarted — so without this, a bootstrap
+    # would appear to succeed and notifications would stay on the packaged
+    # untheme d swaync until the next login.
+    #
+    # `try-restart`, not `restart`: it is a no-op when swaync is not running, so
+    # bootstrapping from a TTY or over SSH does not try to start a notification
+    # daemon into a session that has no Wayland display. Relies on the
+    # daemon-reload in the command above, which is why it sits after it.
+    #
+    # `cat` as the existence probe rather than `is-enabled`, because the unit is
+    # packaged with SwayNotificationCenter and may legitimately be absent on a
+    # machine that has not installed the river bundle.
+    - command: systemctl --user cat swaync.service >/dev/null 2>&1 && systemctl --user try-restart swaync.service || true
+      stdout: false
+      stderr: false
+      description: Pick up the swaync theme drop-in
 
     # Nerd Font symbols. Fedora packages none, so this is the documented
     # exception to "if it's part of the setup it goes in a package list"

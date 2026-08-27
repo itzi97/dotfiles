@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+#
+# swaync-themed — start swaync with the Hyprland session's current theme.
+#
+# THIS EXISTS BECAUSE SWAYNC HAD TWO OWNERS AND THE WRONG ONE ALWAYS WON.
+#
+# Fedora's SwayNotificationCenter package ships an enabled `swaync.service`
+# whose ExecStart is a bare `/usr/bin/swaync` — no `-s`. bin/hypr-theme also
+# started swaync, with the theme's stylesheet. So every `hypr-theme set` did
+# `pkill -x swaync`, systemd restarted its own untheme d copy, and the copy
+# hypr-theme spawned lost the race for the D-Bus name `org.freedesktop.
+# Notifications` (swaync calls Vala's `error()` there, which is g_error(),
+# which aborts). The survivor was always systemd's, and a bare swaync loads
+# ~/.config/swaync/style.css — the SHARED GRUVBOX FILE. Symptom: waybar and
+# the OSD changed theme, notifications never did (2026-08-27).
+#
+# The fix is to give systemd the one ExecStart and let it be the only owner.
+# This script is that ExecStart; config/systemd/swaync-theme.conf points at it
+# and bin/hypr-theme now does `systemctl --user restart swaync.service` rather
+# than spawning anything. systemd serialises stop-then-start, so the D-Bus race
+# is GONE rather than papered over with a sleep loop.
+#
+# WHY THE REAL THEME PATH AND NOT ~/.local/state/hypr-theme/live/swaync.css.
+# Every other themed surface reaches its config through the `live` symlink, and
+# swaync deliberately does not. themes/gruvbox-crt/swaync.css contains
+#
+#     @import url("../../../swaync/style.css");
+#
+# and GTK resolves @import against the path it was GIVEN, not the symlink's
+# target. Served from ~/.local/state/hypr-theme/live/, `../../../` lands in
+# ~/.local/ and the import loads nothing — silently, because a failed @import
+# is a warning, not an error. From ~/.config/hypr/themes/<name>/ it lands in
+# ~/.config/ and resolves. bin/hypr-theme's header records the same reasoning.
+#
+# WHY river IS NOT AFFECTED. river is pinned to gruvbox (ADR-0026) and has no
+# blur, but gruvbox-crt/swaync.css adds rgba() backgrounds that assume blur is
+# behind them — so handing river a theme stylesheet would give it translucent
+# notifications over nothing. The Hyprland check below is what keeps river on
+# the plain shared stylesheet, which is what it has always had.
+
+set -Eeuo pipefail
+
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/hypr-theme"
+THEMES_DIR="${HOME}/.config/hypr/themes"
+
+# `pgrep -x Hyprland` rather than $XDG_CURRENT_DESKTOP. The env var is imported
+# into the systemd --user environment by hyprland.conf and then PERSISTS —
+# logging out into river leaves it saying Hyprland, which would theme river's
+# notifications from a stale value. Asking whether the compositor is running is
+# a question about now.
+hyprland_running() {
+  pgrep -x Hyprland >/dev/null 2>&1
+}
+
+swaync_bin() {
+  command -v swaync 2>/dev/null || printf '/usr/bin/swaync\n'
+}
+
+css=""
+if hyprland_running && [ -r "${STATE_DIR}/name" ]; then
+  name=$(cat "${STATE_DIR}/name" 2>/dev/null || true)
+  # Every step guarded, because the failure mode of guessing wrong here is a
+  # notification daemon that will not start at all.
+  if [ -n "$name" ] && [ -f "${THEMES_DIR}/${name}/swaync.css" ]; then
+    css="${THEMES_DIR}/${name}/swaync.css"
+  fi
+fi
+
+# exec, not a background spawn: systemd must track swaync's own PID, not a
+# wrapper that has already exited.
+if [ -n "$css" ]; then
+  exec "$(swaync_bin)" -s "$css" "$@"
+fi
+exec "$(swaync_bin)" "$@"

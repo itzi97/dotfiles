@@ -17,8 +17,18 @@
  * bracket at the left, so the panel reads as a strip of instrumentation
  * rather than a dialog. The fill is the theme's cyan→magenta signature.
  *
- * No glow: GTK3 parses shadow blur radii and does not render them. The icon
- * gets a hard chromatic-aberration split instead, which GTK does draw.
+ * TWO CORRECTIONS, 2026-08-27.
+ *
+ * "No glow: GTK3 parses shadow blur radii and does not render them" was wrong
+ * twice over. Blur has rendered since GTK+ 3.6.0 — and this file is not GTK3
+ * anyway: SwayOSD has been GTK4 since v0.2.0, and the erikreider COPR builds
+ * 0.2+. Both facts were established by rendering, not by reading docs; see
+ * 02-stack/gtk-css-envelope.md.
+ *
+ * The aberration split stays — it is the right device for a small icon, and
+ * it is not a substitute for glow but a different statement. The glow goes on
+ * the fill only, because the fill is the current value and the accent means
+ * current. The trough, the bracket and the label do not bloom.
  */
 
 window#osd {
@@ -40,7 +50,7 @@ window#osd #container {
 window#osd image,
 window#osd label {
   color: #00e5ff;
-  font-family: "JetBrains Mono", "Symbols Nerd Font", monospace;
+  font-family: "Adwaita Mono", "Symbols Nerd Font", monospace;
   font-size: 13px;
   /* Mis-converged sign. Offsets render in GTK3; blur does not. */
   text-shadow: 1px 0 rgba(255, 46, 108, 0.6), -1px 0 rgba(0, 229, 255, 0.6);
@@ -76,4 +86,10 @@ window#osd segment.active {
   border-radius: 0;
   border: none;
   background-image: linear-gradient(to right, #00e5ff 0%, #b026ff 100%);
+  /* THE ONE LIT ELEMENT ON THIS SURFACE. The filled part of the gauge is the
+     current value, and current is what the accent means (ADR-0021). A 4px
+     filament that blooms reads as a filament carrying current; the same
+     filament flat reads as a line. Nothing else here glows — not the trough,
+     not the bracket, not the icon. */
+  box-shadow: 0 0 8px 0 rgba(0, 229, 255, 0.55);
 }

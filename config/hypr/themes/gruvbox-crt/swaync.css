@@ -20,3 +20,79 @@
 .control-center    { background: rgba(40, 40, 40, 0.82); }
 .notification-action { background: rgba(60, 56, 54, 0.75); } /* #3c3836 */
 .widget-mpris      { background: rgba(60, 56, 54, 0.75); }
+
+/* --- the CRT, on the notification surfaces too (2026-08-27) -----------------
+ *
+ * The bar got scanlines and phosphor; a notification card sitting next to it
+ * with neither reads as a different theme. Same seam as above — overrides after
+ * the import, so config/swaync/style.css and therefore river are untouched.
+ *
+ * swaync 0.12.5 is GTK4, not GTK3 like waybar. Both render shadow blur and both
+ * take repeating-linear-gradient; the divergence that matters here is that GTK4
+ * draws a `trough` child node over a progressbar's own background, which is why
+ * the shared stylesheet's progress rules need the extra selector on this side.
+ */
+
+/* Scanlines over the glass. Lower alpha than the bar's 0.26 because these cards
+   are already translucent over a blurred wallpaper — the texture composites on
+   top of whatever is behind, so it reads stronger for the same number. */
+.notification,
+.control-center {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.00) 0px,
+    rgba(0, 0, 0, 0.00) 2px,
+    rgba(0, 0, 0, 0.18) 2px,
+    rgba(0, 0, 0, 0.18) 3px);
+}
+
+/* Phosphor on the accent, and on nothing else. The DND toggle when it is ON,
+   and "clear all" when you are pointing at it: both are the accent saying
+   CURRENT / deliberately chosen, which is the only thing licensed to bloom. */
+.widget-dnd > switch:checked {
+  box-shadow: 0 0 9px 0 rgba(215, 153, 33, 0.45);
+}
+
+.widget-title > button:hover {
+  box-shadow: 0 0 9px 0 rgba(215, 153, 33, 0.45);
+  transition: background 90ms cubic-bezier(0.20, 0.90, 0.10, 1.05);
+}
+
+/* Bezel. A notification is a panel set into the screen, not a card floating
+   above it — dark at the top lip, a warm catch along the bottom. */
+.notification,
+.control-center {
+  box-shadow: inset 0 2px 4px -2px rgba(0, 0, 0, 0.70),
+              inset 0 -1px 0 0 rgba(215, 153, 33, 0.12);
+}
+
+/* Critical is the one thing here allowed to move, for the same reason it is on
+   the bar: swaync gives these timeout 0, so they sit on screen until dismissed,
+   and a red border you have already looked at twice stops being red. Fades
+   rather than blinks — this has to be survivable while you finish a sentence. */
+@keyframes crt-alarm-border {
+  from { border-color: #fb4934; }
+  to   { border-color: #cc241d; }
+}
+
+.critical {
+  animation: crt-alarm-border 1.4s ease-in-out infinite alternate;
+  box-shadow: inset 0 2px 4px -2px rgba(0, 0, 0, 0.70),
+              0 0 14px 0 rgba(251, 73, 52, 0.40);
+}
+
+/* The GTK4 trough the shared GTK3-era stylesheet cannot know about: it styles
+   `progressbar` alone, which was enough when swaync was GTK3. Same fix as
+   neon-sprawl's, same reason. */
+.notification progressbar trough {
+  background: #504945;
+  border: none;
+  border-radius: 0;
+  min-height: 6px;
+}
+
+.notification progressbar trough progress {
+  background: #d79921;
+  border-radius: 0;
+  min-height: 6px;
+}

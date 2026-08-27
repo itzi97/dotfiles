@@ -27,7 +27,14 @@
  */
 
 * {
-  font-family: "JetBrains Mono", "Symbols Nerd Font", monospace;
+  /* Adwaita Mono, not JetBrains Mono — the theme's own face, session-wide.
+     Iosevka-derived: narrow, geometric, flat terminals against JetBrains'
+     humanist curves. ADR-0021's stack was the RIVER session's; this theme
+     re-instantiates that ADR's grammar, not its values.
+     "Symbols Nerd Font" stays second and stays PROPORTIONAL — the Mono variant
+     sinks glyphs below the GTK baseline, which is the 2026-08-23 bug, and it is
+     independent of which primary family sits in front of it. */
+  font-family: "Adwaita Mono", "Symbols Nerd Font", monospace;
   font-size: 14px;
   min-height: 0;
   border: none;
@@ -264,3 +271,184 @@ tooltip {
 #custom-media.p96  { background-image: linear-gradient(to right, #1e2130 96%, transparent 96%); }
 #custom-media.p98  { background-image: linear-gradient(to right, #1e2130 98%, transparent 98%); }
 #custom-media.p100 { background-image: linear-gradient(to right, #1e2130 100%, transparent 100%); }
+
+/* --- the glow budget (2026-08-27) ------------------------------------------
+ *
+ * waybar 0.15.0 is GTK3, and GTK3 has rendered CSS shadow blur since 3.6.0
+ * (2012). The "parses but does not render" line that shaped the first pass of
+ * this theme is a stale docs claim; both toolkits were re-tested by rendering
+ * rather than by reading. See 02-stack/gtk-css-envelope.md.
+ *
+ * That makes glow a budget, and ADR-0021 sets the budget: an accent can only
+ * mean something if nothing else looks like it, and a bar that is lit at rest
+ * has no headroom to say something is wrong. FOUR THINGS ON THIS BAR BLOOM,
+ * and they are the four the grammar already singles out:
+ *
+ *   #clock                        the accent at rest — this IS the current time
+ *   #workspaces button.active     the current workspace
+ *   .urgent / .critical / .broken act-now, in every module that can raise it
+ *   tooltip                       borrows the accent because it is transient
+ *
+ * Everything else — cpu, memory, temperature, battery at rest, the media
+ * gauge, the window title — stays flat. They recede, which is their job.
+ *
+ * Additive block: every selector here already exists above, so nothing is
+ * shadowed and deleting this block returns the bar to hard edges.
+ */
+
+/* The clock leads the HUD and is the one permanently-lit element. Bloom is
+   modest — this thing is on screen for eight hours. */
+#clock {
+  box-shadow: inset 0 -2px 0 0 #00e5ff,
+              0 0 10px 0 rgba(0, 229, 255, 0.28);
+  /* Tabular figures: the minute changing must not shift the hour. This is the
+     one piece of terminal ornamentation on the bar that is load-bearing
+     rather than decorative. Single feature string — GTK3 rejects a list. */
+  font-feature-settings: "tnum";
+}
+
+/* The current workspace. Lit underline rather than a filled block: at this
+   saturation a filled cell vibrates against the ground. */
+#workspaces button.active {
+  box-shadow: 0 0 9px 0 rgba(0, 229, 255, 0.40);
+}
+
+/* ACT-NOW, everywhere it can appear. Same treatment in every module, because
+   the whole point of one act-now colour is that it looks identical wherever
+   it turns up. */
+#workspaces button.urgent,
+#cpu.critical,
+#memory.critical,
+#temperature.critical,
+#battery.critical:not(.charging),
+#custom-idle.broken {
+  box-shadow: 0 0 12px 0 rgba(255, 46, 108, 0.45);
+}
+
+/* Attend-soon does NOT glow. It is a colour change and nothing more — the
+   distinction between "look at this when convenient" and "look at this now"
+   is exactly what the second channel is for. */
+#cpu.warning,
+#memory.warning,
+#battery.warning:not(.charging) {
+  box-shadow: none;
+}
+
+/* Transient by definition, so it is allowed to arrive lit. */
+tooltip {
+  box-shadow: 0 0 14px 0 rgba(0, 229, 255, 0.22);
+}
+
+/* --- structure, not colour (2026-08-27) ------------------------------------
+ *
+ * Everything above this line was gruvbox's geometry recoloured: the same wells,
+ * the same padding, the same flat ground, with cyan in place of amber and some
+ * bloom added. That is a skin. This block is the part that makes it a different
+ * object — texture, framing, type and motion, all inside the envelope verified
+ * in 02-stack/gtk-css-envelope.md and none of it available under the premise
+ * this theme was first designed against.
+ */
+
+/* GROUND TEXTURE. Not scanlines — gruvbox-crt owns those, and two themes with
+ * the same texture are one theme. This is a fine vertical rule every 4px: a
+ * data strip, a ruled readout, the surface of something that measures. 0.05
+ * alpha, because at 191 DPI a 4px period is ~3 arcmin and legible texture at
+ * this contrast is the difference between "surface" and "dirt". */
+window#waybar {
+  background-image: repeating-linear-gradient(
+    to right,
+    rgba(0, 229, 255, 0.00) 0px,
+    rgba(0, 229, 255, 0.00) 3px,
+    rgba(0, 229, 255, 0.05) 3px,
+    rgba(0, 229, 255, 0.05) 4px);
+}
+
+/* THE CLOCK IS THE HUD ANCHOR, and it should look like one rather than like a
+ * module that happens to be first. Corner brackets, drawn as four gradient
+ * layers rather than borders, because a border cannot be a corner.
+ *
+ * Support ratio is the thing that decides whether a bracket reads as a bracket
+ * or as four unrelated ticks: Shipley & Kellman 1992 found boundary clarity
+ * tracks the ratio of drawn edge to total edge, and holds across display sizes
+ * when the ratio is held. 14px arms on a roughly 70px-wide well is ~0.4 per
+ * edge — inside the 0.25–0.5 band. This is also why the arms are a fixed length
+ * on a fixed-width element and would be wrong applied to the whole bar. */
+#clock {
+  background-image:
+    linear-gradient(to right,  #00e5ff, #00e5ff),   /* top-left,  horizontal */
+    linear-gradient(to bottom, #00e5ff, #00e5ff),   /* top-left,  vertical   */
+    linear-gradient(to right,  #00e5ff, #00e5ff),   /* bot-right, horizontal */
+    linear-gradient(to bottom, #00e5ff, #00e5ff);   /* bot-right, vertical   */
+  background-size: 14px 2px, 2px 10px, 14px 2px, 2px 10px;
+  background-position: left top, left top, right bottom, right bottom;
+  background-repeat: no-repeat;
+  letter-spacing: 3px;
+  font-weight: bold;
+}
+
+/* WORKSPACES AS A SEGMENTED GAUGE. gruvbox's are tabs in a strip. These are
+ * cells in an instrument: each one carries its own hairline top and bottom so
+ * the row reads as a machined track, and the current cell is the only one lit.
+ * The empty ones drop nearly to the ground — an unused slot is absence, not a
+ * grey button. */
+#workspaces button {
+  border-top: 1px solid #1e2130;
+  border-bottom: 2px solid transparent;
+  padding: 0 14px;
+  transition: color 140ms linear,
+              background 140ms cubic-bezier(0.16, 1.00, 0.30, 1.00);
+}
+
+#workspaces button.empty {
+  color: #232838;
+  border-top-color: #12141d;
+}
+
+/* ACT-NOW PULSES, and this is the biggest single change in the file. GTK3
+ * supports @keyframes and the animation shorthand — verified by parse on 3.24,
+ * and the reason it was never used here is that nobody checked.
+ *
+ * hypr.conf already spends battery deliberately on the borderangle loop, so the
+ * argument against a continuous repaint is already conceded for this theme. But
+ * this one is better behaved than that: it runs ONLY while something is
+ * critical. The steady red it replaces is a colour you stop seeing after the
+ * second glance; a 1.1s pulse is not, and that is the entire job of the state.
+ *
+ * Faster than gruvbox-crt's 1.4s, and it swings further — this theme performs,
+ * and the two alarms should not feel like the same alarm. */
+@keyframes sprawl-alarm {
+  from {
+    background-color: #ff2e6c;
+    box-shadow: 0 0 6px 0 rgba(255, 46, 108, 0.30);
+  }
+  to {
+    background-color: #b3123f;
+    box-shadow: 0 0 20px 0 rgba(255, 46, 108, 0.75);
+  }
+}
+
+#workspaces button.urgent,
+#cpu.critical,
+#memory.critical,
+#temperature.critical,
+#battery.critical:not(.charging),
+#custom-idle.broken {
+  animation: sprawl-alarm 1.1s ease-in-out infinite alternate;
+}
+
+/* MICRO-LABEL TYPE on the instrument strip. Tracking on 14px numerals opens the
+ * readout into signage. Deliberately NOT applied to #window, which is a path
+ * you actually read — tracking helps a glanced label of one or two tokens and
+ * hurts a phrase, and a monospace face loses word cohesion to tracking sooner
+ * than a proportional one because its word space is exactly one advance. */
+#cpu, #memory, #temperature, #battery, #backlight, #wireplumber {
+  letter-spacing: 1px;
+  font-feature-settings: "tnum";
+}
+
+/* The centre line gets the aberration instead — it is the one string on the bar
+ * that is allowed to be an object rather than a value, and a 1px split at this
+ * size reads as fringing on the stroke, which is the intent. */
+#window {
+  text-shadow: 1px 0 rgba(255, 46, 108, 0.40), -1px 0 rgba(0, 229, 255, 0.40);
+}

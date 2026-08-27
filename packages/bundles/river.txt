@@ -137,6 +137,31 @@ xdg-desktop-portal-gtk    # file picker dialogs (already installed, listed for
 # only for a future machine running river with no Plasma underneath.
 qt6ct
 
+# Luv — the icon theme neon-sprawl names in themes/neon-sprawl/icon-theme
+# (ADR-0027). Installs /usr/share/icons/Luv, and THAT is the string gsettings
+# and kdeglobals want: the package name is not the theme name, and a wrong
+# string there fails silently by falling back rather than erroring. Confirmed
+# with `dnf repoquery -l`, not assumed.
+#
+# Chosen over the two other in-repo candidates on 2026-08-27, from `dnf list`
+# rather than from memory. Candy (/usr/share/icons/Candy) is vivid pink/purple
+# gradients on every icon — exactly the "ornament at content weight" failure
+# ADR-0021's grammar exists to prevent; a folder is not more important than the
+# file you are looking for. Papirus is better maintained with far better
+# coverage, but reads as a good neutral dark set rather than a DIFFERENT one
+# from breeze-dark, so it would be a package installed to change nothing.
+#
+# COVERAGE IS THE RISK, not correctness: a sparse icon theme falls through to
+# hicolor and renders generic placeholders. If that bites, the swap is
+# papirus-icon-theme-dark plus a one-line edit to themes/neon-sprawl/icon-theme.
+#
+# No cursor equivalent exists. Fedora 44 packages only adwaita, bluecurve,
+# breeze and oxygen cursors — all neutral, none neon — so themes/*/cursor is
+# deliberately absent and the pointer stays breeze_cursors 24 in both themes.
+# Anything neon would be a hand-installed asset with no update story, which is
+# ADR-0016 territory, on the college machine, for a mouse pointer.
+luv-icon-theme
+
 # --- session prerequisites Plasma happened to supply ------------------
 # These two were listed under "deliberately NOT here" on the grounds that they
 # are "already installed". That was an observation about this machine on this
@@ -152,6 +177,25 @@ polkit-kde
 # because it does not assume a Plasma session is running; see the note in
 # config/river/init.
 gnome-keyring
+
+# The Qt half of the theme switch (ADR-0027). bin/hypr-theme's apply_desktop()
+# calls plasma-apply-colorscheme, plasma-apply-cursortheme and kwriteconfig6 —
+# so Dolphin, Okular, Ark, Gwenview and Plasma itself follow the session theme.
+#
+# Same promotion argument as polkit-kde and gnome-keyring above: "it came with
+# the KDE spin" is an observation about this machine on this day, not a
+# declaration that survives a rebuild. Without these the theme switch does not
+# error — apply_desktop() guards every call with `command -v` — it just silently
+# skips the Qt half, which is the failure shape this repo keeps being bitten by.
+#
+# Package names from `rpm -qf $(command -v …)` on the machine, not from memory:
+# the binaries and the packages that carry them share no name at all.
+#
+# kf6-kconfig is here because Fedora 44 ships no plasma-changeicons (checked
+# with `command -v`), so the KDE half of the icon theme goes in via
+# kwriteconfig6 writing kdeglobals directly.
+plasma-workspace          # plasma-apply-colorscheme, plasma-apply-cursortheme
+kf6-kconfig               # kwriteconfig6 — the icon-theme lever
 
 # --- deliberately NOT here --------------------------------------------
 # kitty, fish, nvim, wl-clipboard, btop, libnotify

@@ -17,7 +17,7 @@
  * icons/, which is what keeps the two themes' assets independent.
  */
 * {
-  font-family: "JetBrains Mono", "Symbols Nerd Font", monospace;
+  font-family: "Adwaita Mono", "Symbols Nerd Font", monospace;
   font-size: 15px;
   box-shadow: none;
   transition: 120ms;
@@ -77,17 +77,31 @@ button:hover {
 #reboot:focus,
 #reboot:hover   { background-image: url("icons/reboot-red.svg"); }
 
-/* --- neon-sprawl structural pass (2026-08-26) -------------------------------
+/* --- neon-sprawl structural pass (2026-08-26, corrected 2026-08-27) ---------
  * The substitution that produced this file kept gruvbox's SHAPE: uniform
  * boxes, uniform borders. These rules come after it and change the shape into
- * something angular — bracket borders rather than frames, a two-hue gradient
- * on the focused button, and a hard chromatic-aberration split on the labels.
+ * something angular — bracket borders rather than frames, a lit focus edge,
+ * and a hard chromatic-aberration split on the labels.
  *
- * Deliberately additive and last: every selector above still exists, so the
- * icon mechanism and the destructive-button colouring are untouched. GTK CSS
- * is last-wins on equal specificity, so these override cleanly.
+ * TWO CORRECTIONS, BOTH FOUND BY RENDERING THE FILE RATHER THAN READING IT.
  *
- * No glow — GTK3 does not render shadow blur. Offsets only.
+ * 1. THE PREVIOUS VERSION SILENTLY DELETED THE RED ICONS. It set
+ *    `background-image: linear-gradient(...)` on `#shutdown:hover`, at exactly
+ *    the same specificity as the `#shutdown:hover { background-image:
+ *    url("icons/shutdown-red.svg") }` rule above it and later in the file — so
+ *    last-wins handed the gradient the win and the red icon never rendered.
+ *    Meanwhile the cyan wash on `button:hover` (specificity 0,1,1) never
+ *    rendered EITHER, because `#lock` and friends (1,0,0) outrank it on the
+ *    very property it wanted. The intent was inverted on all six buttons: the
+ *    wash appeared only where it destroyed an icon. `background-image` is one
+ *    property and the icons have already claimed it — so the focus treatment
+ *    now uses border, shadow and colour, and touches background-image nowhere.
+ *
+ * 2. GLOW IS AVAILABLE. "No glow — GTK3 does not render shadow blur" was
+ *    wrong: blur has rendered since GTK+ 3.6.0, and wlogout 1.2.2 is GTK3.
+ *    Verified by rendering. Per ADR-0021 it is still a budget: the focused
+ *    button blooms because focus is what this menu exists to disambiguate,
+ *    and nothing else on the surface does.
  */
 
 button {
@@ -98,25 +112,144 @@ button {
   text-shadow: 1px 0 rgba(255, 46, 108, 0.45), -1px 0 rgba(0, 229, 255, 0.45);
 }
 
-/* The accent means CURRENT — here, the button under the cursor. Lit left edge
-   and a ground that fades away from it, so focus reads as illumination
-   rather than as a fill. */
+/* The accent means CURRENT — here, the button that fires if you press Enter.
+   Lit left edge plus an inset wash drawn with box-shadow rather than
+   background-image, precisely so the per-button icon survives. */
 button:focus, button:hover {
   border-left: 3px solid #00e5ff;
   border-color: #00e5ff;
   color: #d7e0ff;
-  background-image: linear-gradient(to right,
-                    rgba(0, 229, 255, 0.16) 0%,
-                    rgba(10, 11, 16, 0.88) 70%);
+  box-shadow: inset 0 0 24px 0 rgba(0, 229, 255, 0.14),
+              0 0 14px 0 rgba(0, 229, 255, 0.40);
 }
 
-/* The two that destroy unsaved work keep act-now, and get the hotter edge. */
+/* The two that destroy unsaved work keep act-now, and get the hotter edge.
+   Same mechanism, same reason: no background-image here either, so
+   shutdown-red.svg and reboot-red.svg actually appear. */
 #shutdown:focus, #shutdown:hover,
 #reboot:focus, #reboot:hover {
   border-left: 3px solid #ff2e6c;
   border-color: #ff2e6c;
   color: #ff2e6c;
-  background-image: linear-gradient(to right,
-                    rgba(255, 46, 108, 0.18) 0%,
-                    rgba(10, 11, 16, 0.88) 70%);
+  box-shadow: inset 0 0 24px 0 rgba(255, 46, 108, 0.16),
+              0 0 14px 0 rgba(255, 46, 108, 0.42);
+}
+
+/* --- geometry pass (2026-08-27) --------------------------------------------
+ *
+ * The button GRID is not mine to change: wlogout reads its rows and columns
+ * from ~/.config/wlogout/layout, which is one shared file for both themes and
+ * both sessions, and `wlogout -C` only takes CSS. So every structural liberty
+ * here has to be taken in the stylesheet — which turns out to be most of them,
+ * because margin is per-button and the ids are already there.
+ */
+
+/* THE ROW IS STAGGERED, NOT FLAT. Six identical tiles in a line is a dialog.
+ * Alternating the vertical offset by 14px makes it a strip of switches on a
+ * panel — and it costs nothing but four margin declarations, because #lock
+ * through #shutdown are laid out left to right in the shared layout file.
+ *
+ * The stagger is also doing hierarchy work rather than just being irregular:
+ * the two that destroy unsaved work sit LOWER than their neighbours, out of the
+ * line your eye travels, which is a millisecond of friction in exactly the
+ * place friction is wanted. */
+#lock, #suspend, #reboot {
+  margin-top: 4px;
+  margin-bottom: 26px;
+}
+
+#logout, #hibernate, #shutdown {
+  margin-top: 26px;
+  margin-bottom: 4px;
+}
+
+/* Ground texture, matching the bar's vertical rules rather than gruvbox-crt's
+ * scanlines — same surface, same theme. 4px period, very low alpha: this sits
+ * behind six large tiles and only shows in the gaps between them. */
+window {
+  background-image: repeating-linear-gradient(
+    to right,
+    rgba(0, 229, 255, 0.00) 0px,
+    rgba(0, 229, 255, 0.00) 3px,
+    rgba(0, 229, 255, 0.04) 3px,
+    rgba(0, 229, 255, 0.04) 4px);
+}
+
+/* CORNER MARKS on the two destructive buttons, and only those two. Four
+ * gradient layers each, 18px arms — support ratio well inside the 0.25–0.5 band
+ * Shipley & Kellman found boundary interpolation needs, on a tile this size.
+ *
+ * They are drawn in act-now and they are present AT REST, which is the whole
+ * point: the other four buttons say nothing until you point at them, and these
+ * two are marked before you touch them. That is the one place in this theme
+ * where act-now appears without something being wrong — because "this will
+ * discard what you have open" is a property of the button, not a state.
+ *
+ * background-image is safe to use here in a way it was NOT on the hover rules
+ * above: those collided with the per-button icon at equal specificity and
+ * silently ate it. These are on the resting selector, where #shutdown's own
+ * icon rule lives too — so the icons go in the SAME declaration rather than a
+ * competing one. */
+#shutdown {
+  background-image:
+    url("icons/shutdown.svg"),
+    linear-gradient(to right,  #ff2e6c, #ff2e6c),
+    linear-gradient(to bottom, #ff2e6c, #ff2e6c),
+    linear-gradient(to right,  #ff2e6c, #ff2e6c),
+    linear-gradient(to bottom, #ff2e6c, #ff2e6c);
+  background-size: 38%, 18px 2px, 2px 18px, 18px 2px, 2px 18px;
+  background-position: center 28%, left top, left top, right bottom, right bottom;
+  background-repeat: no-repeat;
+}
+
+#reboot {
+  background-image:
+    url("icons/reboot.svg"),
+    linear-gradient(to right,  #ff2e6c, #ff2e6c),
+    linear-gradient(to bottom, #ff2e6c, #ff2e6c),
+    linear-gradient(to right,  #ff2e6c, #ff2e6c),
+    linear-gradient(to bottom, #ff2e6c, #ff2e6c);
+  background-size: 38%, 18px 2px, 2px 18px, 18px 2px, 2px 18px;
+  background-position: center 28%, left top, left top, right bottom, right bottom;
+  background-repeat: no-repeat;
+}
+
+/* Hover keeps the marks and swaps in the red icon — again in ONE declaration,
+ * so nothing competes for background-image. This is the rule the 2026-08-26
+ * version got wrong twice over. */
+#shutdown:focus, #shutdown:hover {
+  background-image:
+    url("icons/shutdown-red.svg"),
+    linear-gradient(to right,  #ff2e6c, #ff2e6c),
+    linear-gradient(to bottom, #ff2e6c, #ff2e6c),
+    linear-gradient(to right,  #ff2e6c, #ff2e6c),
+    linear-gradient(to bottom, #ff2e6c, #ff2e6c);
+  background-size: 38%, 18px 2px, 2px 18px, 18px 2px, 2px 18px;
+  background-position: center 28%, left top, left top, right bottom, right bottom;
+  background-repeat: no-repeat;
+}
+
+#reboot:focus, #reboot:hover {
+  background-image:
+    url("icons/reboot-red.svg"),
+    linear-gradient(to right,  #ff2e6c, #ff2e6c),
+    linear-gradient(to bottom, #ff2e6c, #ff2e6c),
+    linear-gradient(to right,  #ff2e6c, #ff2e6c),
+    linear-gradient(to bottom, #ff2e6c, #ff2e6c);
+  background-size: 38%, 18px 2px, 2px 18px, 18px 2px, 2px 18px;
+  background-position: center 28%, left top, left top, right bottom, right bottom;
+  background-repeat: no-repeat;
+}
+
+/* Labels as micro-signage: tracked, and one step down in size so the icon
+ * dominates and the word confirms. All-caps is not set here because wlogout's
+ * layout file supplies the label text and GTK3 has no text-transform — that is
+ * a GTK4-only property, so it would parse-error on this surface. The layout
+ * file is shared with gruvbox-crt, so the words stay lowercase in both. */
+button {
+  font-size: 13px;
+  letter-spacing: 3px;
+  transition: border-color 140ms linear,
+              color 140ms linear,
+              box-shadow 200ms cubic-bezier(0.16, 1.00, 0.30, 1.00);
 }
