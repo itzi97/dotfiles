@@ -1,0 +1,178 @@
+#!/usr/bin/env python3
+"""gtk-css-check — parse a GTK stylesheet and report every error, with line numbers.
+
+    gtk-css-check FILE...            # check against both toolkits present
+    gtk-css-check --gtk3 FILE...     # GTK3 only
+    gtk-css-check --gtk4 FILE...     # GTK4 only
+    gtk-css-check -c 'CSS TEXT'
+
+Exit 0 if every file parsed clean on every toolkit asked for, 1 otherwise.
+
+WHY THIS EXISTS. The only way to find out whether a theme stylesheet loads used
+to be to point a daemon at it and watch — which means killing the running
+notification daemon to find out, on the machine that must not fail (principle
+#2). This asks GTK the same question with nothing at stake.
+
+WHICH TOOLKIT MATTERS FOR WHICH FILE. They are not the same parser and they do
+not accept the same properties:
+
+    swaync.css    GTK4   swaync has been GTK4 since v0.12.0
+    swayosd.css   GTK4   SwayOSD has been GTK4 since v0.2.0
+    waybar.css    GTK3   waybar 0.15 is still GTK3
+    wlogout.css   GTK3   wlogout 1.2.2 is still GTK3
+
+Known divergences, so a failure on the "wrong" toolkit is not always a defect:
+`-gtk-icon-effect` and `-gtk-icon-shadow` are GTK3-only, and waybar.css uses
+the first for the tray — a GTK4 complaint about it is expected and correct.
+`text-transform` and a comma-separated `font-feature-settings` list are
+GTK4-only. Full table in 02-stack/gtk-css-envelope.md.
+
+ERROR RECOVERY DIFFERS TOO, which is why "it looked fine" is not evidence. A
+malformed comment in themes/neon-sprawl/swaync.css cost exactly one rule under
+GTK4 and the ENTIRE FILE under GTK3 — and the one rule GTK4 dropped was the
+universal font rule, so the only symptom was notifications in the wrong
+typeface. Nothing errored, nothing crashed, and it shipped.
+
+ONE TOOLKIT PER PROCESS. `gi.require_version` can bind Gtk once and once only:
+asking for 4.0 after 3.0 has loaded raises ValueError. The first version of
+this script called both in sequence, caught that ValueError as "toolkit not
+installed", and therefore checked GTK3 and silently skipped GTK4 every time —
+reporting success on files it had never parsed. Found by noticing that the
+two-toolkit run printed one line where it should print two. So the no-flag
+mode re-execs this file once per toolkit instead; the flagged modes do the
+actual work and never fork.
+"""
+import os
+import subprocess
+import sys
+
+USAGE = __doc__.strip().splitlines()[2:6]
+
+
+def _load(version):
+    """Return a checker for GTK `version`, or None if that toolkit is absent."""
+    try:
+        import gi
+        gi.require_version("Gtk", version)
+        if version == "3.0":
+            from gi.repository import Gtk as G3
+            return ("3", G3, _errs_gtk3)
+        from gi.repository import Gtk as G4
+        return ("4", G4, _errs_gtk4)
+    except (ImportError, ValueError):
+        return None
+
+
+def _errs_gtk3(Gtk, data):
+    errs = []
+
+    def on_err(_p, section, error):
+        try:
+            line = section.get_start_line() + 1
+        except Exception:
+            line = -1
+        errs.append((line, error.message))
+
+    prov = Gtk.CssProvider()
+    prov.connect("parsing-error", on_err)
+    try:
+        prov.load_from_data(data)
+    except Exception:
+        pass          # the first error is re-raised; the signal caught them all
+    return errs, prov
+
+
+def _errs_gtk4(Gtk, data):
+    errs = []
+
+    def on_err(_p, section, error):
+        try:
+            line = section.get_start_location().lines + 1
+        except Exception:
+            line = -1
+        errs.append((line, error.message))
+
+    prov = Gtk.CssProvider()
+    prov.connect("parsing-error", on_err)
+    prov.load_from_data(data)
+    return errs, prov
+
+
+def rule_count(prov):
+    """How many rules actually survived — the number that catches silent loss."""
+    try:
+        dump = prov.to_string()
+    except Exception:
+        return None
+    return sum(1 for l in dump.splitlines() if l and not l.startswith((" ", "}")))
+
+
+def main(argv):
+    want = []
+    args = []
+    for a in argv[1:]:
+        if a == "--gtk3":
+            want.append("3.0")
+        elif a == "--gtk4":
+            want.append("4.0")
+        elif a in ("-h", "--help"):
+            print("\n".join(USAGE))
+            return 0
+        else:
+            args.append(a)
+    # No flag: re-exec once per toolkit, because one process can bind Gtk once.
+    if not want:
+        rc, ran = 0, 0
+        for flag in ("--gtk3", "--gtk4"):
+            child = subprocess.run([sys.executable, os.path.abspath(__file__), flag] + args)
+            if child.returncode == 2:
+                print(f"gtk-css-check: {flag[2:].upper()} not available, skipped",
+                      file=sys.stderr)
+                continue
+            ran += 1
+            rc = rc or child.returncode
+        if ran == 0:
+            print("gtk-css-check: no GTK typelib available "
+                  "(dnf install python3-gobject gtk3 gtk4)", file=sys.stderr)
+            return 2
+        return rc
+
+    toolkits = [t for t in (_load(v) for v in want) if t]
+    if not toolkits:
+        print("gtk-css-check: no GTK typelib available "
+              "(dnf install python3-gobject gtk3 gtk4)", file=sys.stderr)
+        return 2
+
+    if len(args) >= 2 and args[0] == "-c":
+        items = [("<snippet>", args[1].encode())]
+    else:
+        items = []
+        for path in args:
+            try:
+                with open(path, "rb") as fh:
+                    items.append((path, fh.read()))
+            except OSError as exc:
+                print(f"gtk-css-check: {exc}", file=sys.stderr)
+                return 2
+    if not items:
+        print("\n".join(USAGE))
+        return 2
+
+    bad = 0
+    for label, data in items:
+        for ver, Gtk, fn in toolkits:
+            errs, prov = fn(Gtk, data)
+            n = rule_count(prov)
+            head = f"GTK{ver}  {label}"
+            if errs:
+                bad += 1
+                print(f"{head}: {len(errs)} error(s), {n} rule(s) survived")
+                for line, msg in errs:
+                    print(f"    line {line}: {msg}")
+            else:
+                print(f"{head}: clean, {n} rule(s)")
+    return 1 if bad else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

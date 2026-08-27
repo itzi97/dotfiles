@@ -54,6 +54,11 @@
       path: bin/stack-inventory.sh
       mode: 755
 
+    # --- gtk -----------------------------------------------------------
+    ~/.local/bin/gtk-css-check: 
+      path: bin/gtk-css-check
+      mode: 755
+
 - shell:
     - command: git -C "$HOME/.config/nvim" --version >/dev/null 2>&1 || true
       stdout: false

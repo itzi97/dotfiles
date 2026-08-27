@@ -17,11 +17,14 @@
 #                           was unset for weeks while a stray ~/.gitconfig
 #                           quietly supplied it.
 #
-#   shell syntax            a --dry-run that installed seven packages, a sed
+#   script syntax           a --dry-run that installed seven packages, a sed
 #                           whose delimiter appeared in its own pattern, a
 #                           `die` inside a process substitution that killed
 #                           only the subshell. bash -n catches the cheap third
-#                           of that class for free.
+#                           of that class for free. Dispatches on the shebang
+#                           since 2026-08-27 — it ran bash -n on everything,
+#                           and failed the repo's first Python script for being
+#                           Python.
 #
 #   duplicate packages      common.txt is for names identical on both distros.
 #                           Listing something in common AND fedora installs it
@@ -82,13 +85,36 @@ note() { ((QUIET)) || printf '  \033[33mnote\033[0m  %s\n' "$*"; }
 
 clean_list() { sed -e 's/#.*//' -e 's/[[:space:]]*$//' -e '/^$/d' "$1" 2>/dev/null; }
 
-# --------------------------------------------------------------- shell syntax
-hdr "shell syntax"
+# -------------------------------------------------------------- script syntax
+#
+# DISPATCH ON THE SHEBANG. This loop used to run `bash -n` on every file with a
+# shebang, which was correct for as long as every script here was bash. The
+# first Python one (bin/gtk-css-check, 2026-08-27) failed the check on its first
+# run — not a syntax error, just the wrong parser. A check that fails on
+# perfectly good files is worse than no check: it teaches you to read FAIL as
+# noise, which is precisely how the next real one gets waved through.
+#
+# python3 -c 'ast.parse(...)' rather than `python3 -m py_compile`: py_compile
+# writes a __pycache__ directory next to the script, and the header above
+# promises this script never edits anything.
+hdr "script syntax"
 while read -r f; do
   [[ -f "$f" ]] || continue
   head -c2 "$f" | grep -q '^#!' || continue
-  if bash -n "$f" 2>/dev/null; then ok "${f#$BASEDIR/}"
-  else fail "${f#$BASEDIR/} — bash -n reports a syntax error"; fi
+  shebang=$(head -n1 "$f")
+  case "$shebang" in
+    *python*)
+      if python3 -c 'import ast,sys; ast.parse(open(sys.argv[1]).read())' "$f" 2>/dev/null
+      then ok "${f#$BASEDIR/}"
+      else fail "${f#$BASEDIR/} — python3 reports a syntax error"; fi ;;
+    *bash*|*"/bin/sh"*|*"env sh"*)
+      if bash -n "$f" 2>/dev/null; then ok "${f#$BASEDIR/}"
+      else fail "${f#$BASEDIR/} — bash -n reports a syntax error"; fi ;;
+    *)
+      # Named rather than silently skipped: an unrecognised interpreter means
+      # this file is going UNCHECKED, and that should be visible.
+      note "${f#$BASEDIR/} — no syntax check for '${shebang#\#!}'" ;;
+  esac
 done < <(find "$BASEDIR/bin" "$BASEDIR/hooks" "$BASEDIR" -maxdepth 1 -type f 2>/dev/null | sort -u)
 
 # hooks/ is included above deliberately. It was not, until 2026-08-24, and
@@ -299,6 +325,18 @@ provider() {
     notify-send)               echo libnotify ;;
     nvim)                      echo neovim ;;
     fd)                        echo fd-find ;;
+    # The Qt half of the theme switch (ADR-0027). bin/hypr-theme's
+    # apply_desktop() guards all three with `command -v`, so a missing one is
+    # silent — the switch simply skips Dolphin, Okular, Ark and Plasma and
+    # nothing says why. That is exactly the class of failure this section
+    # exists to catch, and it needs BOTH halves: the packages declared in
+    # packages/bundles/river.txt, and these entries so the lookup finds them.
+    # Neither binary shares a name with the package that ships it, which is
+    # this map's whole reason for existing.
+    kwriteconfig6|kwriteconfig5)
+                               echo kf6-kconfig ;;
+    plasma-apply-colorscheme|plasma-apply-cursortheme|plasma-apply-desktoptheme|plasma-changeicons)
+                               echo plasma-workspace ;;
     *)                         echo "$1" ;;
   esac
 }
